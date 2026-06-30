@@ -1,0 +1,41 @@
+/**
+ * Design tokens — АО «Электроконтактор»
+ * STEP-005 · Подключить в frontend/globals.css
+ */
+:root {
+  /* Colors */
+  --color-navy: #0a1628;
+  --color-navy-light: #1a2744;
+  --color-primary: #0066cc;
+  --color-primary-hover: #0052a3;
+  --color-accent: #f59e0b;
+  --color-accent-hover: #d97706;
+  --color-surface: #ffffff;
+  --color-muted: #f4f6f8;
+  --color-border: #e2e8f0;
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+  --color-success: #059669;
+  --color-error: #dc2626;
+
+  /* Typography */
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Manrope', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Layout */
+  --container-max: 1280px;
+  --radius-card: 8px;
+  --radius-button: 6px;
+  --shadow-card: 0 1px 3px rgba(10, 22, 40, 0.08);
+
+  /* Spacing */
+  --section-py: 4rem;
+  --grid-gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --section-py: 2.5rem;
+  }
+}

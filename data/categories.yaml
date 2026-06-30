@@ -1,0 +1,107 @@
+# Категории каталога АО «Электроконтактор»
+# Формат импорта: python manage.py import_categories data/categories.yaml
+# См. TZ.md §5.2
+
+categories:
+  - name: "Контакторы электромагнитные переменного тока (КТ)"
+    slug: kontaktory-kt
+    sort_order: 1
+    meta_title: "Контакторы КТ — купить от производителя | Электроконтактор"
+    meta_description: "Электромагнитные контакторы серии КТ 6000, 6600, 7200. Прямые поставки с завода во Владикавказе. Публичные цены, доставка по РФ."
+    children:
+      - name: "Серия КТ 6000Б (Б/БС)"
+        slug: kt-6000b
+        sort_order: 1
+        description: "Контакторы КТ6012–КТ6053, исполнения Б и БС. Номинальный ток 80–630 А."
+      - name: "Серия КТ 6600 (С)"
+        slug: kt-6600s
+        sort_order: 2
+        description: "Контакторы КТ6612–КТ6663, исполнение С. Номинальный ток 100–1000 А."
+      - name: "Серия КТ 7200У"
+        slug: kt-7200u
+        sort_order: 3
+        description: "Контактор КТ7223 и специальные исполнения серии 7200."
+
+  - name: "Контакторы постоянного тока (КТП)"
+    slug: kontaktory-ktp
+    sort_order: 2
+    meta_title: "Контакторы КТП постоянного тока | Электроконтактор"
+    meta_description: "Контакторы КТП для цепей постоянного тока. Серии 6000, 6600. Производство АО «Электроконтактор»."
+    children:
+      - name: "Серия КТП 6000Б (Б/БС)"
+        slug: ktp-6000b
+        sort_order: 1
+      - name: "Серия КТП 6600"
+        slug: ktp-6600
+        sort_order: 2
+
+  - name: "Контакторы для электротранспорта (КТЭ)"
+    slug: kontaktory-kte
+    sort_order: 3
+    meta_title: "Контакторы КТЭ для троллейбуса и трамвая | Электроконтактор"
+    meta_description: "Контакторы КТЭ 01-25, КТЭ 02-160, КТЭ 02-250 для городского электротранспорта."
+    children:
+      - name: "КТЭ 01-25"
+        slug: kte-01-25
+        sort_order: 1
+      - name: "КТЭ 02-160"
+        slug: kte-02-160
+        sort_order: 2
+      - name: "КТЭ 02-250"
+        slug: kte-02-250
+        sort_order: 3
+
+  - name: "Аксессуары к контакторам"
+    slug: aksessuary-kontaktorov
+    sort_order: 4
+    meta_title: "Аксессуары к контакторам КТ | Электроконтактор"
+    meta_description: "Катушки, механические блокировки, гибкие соединения, блок-контакты для контакторов серии КТ."
+    children:
+      - name: "Катушки управления"
+        slug: katushki-upravleniya
+        sort_order: 1
+      - name: "Механические блокировки"
+        slug: meh-blokirovki
+        sort_order: 2
+      - name: "Гибкие соединения и блок-контакты"
+        slug: gibkie-soedineniya
+        sort_order: 3
+
+  - name: "Выключатели"
+    slug: vyklyuchateli
+    sort_order: 5
+    meta_title: "Выключатели путевые и силовые | Электроконтактор"
+    meta_description: "Выключатели ВПК 3110, ВУ22Т и комплектующие. Производство АО «Электроконтактор»."
+    children:
+      - name: "Выключатели путевые"
+        slug: vyklyuchateli-putevye
+        sort_order: 1
+      - name: "Выключатели силовые"
+        slug: vyklyuchateli-silovye
+        sort_order: 2
+
+  - name: "Кулачковые элементы"
+    slug: kulachkovye-elementy
+    sort_order: 6
+    meta_title: "Кулачковые элементы КЭ, ЭУ | Электроконтактор"
+    meta_description: "Кулачковые элементы КЭ-42, КЭ-46, КЭ-47, ЭУ-1, ЭУ-5 и другие."
+    children:
+      - name: "КЭ серии"
+        slug: ke-serii
+        sort_order: 1
+      - name: "ЭУ серии"
+        slug: eu-serii
+        sort_order: 2
+
+  - name: "Пакетные переключатели"
+    slug: paketnye-pereklyuchateli
+    sort_order: 7
+    meta_title: "Пакетные переключатели ПВП | Электроконтактор"
+    meta_description: "Пакетные переключатели ПВП 17-29, ПВП 17-31. Прямые поставки с завода."
+    children:
+      - name: "ПВП 17-29 (63А)"
+        slug: pvp-17-29
+        sort_order: 1
+      - name: "ПВП 17-31 (100А)"
+        slug: pvp-17-31
+        sort_order: 2
