@@ -1,0 +1,152 @@
+# Production stack — https://www.ekontaktor.ru
+# Скопируйте .env.production.example → .env и заполните секреты.
+# Запуск: docker compose -f docker-compose.prod.yml up -d --build
+# Beget 1–2 ГБ RAM: добавьте -f docker-compose.prod.beget.yml
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ekontaktor}
+      POSTGRES_USER: ${POSTGRES_USER:-ekontaktor}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ekontaktor}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile.prod
+      args:
+        PYTHON_IMAGE: ${PYTHON_IMAGE:-mirror.gcr.io/library/python:3.12-slim}
+    restart: unless-stopped
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py setup_groups &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 120"
+    env_file:
+      - .env
+    environment:
+      RUNNING_IN_DOCKER: "1"
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+      DATABASE_URL: postgres://${POSTGRES_USER:-ekontaktor}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ekontaktor}
+      REDIS_URL: redis://redis:6379/0
+      CORPORATE_DOCS_ROOT: /docs
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/staticfiles
+      - ./docs:/docs:ro
+      - ./data:/data:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile.prod
+      args:
+        PYTHON_IMAGE: ${PYTHON_IMAGE:-mirror.gcr.io/library/python:3.12-slim}
+    restart: unless-stopped
+    command: celery -A config worker -l info --concurrency=2
+    env_file:
+      - .env
+    environment:
+      RUNNING_IN_DOCKER: "1"
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+      DATABASE_URL: postgres://${POSTGRES_USER:-ekontaktor}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ekontaktor}
+      REDIS_URL: redis://redis:6379/0
+      CORPORATE_DOCS_ROOT: /docs
+    volumes:
+      - media_data:/app/media
+      - ./docs:/docs:ro
+      - ./data:/data:ro
+    depends_on:
+      - backend
+      - redis
+
+  celery-beat:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile.prod
+      args:
+        PYTHON_IMAGE: ${PYTHON_IMAGE:-mirror.gcr.io/library/python:3.12-slim}
+    restart: unless-stopped
+    command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    env_file:
+      - .env
+    environment:
+      RUNNING_IN_DOCKER: "1"
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+      DATABASE_URL: postgres://${POSTGRES_USER:-ekontaktor}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ekontaktor}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - backend
+      - redis
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend/Dockerfile.prod
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://www.ekontaktor.ru/api/v1}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://www.ekontaktor.ru}
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      INTERNAL_API_URL: http://backend:8000/api/v1
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://www.ekontaktor.ru/api/v1}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://www.ekontaktor.ru}
+    depends_on:
+      - backend
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - certbot_conf:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+    depends_on:
+      - backend
+      - frontend
+
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - certbot_conf:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+volumes:
+  postgres_data:
+  redis_data:
+  media_data:
+  static_data:
+  certbot_conf:
+  certbot_www:

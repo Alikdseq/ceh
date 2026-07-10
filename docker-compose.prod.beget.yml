@@ -1,0 +1,30 @@
+# Облегчённый production для VPS с 1–2 ГБ RAM (Beget и аналоги).
+# Запуск: docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml up -d --build
+
+services:
+  db:
+    command: postgres -c shared_buffers=64MB -c max_connections=40
+
+  redis:
+    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru
+
+  backend:
+    build:
+      dockerfile: docker/backend/Dockerfile.prod
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py setup_groups &&
+             python manage.py collectstatic --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 1 --threads 2 --timeout 120"
+
+  celery:
+    build:
+      dockerfile: docker/backend/Dockerfile.prod
+    command: celery -A config worker -B -l info --concurrency=1
+
+  celery-beat:
+    profiles: ["disabled"]
+
+  frontend:
+    environment:
+      NODE_OPTIONS: --max-old-space-size=512

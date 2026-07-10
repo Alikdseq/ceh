@@ -1,0 +1,23 @@
+{
+  "name": "Электроконтактор — производитель контакторов",
+  "short_name": "Электроконтактор",
+  "description": "АО «Владикавказский завод «Электроконтактор» — каталог КТ, КТП, КТЭ",
+  "start_url": "/",
+  "display": "standalone",
+  "lang": "ru",
+  "background_color": "#005684",
+  "theme_color": "#0077af",
+  "icons": [
+    {
+      "src": "/photos/logonobag.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

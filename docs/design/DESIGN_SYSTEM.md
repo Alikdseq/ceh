@@ -1,25 +1,25 @@
 # Design System — АО «Электроконтактор»
 
 > **STEP-005** · Phase 0  
-> Основа для Next.js + Tailwind. См. [TZ.md §11](../../TZ.md).
+> Краткая выжимка токенов. **Полная спецификация:** [DESIGN_TZ.md](./DESIGN_TZ.md)  
+> Функциональное ТЗ: [TZ.md §11](../../TZ.md)
 
-## Палитра
+## Палитра (Variant B — Синий + Терракотовый)
 
 | Token | HEX | Использование |
 |---|---|---|
-| `--color-navy` | `#0A1628` | Header, footer, hero background |
-| `--color-navy-light` | `#1A2744` | Cards on dark, hover states |
-| `--color-primary` | `#0066CC` | Links, active filters, secondary CTA |
-| `--color-primary-hover` | `#0052A3` | Hover links |
-| `--color-accent` | `#F59E0B` | **Только** CTA «В заявку», cart badge |
-| `--color-accent-hover` | `#D97706` | Hover CTA |
-| `--color-surface` | `#FFFFFF` | Page background |
-| `--color-muted` | `#F4F6F8` | Section backgrounds, table stripes |
-| `--color-border` | `#E2E8F0` | Borders, dividers |
-| `--color-text` | `#1E293B` | Body text |
-| `--color-text-muted` | `#64748B` | Secondary text, labels |
-| `--color-success` | `#059669` | In stock badge |
-| `--color-error` | `#DC2626` | Validation errors |
+| `--color-brand-blue` | `#0077AF` | Header links, H1–H3, навигация, primary buttons |
+| `--color-brand-blue-light` | `#E5F1F8` | Фон артикула, плашки «Производитель» |
+| `--color-brand-blue-dark` | `#005684` | Header, footer, hero gradient start |
+| `--color-brand-blue-darker` | `#003456` | Hero gradient end |
+| `--color-cta` | `#E87A20` | CTA «В заявку», «Отправить заявку», бейдж «Хит» |
+| `--color-cta-hover` | `#C96815` | Hover CTA |
+| `--color-text-primary` | `#1A2530` | Основной текст, цены |
+| `--color-text-secondary` | `#5A6B7C` | Подписи, артикулы, labels |
+| `--color-bg-light` | `#F6F9FC` | Фон секций |
+| `--color-border-light` | `#DCE4EC` | Рамки карточек, таблицы |
+| `--color-success` | `#2E9B5C` | «В наличии» |
+| `--color-error` | `#DC2626` | Ошибки валидации |
 
 ## Типографика
 
@@ -53,11 +53,12 @@
 
 | Компонент | Вариант | Применение |
 |---|---|---|
-| Button | `default` (primary blue) | «Подробнее», «Сравнить» |
-| Button | `accent` (orange) | «В заявку», «Отправить заявку» |
-| Button | `outline` | «Скачать паспорт» |
-| Badge | `manufacturer` | «Производитель» |
-| Badge | `honest-sign` | «Честный знак» |
+| Button | `default` (brand blue) | «Подробнее», «Применить фильтр», «Скачать чертёж» |
+| Button | `accent` (terracotta) | «В заявку», «Отправить заявку» |
+| Button | `outline` | Синяя обводка, вторичные действия |
+| Badge | `brand` | «Производитель» |
+| Badge | `accent` / `hit` | «Хит продаж», акции |
+| Badge | `neutral` | «Честный знак» |
 | Card | product | Каталог grid |
 | Sheet | — | Mobile filters, mobile nav |
 | Tabs | — | PDP: характеристики / документация |

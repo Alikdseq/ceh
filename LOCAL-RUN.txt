@@ -1,0 +1,225 @@
+================================================================================
+  ЭЛЕКТРОКОНТАКТОР — локальный запуск через Docker
+  Файл: LOCAL-RUN.txt (корень репозитория cehsite)
+================================================================================
+
+Требования
+----------
+  - Docker Desktop (Windows / macOS) или Docker Engine + Compose (Linux)
+  - Порты свободны: 80, 3000, 8000, 5432, 6379, 8025, 9000, 9001
+  - Рабочая директория: корень проекта (где лежит docker-compose.yml)
+
+
+================================================================================
+1. ПЕРВЫЙ ЗАПУСК (один раз)
+================================================================================
+
+Windows (PowerShell):
+  cd C:\cehsite
+  Copy-Item .env.example .env
+
+Linux / macOS:
+  cd /path/to/cehsite
+  cp .env.example .env
+
+Сборка образов и запуск всех сервисов:
+  docker compose up -d --build
+
+Дождаться готовности (1–3 мин при первом запуске):
+  docker compose ps
+
+Проверить логи backend (миграции должны пройти без ошибок):
+  docker compose logs -f backend
+
+Создать суперпользователя для админки:
+  docker compose exec backend python manage.py createsuperuser
+
+Загрузить демо-контент (страницы, настройки сайта):
+  docker compose exec backend python manage.py loaddata fixtures/seed_content.json
+
+Импорт каталога (категории + прайс + поисковый индекс):
+  docker compose exec backend python manage.py import_categories /data/categories.yaml
+  docker compose exec backend python manage.py import_pricelist /data/pricelist.csv
+  docker compose exec backend python manage.py rebuild_search_index
+
+SEO: редиректы и sitemap:
+  docker compose exec backend python manage.py import_redirects /data/redirects.csv
+  docker compose exec backend python manage.py generate_sitemap
+
+Плейсхолдеры изображений товаров (если нет фото):
+  docker compose exec backend python manage.py assign_placeholder_images
+
+
+================================================================================
+2. ЕЖЕДНЕВНЫЙ ЗАПУСК / ОСТАНОВКА
+================================================================================
+
+Запустить всё:
+  docker compose up -d
+
+Остановить (данные в volumes сохраняются):
+  docker compose down
+
+Остановить и удалить volumes (ПОЛНЫЙ сброс БД и media):
+  docker compose down -v
+
+Перезапустить один сервис:
+  docker compose restart backend
+  docker compose restart frontend
+  docker compose restart nginx
+
+Статус контейнеров:
+  docker compose ps
+
+
+================================================================================
+3. АДРЕСА САЙТА (локально)
+================================================================================
+
+  Сайт через Nginx (рекомендуется):     http://localhost
+  Frontend напрямую:                    http://localhost:3000
+  Backend API:                          http://localhost:8000/api/v1/
+  Swagger / OpenAPI:                    http://localhost:8000/api/docs/
+  Админка CMS:                          http://localhost:8000/manage/
+  Админка через Nginx:                  http://localhost/manage/
+  Mailhog (тестовая почта):             http://localhost:8025
+  MinIO console:                        http://localhost:9001  (minioadmin / minioadmin)
+
+
+================================================================================
+4. ЛОГИ И ОТЛАДКА
+================================================================================
+
+Все сервисы:
+  docker compose logs -f
+
+Только backend:
+  docker compose logs -f backend
+
+Только frontend:
+  docker compose logs -f frontend
+
+Celery (письма заявок, фоновые задачи):
+  docker compose logs -f celery
+
+Зайти в shell backend:
+  docker compose exec backend bash
+
+Django shell:
+  docker compose exec backend python manage.py shell
+
+Проверка конфигурации Django:
+  docker compose exec backend python manage.py check
+
+
+================================================================================
+5. ПЕРЕСБОРКА ПОСЛЕ ИЗМЕНЕНИЙ КОДА
+================================================================================
+
+Backend / Celery (Python — hot-reload через volume, обычно достаточно restart):
+  docker compose restart backend celery celery-beat
+
+Frontend (при смене package.json или Dockerfile):
+  docker compose up -d --build frontend
+
+Полная пересборка всех образов:
+  docker compose up -d --build
+
+Пересборка без кэша (если что-то «залипло»):
+  docker compose build --no-cache
+  docker compose up -d
+
+
+================================================================================
+6. МИГРАЦИИ И БД
+================================================================================
+
+Применить миграции:
+  docker compose exec backend python manage.py migrate
+
+Создать миграции (после изменения models):
+  docker compose exec backend python manage.py makemigrations
+
+Сбросить только данные каталога и залить заново:
+  docker compose exec backend python manage.py import_categories /data/categories.yaml
+  docker compose exec backend python manage.py import_pricelist /data/pricelist.csv
+  docker compose exec backend python manage.py rebuild_search_index
+
+
+================================================================================
+7. ТЕСТЫ (локально через Docker)
+================================================================================
+
+Backend pytest:
+  docker compose exec backend pytest -v
+
+Backend — один файл:
+  docker compose exec backend pytest apps/seo/tests/ -v
+
+Frontend vitest (на хосте, нужен Node 20+):
+  cd frontend
+  npm ci
+  npm run test
+
+Frontend production build (на хосте):
+  cd frontend
+  npm run build
+
+
+================================================================================
+8. БЫСТРЫЙ ЧЕКЛИСТ «ВСЁ ПОДНЯТО»
+================================================================================
+
+  [ ] docker compose ps — все сервисы Up / healthy
+  [ ] http://localhost/catalog/ — каталог открывается
+  [ ] http://localhost:8000/api/v1/categories/ — JSON с категориями
+  [ ] http://localhost/sitemap.xml — XML sitemap
+  [ ] http://localhost:8025 — Mailhog UI
+  [ ] Заявка из корзины → письмо видно в Mailhog
+
+
+================================================================================
+9. ЧАСТЫЕ ПРОБЛЕМЫ
+================================================================================
+
+Порт 80 занят (IIS, Skype, другой nginx):
+  - Остановите конфликтующий сервис, или
+  - В docker-compose.yml у nginx смените "80:80" на "8080:80"
+    и открывайте http://localhost:8080
+
+Файл .env отсутствует:
+  Copy-Item .env.example .env   (Windows)
+  cp .env.example .env        (Linux/macOS)
+
+Backend не стартует — нет связи с Postgres:
+  docker compose logs db
+  docker compose restart db backend
+
+Backend не собирается — timeout python:3.12-slim (Docker Hub):
+  - В .env уже задано: PYTHON_IMAGE=mirror.gcr.io/library/python:3.12-slim
+  - Или вручную: docker pull mirror.gcr.io/library/python:3.12-slim
+  - Затем: docker compose up -d --build
+
+Frontend «не видит» API:
+  - В .env: NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+  - INTERNAL_API_URL=http://backend:8000/api/v1  (для SSR внутри Docker)
+  docker compose restart frontend
+
+Пустой каталог:
+  Выполните блок «Импорт каталога» из раздела 1.
+
+
+================================================================================
+10. КРАТКАЯ ШПАРГАЛКА (копировать одной строкой)
+================================================================================
+
+Первый раз:
+  cp .env.example .env && docker compose up -d --build && docker compose exec backend python manage.py createsuperuser && docker compose exec backend python manage.py loaddata fixtures/seed_content.json && docker compose exec backend python manage.py import_categories /data/categories.yaml && docker compose exec backend python manage.py import_pricelist /data/pricelist.csv && docker compose exec backend python manage.py rebuild_search_index && docker compose exec backend python manage.py import_redirects /data/redirects.csv
+
+Каждый день:
+  docker compose up -d
+
+Стоп:
+  docker compose down
+
+================================================================================

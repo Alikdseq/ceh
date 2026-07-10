@@ -1,0 +1,248 @@
+@import "tailwindcss" source(none);
+@source "../app/**/*.{js,ts,jsx,tsx}";
+@source "../components/**/*.{js,ts,jsx,tsx}";
+@source "../lib/**/*.{js,ts,tsx}";
+@source "../hooks/**/*.{js,ts,tsx}";
+@source not "../app/dev/**";
+
+:root {
+  /* Variant B — Синий + Терракотовый (TZ §11) */
+  --color-brand-blue: #0077af;
+  --color-brand-blue-light: #e5f1f8;
+  --color-brand-blue-dark: #005684;
+  --color-brand-blue-darker: #003456;
+  --color-cta: #e87a20;
+  --color-cta-hover: #c96815;
+  --color-text-primary: #1a2530;
+  --color-text-secondary: #5a6b7c;
+  --color-bg-light: #f6f9fc;
+  --color-border-light: #dce4ec;
+  --color-success: #2e9b5c;
+  --color-error: #dc2626;
+
+  /* Semantic aliases (used across components) */
+  --color-navy: var(--color-brand-blue-dark);
+  --color-navy-light: var(--color-brand-blue-darker);
+  --color-primary: var(--color-brand-blue);
+  --color-primary-hover: var(--color-brand-blue-dark);
+  --color-accent: var(--color-cta);
+  --color-accent-hover: var(--color-cta-hover);
+  --color-surface: #ffffff;
+  --color-muted: var(--color-bg-light);
+  --color-border: var(--color-border-light);
+  --color-text: var(--color-text-primary);
+  --color-text-muted: var(--color-text-secondary);
+
+  /* shadcn/ui semantic tokens */
+  --background: var(--color-surface);
+  --foreground: var(--color-text);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-brand-blue);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-muted);
+  --secondary-foreground: var(--color-text);
+  --muted: var(--color-muted);
+  --muted-foreground: var(--color-text-muted);
+  --accent: var(--color-brand-blue-light);
+  --accent-foreground: var(--color-brand-blue);
+  --destructive: var(--color-error);
+  --destructive-foreground: #ffffff;
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-brand-blue);
+  --radius: 0.5rem;
+
+  /* Fixed header offset (mobile: 1 row; lg+: 2 rows) */
+  --site-header-height: 3.25rem;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --site-header-height: 6.5rem;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-navy: var(--color-navy);
+  --color-brand-blue: var(--color-brand-blue);
+  --color-brand-blue-light: var(--color-brand-blue-light);
+  --color-brand-blue-dark: var(--color-brand-blue-dark);
+  --color-brand-blue-darker: var(--color-brand-blue-darker);
+  --color-brand-orange: var(--color-cta);
+  --color-brand-accent: var(--color-cta);
+  --color-success: var(--color-success);
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+  --font-sans: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-display: var(--font-manrope), "Manrope", system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--color-brand-blue);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* a11y */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only:focus,
+.sr-only:focus-visible {
+  position: absolute;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  z-index: 100;
+  background: white;
+  color: var(--color-text);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes zoom-in-95 {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slide-in-from-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-out-to-right {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
+.data-\[state\=open\]\:animate-in[data-state="open"] {
+  animation: fade-in 0.2s ease-out, zoom-in-95 0.2s ease-out;
+}
+
+.data-\[state\=closed\]\:animate-out[data-state="closed"] {
+  animation: fade-in 0.15s ease-in reverse;
+}
+
+[data-state="open"].slide-in-from-right {
+  animation: slide-in-from-right 0.3s ease-out;
+}
+
+[data-state="closed"].slide-out-to-right {
+  animation: slide-out-to-right 0.3s ease-in;
+}
+
+/* Radix Dialog: tailwindcss-animate is not installed — hide closed overlays/content */
+[role="dialog"][data-state="closed"] {
+  display: none !important;
+}
+
+.fixed.inset-0[data-state="closed"] {
+  display: none !important;
+}
+
+.container-page {
+  @apply mx-auto w-full max-w-[1280px] min-w-0 px-4;
+}
+
+.section-py {
+  @apply py-12 md:py-16;
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, var(--color-brand-blue-dark) 0%, var(--color-brand-blue-darker) 100%);
+}
+
+/* Hero product — 3D stage with professional drop shadow */
+.hero-product-stage {
+  position: relative;
+  perspective: 1400px;
+  padding: 0.5rem 0 2.5rem;
+}
+
+.hero-product-shadow {
+  position: absolute;
+  bottom: 6%;
+  left: 50%;
+  z-index: 0;
+  width: 78%;
+  height: 20%;
+  transform: translateX(-50%) rotateX(78deg);
+  background: radial-gradient(ellipse, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 72%);
+  filter: blur(14px);
+  pointer-events: none;
+}
+
+.hero-product-3d {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  transform: rotateY(-11deg) rotateX(4deg) translateZ(28px);
+  filter:
+    drop-shadow(0 36px 52px rgba(0, 0, 0, 0.52))
+    drop-shadow(0 14px 28px rgba(0, 0, 0, 0.38))
+    drop-shadow(-10px 10px 20px rgba(0, 0, 0, 0.22));
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (min-width: 1024px) {
+  .hero-product-stage:hover .hero-product-3d {
+    transform: rotateY(-6deg) rotateX(2deg) translateZ(40px) scale(1.03);
+  }
+}

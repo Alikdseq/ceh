@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>Заказ звонка</title></head>
+<body>
+  <h2>Заказ обратного звонка</h2>
+  <p><strong>ФИО:</strong> {{ lead.name }}</p>
+  <p><strong>Телефон:</strong> {{ lead.phone }}</p>
+  {% if lead.preferred_time %}<p><strong>Удобное время:</strong> {{ lead.preferred_time }}</p>{% endif %}
+  <p><small>IP: {{ lead.ip }} · {{ lead.created_at }}</small></p>
+</body>
+</html>

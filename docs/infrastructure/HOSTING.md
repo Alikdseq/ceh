@@ -17,16 +17,18 @@
 
 | Окружение | Домен | Назначение | Статус |
 |---|---|---|---|
-| Production | `ekontaktor.ru` | Основной сайт | ⚠️ Требует подтверждения |
+| Production | `www.ekontaktor.ru` | Основной сайт (канонический) | ✅ Настроено |
+| Production | `ekontaktor.ru` | Редirect → www | ✅ Nginx |
 | Staging | `staging.ekontaktor.ru` | Тестирование перед релизом | 📋 Запланировано |
-| Admin | `ekontaktor.ru/manage/` | CMS (нестандартный URL) | — |
+| Admin | `www.ekontaktor.ru/manage/` | CMS | — |
 
 ## DNS-записи (шаблон)
 
 ```
 # Production
 ekontaktor.ru.          A      <PROD_IP>
-www.ekontaktor.ru.      CNAME  ekontaktor.ru.
+www.ekontaktor.ru.      A      <PROD_IP>
+# или: www.ekontaktor.ru.  CNAME  ekontaktor.ru.
 
 # Staging
 staging.ekontaktor.ru.  A      <STAGING_IP>

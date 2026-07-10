@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>Подтверждение подписки</title></head>
+<body style="font-family:Arial,sans-serif;line-height:1.6;color:#222;">
+  <h2>Подтвердите подписку</h2>
+  <p>Здравствуйте{% if subscriber.name %}, {{ subscriber.name }}{% endif %}!</p>
+  <p>Вы подписались на новости АО «Электроконтактор». Нажмите кнопку ниже, чтобы подтвердить email:</p>
+  <p><a href="{{ confirm_url }}" style="display:inline-block;padding:12px 24px;background:#0066cc;color:#fff;text-decoration:none;border-radius:4px;">Подтвердить подписку</a></p>
+  <p style="font-size:12px;color:#666;">Если вы не запрашивали подписку, просто проигнорируйте это письмо.</p>
+</body>
+</html>

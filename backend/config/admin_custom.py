@@ -1,0 +1,3 @@
+from config.admin_registry import hide_unneeded_admin_models
+
+hide_unneeded_admin_models()

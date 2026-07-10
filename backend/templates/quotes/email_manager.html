@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Заявка {{ quote.number }}</title>
+  <style>
+    body { font-family: Arial, sans-serif; color: #222; line-height: 1.5; }
+    h1 { font-size: 18px; margin-bottom: 8px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 16px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; font-size: 13px; }
+    th { background: #f5f5f5; }
+    .muted { color: #666; font-size: 12px; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Заявка № {{ quote.number }}</h1>
+  <p>Дата: {{ quote.created_at|date:"d.m.Y H:i" }} (MSK)</p>
+
+  <h2>Клиент</h2>
+  <p>
+    <strong>ФИО:</strong> {{ quote.contact_name }}<br>
+    <strong>Компания:</strong> {{ quote.company_name }}<br>
+    {% if quote.inn %}<strong>ИНН:</strong> {{ quote.inn }}<br>{% endif %}
+    <strong>Email:</strong> {{ quote.email }}<br>
+    <strong>Телефон:</strong> {{ quote.phone }}<br>
+    {% if quote.city %}<strong>Город:</strong> {{ quote.city }}<br>{% endif %}
+  </p>
+
+  <h2>Спецификация</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>№</th>
+        <th>Артикул</th>
+        <th>Наименование</th>
+        <th>Цена, ₽</th>
+        <th>Кол-во</th>
+        <th>Сумма, ₽</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in quote.items.all %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ item.sku_code }}</td>
+        <td>{{ item.product_name }}</td>
+        <td>{{ item.unit_price }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.line_total }}</td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td colspan="5" style="text-align:right;"><strong>ИТОГО:</strong></td>
+        <td><strong>{{ quote.subtotal }}</strong></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p class="muted">Цены указаны с НДС. Не являются публичной офертой.</p>
+  {% if quote.comment %}
+  <p><strong>Комментарий клиента:</strong> {{ quote.comment }}</p>
+  {% endif %}
+  {% if quote.utm_campaign %}
+  <p class="muted">Источник: website / utm_campaign={{ quote.utm_campaign }}</p>
+  {% endif %}
+</body>
+</html>

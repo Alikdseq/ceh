@@ -1,0 +1,40 @@
+# Git & IDE
+.git
+.github
+.cursor
+**/.vscode
+
+# Frontend — heavy dev artifacts (keep public/tovar photos)
+frontend/node_modules
+frontend/.next
+frontend/out
+frontend/coverage
+frontend/.vercel
+frontend/playwright-report
+frontend/test-results
+
+# Backend — caches & local venv
+backend/**/__pycache__
+backend/.pytest_cache
+backend/.mypy_cache
+backend/.venv
+backend/venv
+backend/db.sqlite3
+**/*.pyc
+**/*.pyo
+
+# Local env & secrets
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Docs / data not needed in images
+data/
+docs/
+*.md
+!backend/**/README.md
+
+# OS junk
+.DS_Store
+Thumbs.db

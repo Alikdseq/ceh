@@ -1,0 +1,54 @@
+name: Deploy Staging
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run backend tests
+        env:
+          DATABASE_URL: postgres://ekontaktor:ekontaktor@localhost:5432/ekontaktor
+          REDIS_URL: redis://localhost:6379/0
+          DJANGO_SETTINGS_MODULE: config.settings.dev
+          SECRET_KEY: ci-test-secret
+        run: |
+          pip install -r backend/requirements/dev.txt
+          cd backend && python manage.py migrate --noinput && pytest -q
+
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: ${{ vars.STAGING_API_URL || 'https://staging.ekontaktor.ru/api/v1' }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.STAGING_SITE_URL || 'https://staging.ekontaktor.ru' }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy via SSH
+        if: ${{ secrets.STAGING_SSH_HOST != '' }}
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.STAGING_SSH_HOST }}
+          username: ${{ secrets.STAGING_SSH_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /opt/ekontaktor
+            git pull origin develop
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --build
+            docker compose -f docker-compose.prod.yml exec -T backend python manage.py migrate --noinput
+            docker compose -f docker-compose.prod.yml exec -T backend python manage.py import_redirects data/redirects.csv
+
+      - name: Smoke tests
+        if: ${{ vars.STAGING_SITE_URL != '' }}
+        run: |
+          curl -fsS "${{ vars.STAGING_SITE_URL }}/catalog/" -o /dev/null
+          curl -fsS "${{ vars.STAGING_SITE_URL }}/api/v1/categories/" -o /dev/null
+          curl -fsS "${{ vars.STAGING_SITE_URL }}/sitemap.xml" -o /dev/null

@@ -8,6 +8,7 @@ venv/
 *.sqlite3
 backend/media/
 backend/staticfiles/
+backend/db.sqlite3
 
 # Node
 node_modules/
@@ -26,6 +27,10 @@ frontend/out/
 # OS
 .DS_Store
 Thumbs.db
+
+# Temp / debug dumps (не коммитить)
+tmp-*
+*.tmp.html
 
 # Secrets
 .env.local

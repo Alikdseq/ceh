@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>Обращение</title></head>
+<body>
+  <h2>Новое обращение с сайта</h2>
+  <p><strong>ФИО:</strong> {{ lead.name }}</p>
+  <p><strong>Email:</strong> {{ lead.email }}</p>
+  {% if lead.phone %}<p><strong>Телефон:</strong> {{ lead.phone }}</p>{% endif %}
+  <p><strong>Сообщение:</strong></p>
+  <p>{{ lead.message|linebreaksbr }}</p>
+  <p><small>IP: {{ lead.ip }} · {{ lead.created_at }}</small></p>
+</body>
+</html>

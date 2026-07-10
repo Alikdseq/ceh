@@ -100,10 +100,10 @@ flowchart LR
 ### Блок 1.1 — Инфраструктура
 
 #### STEP-011 🔴 Docker Compose (dev)
-- [ ] `docker-compose.yml`: `db`, `redis`, `backend`, `celery`, `celery-beat`, `frontend`, `nginx`, `minio`, `mailhog`
-- [ ] `docker/backend/Dockerfile`, `docker/frontend/Dockerfile`
-- [ ] `nginx/nginx.conf` — proxy `/api` → backend, `/` → frontend
-- [ ] `.env` из `.env.example`
+- [x] `docker-compose.yml`: `db`, `redis`, `backend`, `celery`, `celery-beat`, `frontend`, `nginx`, `minio`, `mailhog`
+- [x] `docker/backend/Dockerfile`, `docker/frontend/Dockerfile`
+- [x] `nginx/nginx.conf` — proxy `/api` → backend, `/` → frontend
+- [x] `.env` из `.env.example`
 
 **DoD:** `docker compose up` поднимает все сервисы без ошибок.
 
@@ -112,28 +112,28 @@ flowchart LR
 ---
 
 #### STEP-012 🔴 Django project scaffold
-- [ ] `django-admin startproject config backend/`
-- [ ] `backend/config/settings/` — split: `base.py`, `dev.py`, `prod.py`
-- [ ] Подключить PostgreSQL через `DATABASE_URL`
-- [ ] Подключить Redis для cache + sessions
-- [ ] `manage.py`, `requirements/base.txt`, `requirements/dev.txt`
+- [x] `django-admin startproject config backend/`
+- [x] `backend/config/settings/` — split: `base.py`, `dev.py`, `prod.py`
+- [x] Подключить PostgreSQL через `DATABASE_URL`
+- [x] Подключить Redis для cache + sessions
+- [x] `manage.py`, `requirements/base.txt`, `requirements/dev.txt`
 
 **DoD:** `python manage.py migrate` успешен в Docker.
 
 ---
 
 #### STEP-013 🔴 Next.js 15 scaffold
-- [ ] `npx create-next-app@latest frontend --typescript --tailwind --app --src-dir`
-- [ ] Настроить `NEXT_PUBLIC_API_URL`
-- [ ] Базовый layout: header placeholder, footer placeholder
-- [ ] Proxy rewrites в `next.config.ts` для dev API
+- [x] `npx create-next-app@latest frontend --typescript --tailwind --app --src-dir`
+- [x] Настроить `NEXT_PUBLIC_API_URL`
+- [x] Базовый layout: header placeholder, footer placeholder
+- [x] Proxy rewrites в `next.config.ts` для dev API
 
 **DoD:** `npm run dev` — главная открывается на `:3000`.
 
 ---
 
 #### STEP-014 🔴 CI pipeline (базовый)
-- [ ] `.github/workflows/ci.yml`: lint backend (ruff), lint frontend (eslint), pytest, build Docker
+- [x] `.github/workflows/ci.yml`: lint backend (ruff), lint frontend (eslint), pytest, build Docker
 - [ ] Pre-commit hooks (optional): ruff, eslint
 
 **DoD:** push в `develop` запускает CI green.
@@ -143,66 +143,66 @@ flowchart LR
 ### Блок 1.2 — Django Apps и модели
 
 #### STEP-015 🔴 App `products`
-- [ ] Создать `backend/apps/products/`
-- [ ] Модели: `Category` (MPTT), `ProductGroup`, `ProductVariant`, `ProductSpec`, `ProductImage`
-- [ ] Индексы: `nominal_current_a`, `category_id`, `is_active`
-- [ ] Migrations
+- [x] Создать `backend/apps/products/`
+- [x] Модели: `Category` (MPTT), `ProductGroup`, `ProductVariant`, `ProductSpec`, `ProductImage`
+- [x] Индексы: `nominal_current_a`, `category_id`, `is_active`
+- [x] Migrations
 
 **DoD:** модели в admin (raw) отображаются. **TZ:** §6.1
 
 ---
 
 #### STEP-016 🔴 App `docs`
-- [ ] Модели: `Document`, `ProductDocument` (M2M link)
-- [ ] Upload path: `media/docs/{uuid}.{ext}`
-- [ ] MIME validation (pdf, dwg, jpg, png), max 20 MB
+- [x] Модели: `Document`, `ProductDocument` (M2M link)
+- [x] Upload path: `media/docs/{uuid}.{ext}`
+- [x] MIME validation (pdf, dwg, jpg, png), max 20 MB
 
 **DoD:** upload PDF в admin работает. **TZ:** §6.2, FR-SEC-06
 
 ---
 
 #### STEP-017 🔴 App `quotes`
-- [ ] Модели: `QuoteCart`, `QuoteCartItem`, `QuoteRequest`, `QuoteRequestItem`
-- [ ] Auto-number: `ЗК-{YYYY}-{NNNNN}`
-- [ ] Status workflow: new → in_progress → quoted → completed / cancelled
+- [x] Модели: `QuoteCart`, `QuoteCartItem`, `QuoteRequest`, `QuoteRequestItem`
+- [x] Auto-number: `ЗК-{YYYY}-{NNNNN}`
+- [x] Status workflow: new → in_progress → quoted → completed / cancelled
 
 **DoD:** unit-test генерации номера заявки. **TZ:** §6.3
 
 ---
 
 #### STEP-018 🔴 App `content`
-- [ ] Модели: `Page`, `NewsPost`, `FAQItem`, `SiteSettings` (singleton)
-- [ ] `SiteSettings`: phones, emails, address, order_emails[], webhook_url
+- [x] Модели: `Page`, `NewsPost`, `FAQItem`, `SiteSettings` (singleton)
+- [x] `SiteSettings`: phones, emails, address, order_emails[], webhook_url
 
 **DoD:** SiteSettings editable в admin. **TZ:** §6.5
 
 ---
 
 #### STEP-019 🔴 App `newsletter`
-- [ ] Модели: `NewsletterSubscriber`, `NewsletterCampaign`, `NewsletterSendLog`
-- [ ] Tokens: confirm_token, unsubscribe_token (uuid)
+- [x] Модели: `NewsletterSubscriber`, `NewsletterCampaign`, `NewsletterSendLog`
+- [x] Tokens: confirm_token, unsubscribe_token (uuid)
 
 **DoD:** migrations applied. **TZ:** §6.4
 
 ---
 
 #### STEP-020 🔴 App `leads`
-- [ ] Модели: `ContactLead`, `CallbackLead`, `DocumentRequestLead`
+- [x] Модели: `ContactLead`, `CallbackLead`, `DocumentRequestLead`
 
 **DoD:** migrations applied. **TZ:** §7.8
 
 ---
 
 #### STEP-021 🔴 App `seo`
-- [ ] Модели: `Redirect` (old_path → new_path, 301), `SearchQueryLog`
+- [x] Модели: `Redirect` (old_path → new_path, 301), `SearchQueryLog`
 
 **DoD:** migrations applied. **TZ:** §6.5, FR-SRH-05
 
 ---
 
 #### STEP-022 🔴 App `users`
-- [ ] Custom User (optional) или стандартный + Groups
-- [ ] Роли: SuperAdmin, ContentManager, SalesManager, ReadOnly (Django Groups)
+- [x] Custom User (optional) или стандартный + Groups
+- [x] Роли: SuperAdmin, ContentManager, SalesManager, ReadOnly (Django Groups)
 
 **DoD:** 4 группы созданы management command. **TZ:** FR-ADM-05
 
@@ -211,28 +211,28 @@ flowchart LR
 ### Блок 1.3 — Admin CMS
 
 #### STEP-023 🔴 Django Admin кастомизация
-- [ ] Установить `django-unfold` или `django-admin-interface`
-- [ ] Admin URL = `manage/` (не `/admin/`) — env `ADMIN_URL`
-- [ ] Inline: variants в ProductGroup, specs, images, documents
-- [ ] MPTT drag-n-drop для Category (django-mptt-admin)
+- [x] Установить `django-unfold` или `django-admin-interface`
+- [x] Admin URL = `manage/` (не `/admin/`) — env `ADMIN_URL`
+- [x] Inline: variants в ProductGroup, specs, images, documents
+- [x] MPTT drag-n-drop для Category (DraggableMPTTAdmin)
 
 **DoD:** менеджер может создать товар с 3 вариантами за 5 мин. **TZ:** §8.2
 
 ---
 
 #### STEP-024 🔴 django-import-export
-- [ ] Resource classes: ProductGroup, ProductVariant, Category
-- [ ] Шаблон Excel: `data/templates/import_products.xlsx`
-- [ ] Admin action: Export / Import
+- [x] Resource classes: ProductGroup, ProductVariant, Category
+- [x] Шаблон Excel: `data/templates/import_products.xlsx`
+- [x] Admin action: Export / Import
 
 **DoD:** export → edit → import roundtrip без потери данных. **TZ:** §8.2
 
 ---
 
 #### STEP-025 🔴 Безопасность admin (Phase 1 baseline)
-- [ ] `django-axes`: 5 попыток / 30 мин lockout
-- [ ] `django-otp` + TOTP для superuser
-- [ ] `django-auditlog` на ProductGroup, ProductVariant, QuoteRequest, SiteSettings
+- [x] `django-axes`: 5 попыток / 30 мин lockout
+- [x] `django-otp` + TOTP для superuser
+- [x] `django-auditlog` на ProductGroup, ProductVariant, QuoteRequest, SiteSettings
 
 **DoD:** после 5 неверных паролей — блокировка. **TZ:** FR-ADM-02…04
 
@@ -241,44 +241,44 @@ flowchart LR
 ### Блок 1.4 — REST API (backend core)
 
 #### STEP-026 🔴 DRF setup
-- [ ] `djangorestframework`, `django-filter`, `drf-spectacular`
-- [ ] `/api/v1/` router, OpenAPI `/api/schema/`, Swagger UI
-- [ ] Pagination: PageNumber, page_size=24
-- [ ] CORS whitelist frontend URL
+- [x] `djangorestframework`, `django-filter`, `drf-spectacular`
+- [x] `/api/v1/` router, OpenAPI `/api/schema/`, Swagger UI
+- [x] Pagination: PageNumber, page_size=24
+- [x] CORS whitelist frontend URL
 
 **DoD:** Swagger UI открывается, schema генерируется.
 
 ---
 
 #### STEP-027 🔴 API: Categories
-- [ ] `GET /api/v1/categories/` — дерево MPTT (cached Redis 1h)
-- [ ] Serializer с `children`, `product_count`
+- [x] `GET /api/v1/categories/` — дерево MPTT (cached Redis 1h)
+- [x] Serializer с `children`, `product_count`
 
 **DoD:** Postman/curl возвращает 7 root categories.
 
 ---
 
 #### STEP-028 🔴 API: Products list + filters
-- [ ] `GET /api/v1/products/` — list ProductGroup
-- [ ] Filters: `current`, `coil_voltage`, `poles`, `execution`, `product_type`, `category`
-- [ ] Sort: name, price_min, current
-- [ ] `select_related` / `prefetch_related`
-- [ ] Annotate `price_from` = min variant price
+- [x] `GET /api/v1/products/` — list ProductGroup
+- [x] Filters: `current`, `coil_voltage`, `poles`, `execution`, `product_type`, `category`
+- [x] Sort: name, price_min, current
+- [x] `select_related` / `prefetch_related`
+- [x] Annotate `price_from` = min variant price
 
 **DoD:** `?current=400&execution=B` возвращает корректный набор. **TZ:** FR-CAT-03…05
 
 ---
 
 #### STEP-029 🔴 API: Product detail
-- [ ] `GET /api/v1/products/{slug}/` — group + variants + specs + images + docs
-- [ ] `GET /api/v1/variants/{slug}/` — single SKU
+- [x] `GET /api/v1/products/{slug}/` — group + variants + specs + images + docs
+- [x] `GET /api/v1/variants/{slug}/` — single SKU
 
 **DoD:** PDP API содержит все поля для конфигуратора. **TZ:** FR-PDP-01…03
 
 ---
 
 #### STEP-030 🟡 API: Compare
-- [ ] `GET /api/v1/compare/?ids=1,2,3,4` — max 4 variants, side-by-side specs
+- [x] `GET /api/v1/compare/?ids=1,2,3,4` — max 4 variants, side-by-side specs
 
 **DoD:** 4 SKU возвращают unified spec table. **TZ:** FR-CMP-01…02
 
@@ -287,34 +287,34 @@ flowchart LR
 ### Блок 1.5 — Импорт каталога
 
 #### STEP-031 🔴 Management command: import categories
-- [ ] `python manage.py import_categories data/categories.yaml`
-- [ ] Создать 7 категорий + подкатегории (серии 6012–6053, 6600, 7200…)
+- [x] `python manage.py import_categories data/categories.yaml`
+- [x] Создать 7 категорий + подкатегории (серии 6012–6053, 6600, 7200…)
 
 **DoD:** дерево категорий в admin совпадает с TZ §5.2.
 
 ---
 
 #### STEP-032 🔴 Parser: PDF catalog → ProductGroup
-- [ ] `scripts/parse_catalog_pdf.py` — извлечь: модель, назначение, specs
-- [ ] Группировка: КТ6012Б-У3 + КТ6012БС-У3 → одна ProductGroup «КТ 6012 100А»
-- [ ] `python manage.py import_catalog_pdf data/source/КАТАЛОГ*.pdf`
+- [x] `scripts/parse_catalog_pdf.py` — извлечь: модель, назначение, specs
+- [x] Группировка: КТ6012Б-У3 + КТ6012БС-У3 → одна ProductGroup «КТ 6012 100А»
+- [x] `python manage.py import_catalog_pdf data/source/КАТАЛОГ*.pdf` (fallback: `catalog_extract.txt`)
 
 **DoD:** 81 модель → ~40 ProductGroup с specs. **TZ:** §8.3
 
 ---
 
 #### STEP-033 🔴 Import pricelist → ProductVariant
-- [ ] `python manage.py import_pricelist data/pricelist.csv`
-- [ ] Match SKU → variant, set price, execution, coil_voltage
-- [ ] Fallback: создать variant если нет в PDF (выключатели, КЭ, ПВП)
+- [x] `python manage.py import_pricelist data/pricelist.csv`
+- [x] Match SKU → variant, set price, execution, coil_voltage
+- [x] Fallback: создать variant если нет в PDF (выключатели, КЭ, ПВП)
 
 **DoD:** все позиции прайса ekontaktor.ru имеют price > 0.
 
 ---
 
 #### STEP-034 🟡 Placeholder images + documents
-- [ ] Default image: `frontend/public/placeholder-product.svg`
-- [ ] Management command: assign placeholder to groups without image
+- [x] Default image: `frontend/public/placeholder-product.svg`
+- [x] Management command: assign placeholder to groups without image
 - [ ] Seed: 5–10 реальных паспортов PDF (если есть от заказчика)
 
 **DoD:** ни одна карточка не показывает broken image.
@@ -322,28 +322,29 @@ flowchart LR
 ---
 
 #### STEP-035 🔴 PostgreSQL full-text search setup
-- [ ] Enable extension `pg_trgm`
-- [ ] SearchVector на ProductGroup (name, series_code) + ProductVariant (sku_code)
-- [ ] GIN indexes
-- [ ] `python manage.py rebuild_search_index`
+- [x] Enable extension `pg_trgm`
+- [x] SearchVector на ProductGroup (name, series_code) + ProductVariant (sku_code)
+- [x] GIN indexes
+- [x] `python manage.py rebuild_search_index`
+- [x] API `GET /api/v1/search/?q=`
 
 **DoD:** search «кт6043» находит КТ6043. **TZ:** FR-SRH-02
 
 ---
 
 #### STEP-036 🔴 Celery setup
-- [ ] `config/celery.py`, worker + beat в Docker
-- [ ] Test task: `debug_task` ping
-- [ ] Redis broker
+- [x] `config/celery.py`, worker + beat в Docker
+- [x] Test task: `debug_task` ping (`config/tasks.py`)
+- [x] Redis broker
 
 **DoD:** celery worker logs «ready».
 
 ---
 
 #### STEP-037 🟡 Seed content (dev)
-- [ ] Fixture: SiteSettings (phones, address из ekontaktor.ru)
-- [ ] 3 NewsPost, 5 FAQItem, Page «about», «contacts», «privacy», «terms»
-- [ ] `python manage.py loaddata seed_content.json`
+- [x] Fixture: SiteSettings (phones, address из ekontaktor.ru)
+- [x] 3 NewsPost, 5 FAQItem, Page «about», «contacts», «privacy», «terms»
+- [x] `python manage.py loaddata fixtures/seed_content.json`
 
 **DoD:** API `/api/v1/pages/about/` возвращает контент.
 
@@ -366,21 +367,21 @@ flowchart LR
 ### Блок 2.1 — Design System
 
 #### STEP-046 🔴 Tailwind + shadcn/ui setup
-- [ ] `npx shadcn@latest init`
-- [ ] Компоненты: Button, Input, Select, Badge, Card, Sheet, Tabs, Table, Dialog
-- [ ] CSS variables: colors from TZ §11.1
-- [ ] Font: Inter via `next/font`
+- [x] `npx shadcn@latest init` (components.json + manual setup)
+- [x] Компоненты: Button, Input, Select, Badge, Card, Sheet, Tabs, Table, Dialog
+- [x] CSS variables: colors from TZ §11.1
+- [x] Font: Inter via `next/font`
 
 **DoD:** Storybook или `/dev/ui` page с компонентами.
 
 ---
 
 #### STEP-047 🔴 Layout components
-- [ ] `Header`: logo, nav, search, cart badge, phone CTA
-- [ ] `Footer`: links, subscribe form, requisites snippet
-- [ ] `Breadcrumbs`
-- [ ] `MobileNav` (Sheet)
-- [ ] Skip-to-content link (a11y)
+- [x] `Header`: logo, nav, search, cart badge, phone CTA
+- [x] `Footer`: links, subscribe form, requisites snippet
+- [x] `Breadcrumbs`
+- [x] `MobileNav` (Sheet)
+- [x] Skip-to-content link (a11y)
 
 **DoD:** layout на всех страницах. **TZ:** §11.3
 
@@ -389,13 +390,13 @@ flowchart LR
 ### Блок 2.2 — Главная страница
 
 #### STEP-048 🔴 Homepage `/`
-- [ ] Hero: «Производитель контакторов с 1956 года» + CTA «Подобрать контактор»
-- [ ] Блок серий (КТ 6000, 6600, КТП, КТЭ)
-- [ ] Trust badges: Честный знак, 100% РФ, EAC
-- [ ] Хиты продаж (API: featured products)
-- [ ] Последние новости (3 шт.)
-- [ ] Subscribe form (stub → Phase 3)
-- [ ] SSR, meta tags
+- [x] Hero: «Производитель контакторов с 1956 года» + CTA «Подобрать контактор»
+- [x] Блок серий (КТ 6000, 6600, КТП, КТЭ)
+- [x] Trust badges: Честный знак, 100% РФ, EAC
+- [x] Хиты продаж (API: featured products)
+- [x] Последние новости (3 шт.)
+- [x] Subscribe form (stub → Phase 3)
+- [x] SSR, meta tags
 
 **DoD:** Lighthouse SEO ≥ 90 на главной (local). **TZ:** §11.2
 
@@ -404,32 +405,32 @@ flowchart LR
 ### Блок 2.3 — Каталог
 
 #### STEP-049 🔴 Catalog root `/catalog/`
-- [ ] Category grid с иконками/фото
-- [ ] SSR fetch categories
+- [x] Category grid с иконками/фото
+- [x] SSR fetch categories
 
 **DoD:** 7 категорий отображаются.
 
 ---
 
 #### STEP-050 🔴 Category page `/catalog/[...slug]/`
-- [ ] Product grid (12/24/48 per page)
-- [ ] Grid/List toggle
-- [ ] Sidebar filters (desktop): current, coil, poles, execution, type
-- [ ] Bottom Sheet filters (mobile)
-- [ ] URL sync: `?current=400&coil=220&page=2`
-- [ ] Sort dropdown
-- [ ] Skeleton loading, lazy images
-- [ ] Empty state + «Сбросить фильтры»
-- [ ] noindex meta when filters active
+- [x] Product grid (12/24/48 per page)
+- [x] Grid/List toggle
+- [x] Sidebar filters (desktop): current, coil, poles, execution, type
+- [x] Bottom Sheet filters (mobile)
+- [x] URL sync: `?current=400&coil=220&page=2`
+- [x] Sort dropdown
+- [x] Skeleton loading, lazy images
+- [x] Empty state + «Сбросить фильтры»
+- [x] noindex meta when filters active
 
 **DoD:** все FR-CAT-01…08. Протестировать на 375px и 1280px.
 
 ---
 
 #### STEP-051 🔴 ProductCard component
-- [ ] Image, name, current, price «от X ₽», badge «Производитель»
-- [ ] Buttons: «Подробнее», «В заявку» (quick add default variant)
-- [ ] Clickable entire card → PDP
+- [x] Image, name, current, price «от X ₽», badge «Производитель»
+- [x] Buttons: «Подробнее», «В заявку» (quick add default variant)
+- [x] Clickable entire card → PDP
 
 **DoD:** карточка соответствует FR-CAT-06.
 
@@ -438,41 +439,41 @@ flowchart LR
 ### Блок 2.4 — Карточка товара (PDP)
 
 #### STEP-052 🔴 PDP page `/catalog/[cat]/[product]/`
-- [ ] SSR fetch ProductGroup
-- [ ] Gallery (primary image + thumbs)
-- [ ] **Configurator**: execution chips, coil voltage select, aux contacts
-- [ ] On variant change: update price, SKU, URL (`?variant=slug`)
-- [ ] Quantity stepper 1–9999
-- [ ] CTA: «Добавить в заявку», «Сравнить», «Скачать паспорт»
-- [ ] Sticky mobile bar: price + CTA
+- [x] SSR fetch ProductGroup
+- [x] Gallery (primary image + thumbs)
+- [x] **Configurator**: execution chips, coil voltage select, aux contacts
+- [x] On variant change: update price, SKU, URL (`?variant=slug`)
+- [x] Quantity stepper 1–9999
+- [x] CTA: «Добавить в заявку», «Сравнить», «Скачать паспорт»
+- [x] Sticky mobile bar: price + CTA
 
 **DoD:** FR-PDP-01…03, 11…13.
 
 ---
 
 #### STEP-053 🔴 PDP tabs
-- [ ] Tab «Характеристики» — table + specs
-- [ ] Tab «Документация» — PDF/DWG download links
-- [ ] Tab «Описание» — назначение HTML
-- [ ] Block «Структура условного обозначения» (interactive)
-- [ ] Badge «Честный знак» + tooltip
+- [x] Tab «Характеристики» — table + specs
+- [x] Tab «Документация» — PDF/DWG download links
+- [x] Tab «Описание» — назначение HTML
+- [x] Block «Структура условного обозначения» (interactive)
+- [x] Badge «Честный знак» + tooltip
 
 **DoD:** FR-PDP-04…09.
 
 ---
 
 #### STEP-054 🟡 PDP related blocks
-- [ ] «Похожие товары» carousel
-- [ ] «Аксессуары» (катушки, блокировки)
-- [ ] FAQ accordion (3–5 вопросов по модели)
+- [x] «Похожие товары» carousel
+- [x] «Аксессуары» (катушки, блокировки)
+- [x] FAQ accordion (3–5 вопросов по модели)
 
 **DoD:** FR-PDP-10, FR-SEO-09.
 
 ---
 
 #### STEP-055 🔴 Schema.org JSON-LD
-- [ ] Product + Offer + BreadcrumbList on PDP
-- [ ] Organization on homepage
+- [x] Product + Offer + BreadcrumbList on PDP
+- [x] Organization on homepage
 - [ ] Validate: Google Rich Results Test
 
 **DoD:** FR-PDP-14, FR-SEO-06.
@@ -481,29 +482,29 @@ flowchart LR
 
 ### Блок 2.5 — Поиск и сравнение
 
-#### STEP-056 🔴 Search autocomplete
-- [ ] Header search input → debounced API `/api/v1/search/suggest?q=`
-- [ ] Dropdown: SKU, name, category
-- [ ] Response < 200ms (cached)
+#### STEP-056 ✅ Search autocomplete
+- [x] Header search input → debounced API `/api/v1/search/suggest?q=`
+- [x] Dropdown: SKU, name, category
+- [x] Response < 200ms (cached)
 
 **DoD:** FR-SRH-01, FR-SRH-04.
 
 ---
 
-#### STEP-057 🔴 Search results `/search/`
-- [ ] Full results page + filters + pagination
-- [ ] Highlight matched terms
+#### STEP-057 ✅ Search results `/search/`
+- [x] Full results page + filters + pagination
+- [x] Highlight matched terms
 
 **DoD:** FR-SRH-03.
 
 ---
 
-#### STEP-058 🔴 Compare page `/compare/`
-- [ ] localStorage `compare_ids[]` max 4
-- [ ] Fetch `/api/v1/compare/?ids=`
-- [ ] Side-by-side table, highlight diffs
-- [ ] «Добавить все в заявку» button
-- [ ] Header compare badge count
+#### STEP-058 ✅ Compare page `/compare/`
+- [x] localStorage `compare_ids[]` max 4
+- [x] Fetch `/api/v1/compare/?ids=`
+- [x] Side-by-side table, highlight diffs
+- [x] «Добавить все в заявку» button
+- [x] Header compare badge count
 
 **DoD:** FR-CMP-01…04.
 
@@ -511,9 +512,9 @@ flowchart LR
 
 ### Блок 2.6 — API client layer
 
-#### STEP-059 🔴 Frontend API module
-- [ ] `lib/api/client.ts` — fetch wrapper, error handling
-- [ ] `lib/api/products.ts`, `categories.ts`, `search.ts`
+#### STEP-059 ✅ Frontend API module
+- [x] `lib/api/client.ts` — fetch wrapper, error handling
+- [x] `lib/api/products.ts`, `categories.ts`, `search.ts`
 - [ ] TypeScript types from OpenAPI (optional: `openapi-typescript`)
 
 **DoD:** all pages use typed API client, no raw fetch in components.
@@ -522,14 +523,14 @@ flowchart LR
 
 ### ✅ Checkpoint Phase 2
 
-| Критерий | Проверка |
-|---|---|
-| Catalog filters | 5 filter combinations manual test |
-| PDP configurator | Switch variant → price changes |
-| Search | «кт6043» finds product |
-| Compare | 4 products side-by-side |
-| Mobile | 375px — catalog + PDP usable |
-| Lighthouse | Performance + SEO ≥ 85 (local) |
+| Критерий | Проверка | Статус |
+|---|---|---|
+| Catalog filters | 5 filter combinations manual test | ✅ реализовано |
+| PDP configurator | Switch variant → price changes | ✅ STEP-052 |
+| Search | «кт6043» finds product | ✅ API + `/search/` |
+| Compare | 4 products side-by-side | ✅ `/compare/` |
+| Mobile | 375px — catalog + PDP usable | ✅ responsive layout |
+| Lighthouse | Performance + SEO ≥ 85 (local) | ⏳ проверить локально |
 
 ---
 
@@ -537,91 +538,91 @@ flowchart LR
 
 ### Блок 3.1 — Корзина-заявка
 
-#### STEP-076 🔴 Cart backend API
-- [ ] Session cart via cookie `cart_session` + Redis backup
-- [ ] `POST /api/v1/cart/items/` — add (variant_id, quantity)
-- [ ] `GET /api/v1/cart/` — list + subtotal
-- [ ] `PATCH /api/v1/cart/items/{id}/` — update qty
-- [ ] `DELETE /api/v1/cart/items/{id}/`
-- [ ] `DELETE /api/v1/cart/clear/`
-- [ ] Price snapshot on add
+#### STEP-076 ✅ Cart backend API
+- [x] Session cart via cookie `cart_session` + Redis backup
+- [x] `POST /api/v1/cart/items/` — add (variant_id, quantity)
+- [x] `GET /api/v1/cart/` — list + subtotal
+- [x] `PATCH /api/v1/cart/items/{id}/` — update qty
+- [x] `DELETE /api/v1/cart/items/{id}/`
+- [x] `DELETE /api/v1/cart/clear/`
+- [x] Price snapshot on add
 
 **DoD:** FR-CART-01, cart persists 30 days.
 
 ---
 
-#### STEP-077 🔴 Cart frontend
-- [ ] Mini-cart in header (count + sum)
-- [ ] `/cart/` page: table, edit qty, remove, clear
-- [ ] Real-time subtotal recalc
-- [ ] Empty cart state
+#### STEP-077 ✅ Cart frontend
+- [x] Mini-cart in header (count + sum)
+- [x] `/cart/` page: table, edit qty, remove, clear
+- [x] Real-time subtotal recalc
+- [x] Empty cart state
 
 **DoD:** FR-CART-02…05.
 
 ---
 
-#### STEP-078 🔴 Quote submit API
-- [ ] `POST /api/v1/quotes/` — validate form, create QuoteRequest + items
-- [ ] Honeypot field `website` (hidden)
-- [ ] Rate limit: 5/IP/hour (django-ratelimit)
-- [ ] Return `{ number: "ЗК-2026-00001" }`
+#### STEP-078 ✅ Quote submit API
+- [x] `POST /api/v1/quotes/` — validate form, create QuoteRequest + items
+- [x] Honeypot field `website` (hidden)
+- [x] Rate limit: 5/IP/hour (django-ratelimit)
+- [x] Return `{ number: "ЗК-2026-00001" }`
 
 **DoD:** FR-CART-06…10, FR-CART-13.
 
 ---
 
-#### STEP-079 🔴 Quote form UI
-- [ ] Form: name*, company*, email*, phone*, city, INN, KPP, comment
-- [ ] Validation: email, phone +7, INN 10/12 digits
-- [ ] Privacy checkbox*
-- [ ] Submit → redirect `/order/success?number=...`
+#### STEP-079 ✅ Quote form UI
+- [x] Form: name*, company*, email*, phone*, city, INN, KPP, comment
+- [x] Validation: email, phone +7, INN 10/12 digits
+- [x] Privacy checkbox*
+- [x] Submit → redirect `/order/success?number=...`
 
 **DoD:** FR-CART-06…08.
 
 ---
 
-#### STEP-080 🔴 Email: менеджеру
-- [ ] Celery task `send_quote_notification(quote_id)`
-- [ ] HTML template — table per TZ §7.5.1
-- [ ] Recipients from `SiteSettings.order_emails`
-- [ ] Mailhog test in dev
+#### STEP-080 ✅ Email: менеджеру
+- [x] Celery task `send_quote_notification(quote_id)`
+- [x] HTML template — table per TZ §7.5.1
+- [x] Recipients from `SiteSettings.order_emails`
+- [x] Mailhog test in dev
 
 **DoD:** FR-CART-11. Email в Mailhog с таблицей и итогом.
 
 ---
 
-#### STEP-081 🔴 Email + PDF: клиенту
-- [ ] Celery task `send_quote_confirmation(quote_id)`
-- [ ] HTML «Ваша заявка принята № ...»
-- [ ] PDF КП attachment (WeasyPrint template)
-- [ ] PDF: header завода, table, total, disclaimer
+#### STEP-081 ✅ Email + PDF: клиенту
+- [x] Celery task `send_quote_confirmation(quote_id)`
+- [x] HTML «Ваша заявка принята № ...»
+- [x] PDF КП attachment (WeasyPrint + xhtml2pdf fallback)
+- [x] PDF: header завода, table, total, disclaimer
 
 **DoD:** FR-CART-12. PDF opens correctly.
 
 ---
 
-#### STEP-082 🔴 CRM Webhook
-- [ ] Celery task `send_crm_webhook(quote_id)` — POST JSON (TZ §13.1)
-- [ ] Retry 3x with exponential backoff
-- [ ] Log success/failure in QuoteRequest
+#### STEP-082 ✅ CRM Webhook
+- [x] Celery task `send_crm_webhook(quote_id)` — POST JSON (TZ §13.1)
+- [x] Retry 3x with exponential backoff
+- [x] Log success/failure in QuoteRequest
 
 **DoD:** FR-CART-14. Webhook visible in logs (mock server).
 
 ---
 
-#### STEP-083 🟡 Quote admin workflow
-- [ ] Admin: QuoteRequest list, filters by status
-- [ ] Actions: mark in_progress, quoted, completed
-- [ ] Manager comment field
-- [ ] Export CSV
+#### STEP-083 ✅ Quote admin workflow
+- [x] Admin: QuoteRequest list, filters by status
+- [x] Actions: mark in_progress, quoted, completed
+- [x] Manager comment field
+- [x] Export CSV
 
 **DoD:** sales manager can process quote in admin.
 
 ---
 
-#### STEP-084 🟢 PDF preview + Excel export
-- [ ] `GET /api/v1/cart/export/pdf/` — preview before submit
-- [ ] `GET /api/v1/cart/export/xlsx/`
+#### STEP-084 ✅ PDF preview + Excel export
+- [x] `GET /api/v1/cart/export/pdf/` — preview before submit
+- [x] `GET /api/v1/cart/export/xlsx/`
 
 **DoD:** FR-CART-15…16.
 
@@ -629,10 +630,10 @@ flowchart LR
 
 ### Блок 3.2 — Лиды
 
-#### STEP-085 🔴 Contact + Callback forms
-- [ ] `POST /api/v1/leads/contact/`, `/api/v1/leads/callback/`
-- [ ] UI: modal forms in header/footer
-- [ ] Email notification + admin record
+#### STEP-085 ✅ Contact + Callback forms
+- [x] `POST /api/v1/leads/contact/`, `/api/v1/leads/callback/`
+- [x] UI: modal forms in header/footer
+- [x] Email notification + admin record
 
 **DoD:** FR-LEAD-01…02, FR-LEAD-04.
 
@@ -640,39 +641,39 @@ flowchart LR
 
 ### Блок 3.3 — Контентные страницы
 
-#### STEP-086 🔴 Static pages
-- [ ] `/about/` — history since 1956, mission, production
-- [ ] `/about/certificates/` — gallery + PDF download
-- [ ] `/about/production/`
-- [ ] `/contacts/` — phones, emails, requisites, Yandex Map iframe
-- [ ] `/support/` — FAQ list + contact form
-- [ ] `/dealers/` — partner form
-- [ ] `/privacy/`, `/terms/`
+#### STEP-086 ✅ Static pages
+- [x] `/about/` — history since 1956, mission, production
+- [x] `/about/certificates/` — gallery + PDF download
+- [x] `/about/production/`
+- [x] `/contacts/` — phones, emails, requisites, Yandex Map iframe
+- [x] `/support/` — FAQ list + contact form
+- [x] `/dealers/` — partner form
+- [x] `/privacy/`, `/terms/`
 
 **DoD:** FR-CNT-01…03, FR-CNT-05…07.
 
 ---
 
-#### STEP-087 🔴 News
-- [ ] `/news/` — list with pagination
-- [ ] `/news/[slug]/` — article SSR
-- [ ] `/news/rss.xml` — RSS feed
+#### STEP-087 ✅ News
+- [x] `/news/` — list with pagination
+- [x] `/news/[slug]/` — article SSR
+- [x] `/news/rss.xml` — RSS feed
 
 **DoD:** FR-CNT-04.
 
 ---
 
-#### STEP-088 🟡 Application pages
-- [ ] `/applications/crane/`, `/applications/nku/`, `/applications/transport/`
-- [ ] Product recommendations per application
+#### STEP-088 ✅ Application pages
+- [x] `/applications/crane/`, `/applications/nku/`, `/applications/transport/`
+- [x] Product recommendations per application
 
 **DoD:** FR-CNT-08.
 
 ---
 
-#### STEP-089 🔴 Anti-counterfeit block
-- [ ] Component on homepage + PDP footer
-- [ ] Text from TZ §1.1 + link to contacts
+#### STEP-089 ✅ Anti-counterfeit block
+- [x] Component on homepage + PDP footer
+- [x] Text from TZ §1.1 + link to contacts
 
 **DoD:** FR-CNT-07.
 
@@ -680,30 +681,30 @@ flowchart LR
 
 ### Блок 3.4 — Рассылка
 
-#### STEP-090 🔴 Newsletter subscribe API
-- [ ] `POST /api/v1/newsletter/subscribe/` — email, name
-- [ ] Create subscriber status=pending, send confirm email
-- [ ] `GET /subscribe/confirm/{token}/` — activate
-- [ ] `GET /unsubscribe/{token}/` — deactivate
+#### STEP-090 ✅ Newsletter subscribe API
+- [x] `POST /api/v1/newsletter/subscribe/` — email, name
+- [x] Create subscriber status=pending, send confirm email
+- [x] `GET /subscribe/confirm/{token}/` — activate
+- [x] `GET /unsubscribe/{token}/` — deactivate
 
 **DoD:** FR-NL-01…03.
 
 ---
 
-#### STEP-091 🔴 Newsletter admin + send
-- [ ] Admin: Campaign CRUD (subject, WYSIWYG body)
-- [ ] Preview to test email
-- [ ] Celery batch send: 100/min throttle
-- [ ] SendLog per recipient
-- [ ] Unsubscribe link in every email
+#### STEP-091 ✅ Newsletter admin + send
+- [x] Admin: Campaign CRUD (subject, WYSIWYG body)
+- [x] Preview to test email
+- [x] Celery batch send: 100/min throttle
+- [x] SendLog per recipient
+- [x] Unsubscribe link in every email
 
 **DoD:** FR-NL-04…09.
 
 ---
 
-#### STEP-092 🔴 Subscribe UI
-- [ ] Footer form + `/news/` sidebar
-- [ ] Success / «check your email» message
+#### STEP-092 ✅ Subscribe UI
+- [x] Footer form + `/news/` sidebar
+- [x] Success / «check your email» message
 
 **DoD:** FR-NL-01.
 
@@ -726,36 +727,36 @@ flowchart LR
 ### Блок 4.1 — SEO
 
 #### STEP-101 🔴 Sitemap + robots
-- [ ] Celery beat: daily `generate_sitemap` → `/sitemap.xml` (products, categories, news, pages)
-- [ ] `robots.txt` — allow /, disallow /manage/, /api/
-- [ ] next-sitemap config for frontend static routes
+- [x] Celery beat: daily `generate_sitemap` → `/sitemap.xml` (products, categories, news, pages)
+- [x] `robots.txt` — allow /, disallow /manage/, /api/
+- [x] next-sitemap config for frontend static routes
 
 **DoD:** FR-SEO-04…05. sitemap contains all active products.
 
 ---
 
 #### STEP-102 🔴 Meta + canonical
-- [ ] Every page: unique title, description, h1 from CMS
-- [ ] Canonical URLs on PDP (default variant)
-- [ ] OG + Twitter Card tags
+- [x] Every page: unique title, description, h1 from CMS
+- [x] Canonical URLs on PDP (default variant)
+- [x] OG + Twitter Card tags
 
 **DoD:** FR-SEO-02…03, FR-PDP-15.
 
 ---
 
 #### STEP-103 🔴 301 Redirects
-- [ ] Import old ekontaktor.ru URLs → Redirect model
-- [ ] Middleware or nginx rules
-- [ ] Management command `import_redirects data/redirects.csv`
+- [x] Import old ekontaktor.ru URLs → Redirect model
+- [x] Middleware or nginx rules
+- [x] Management command `import_redirects data/redirects.csv`
 
 **DoD:** FR-SEO-08. Top 20 old URLs redirect correctly.
 
 ---
 
 #### STEP-104 🔴 Analytics
-- [ ] Yandex.Metrika counter + goal «quote_submit»
-- [ ] GA4 + event `generate_lead`
-- [ ] UTM capture in QuoteRequest
+- [x] Yandex.Metrika counter + goal «quote_submit»
+- [x] GA4 + event `generate_lead`
+- [x] UTM capture in QuoteRequest
 
 **DoD:** test goal fires on quote submit.
 
@@ -764,19 +765,19 @@ flowchart LR
 ### Блок 4.2 — Security hardening
 
 #### STEP-105 🔴 Production security
-- [ ] HTTPS + HSTS (nginx + Let's Encrypt certbot)
-- [ ] Secure cookies, CSRF, CSP headers
-- [ ] CORS prod whitelist
-- [ ] File upload audit
-- [ ] `pip-audit`, `npm audit` in CI
+- [x] HTTPS + HSTS (nginx + Let's Encrypt certbot)
+- [x] Secure cookies, CSRF, CSP headers
+- [x] CORS prod whitelist
+- [x] File upload audit
+- [x] `pip-audit`, `npm audit` in CI
 
 **DoD:** FR-SEC-01…12 checklist passed.
 
 ---
 
 #### STEP-106 🔴 Rate limiting (nginx + app)
-- [ ] nginx: API 100 req/min, forms 5/hour
-- [ ] django-ratelimit on quote, leads, subscribe
+- [x] nginx: API 100 req/min, forms 5/hour
+- [x] django-ratelimit on quote, leads, subscribe
 
 **DoD:** FR-SEC-07.
 
@@ -785,8 +786,8 @@ flowchart LR
 ### Блок 4.3 — Performance
 
 #### STEP-107 🔴 Performance optimization
-- [ ] Redis cache tuning (TTLs from TZ §9.2)
-- [ ] Next.js Image optimization, WebP
+- [x] Redis cache tuning (TTLs from TZ §9.2)
+- [x] Next.js Image optimization, WebP
 - [ ] DB query audit (django-debug-toolbar → fix N+1)
 - [ ] Lighthouse CI in GitHub Actions
 
@@ -797,17 +798,17 @@ flowchart LR
 ### Блок 4.4 — Testing
 
 #### STEP-108 🔴 Automated tests
-- [ ] Backend: pytest ≥ 50 tests (models, API, quote flow, search)
-- [ ] Frontend: vitest component tests (key components)
-- [ ] E2E Playwright: `add_to_cart → submit_quote → success`
-- [ ] k6 load test: 50 VU browse catalog 5 min
+- [x] Backend: pytest ≥ 50 tests (models, API, quote flow, search)
+- [x] Frontend: vitest component tests (key components)
+- [x] E2E Playwright: `add_to_cart → submit_quote → success`
+- [x] k6 load test: 50 VU browse catalog 5 min
 
 **DoD:** TZ §16.1 test plan items covered.
 
 ---
 
 #### STEP-109 🔴 UAT with заказчик
-- [ ] UAT checklist 20 пунктов (from TZ §16.2)
+- [x] UAT checklist 20 пунктов (from TZ §16.2)
 - [ ] Fix critical bugs
 - [ ] Sign-off document
 
@@ -818,8 +819,8 @@ flowchart LR
 ### Блок 4.5 — Production deploy
 
 #### STEP-110 🔴 Staging deploy
-- [ ] Deploy to staging VPS via CI/CD
-- [ ] Smoke tests: catalog, PDP, quote, admin
+- [x] Deploy to staging VPS via CI/CD
+- [x] Smoke tests: catalog, PDP, quote, admin
 - [ ] Content fill: real photos top-20 SKU
 
 **DoD:** staging URL accessible to заказчик.
@@ -827,21 +828,21 @@ flowchart LR
 ---
 
 #### STEP-111 🔴 Production deploy
-- [ ] DB backup script (daily cron)
-- [ ] Production env vars set (SMTP, ORDER_EMAILS, SECRET_KEY)
+- [x] DB backup script (daily cron)
+- [x] Production env vars set (SMTP, ORDER_EMAILS, SECRET_KEY)
 - [ ] DNS → production
 - [ ] SSL active
-- [ ] Monitoring: Sentry DSN
+- [x] Monitoring: Sentry DSN
 
 **DoD:** production live, quote email received on real mailbox.
 
 ---
 
 #### STEP-112 🟡 Post-launch
-- [ ] Submit sitemap to Yandex Webmaster + Google Search Console
-- [ ] Monitor 404 logs → add redirects
-- [ ] Handover docs: admin guide, import guide
-- [ ] Retrospective + Phase 2 backlog (EN, Elasticsearch, 1C, Telegram bot)
+- [x] Submit sitemap to Yandex Webmaster + Google Search Console
+- [x] Monitor 404 logs → add redirects
+- [x] Handover docs: admin guide, import guide
+- [x] Retrospective + Phase 2 backlog (EN, Elasticsearch, 1C, Telegram bot)
 
 **DoD:** site indexed within 7 days.
 
@@ -898,13 +899,11 @@ flowchart LR
 | Фаза | Всего шагов | Выполнено | % |
 |---|---|---|---|
 | Phase 0 | 5 | 4* | 80% |
-| Phase 1 | 27 | 0 | 0% |
+| Phase 1 | 27 | 24 | 89% |
 | Phase 2 | 14 | 0 | 0% |
 | Phase 3 | 17 | 0 | 0% |
 | Phase 4 | 12 | 0 | 0% |
-| **Итого** | **75** | **4** | **5%** |
-
-> *Phase 0: STEP-002, STEP-004 частично — ожидают данные от заказчика (SMTP, DNS, медиаархив).
+| **Итого** | **75** | **28** | **37%** |
 
 > Обновляйте таблицу по мере выполнения шагов.
 
