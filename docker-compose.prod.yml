@@ -141,7 +141,17 @@ services:
     volumes:
       - certbot_conf:/etc/letsencrypt
       - certbot_www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    # Только renew в фоне. Для первого выпуска: scripts/beget/init-ssl.sh
+    # (или: docker compose run --rm --entrypoint certbot certbot certonly ...)
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        trap exit TERM
+        while :; do
+          certbot renew
+          sleep 12h & wait $$!
+        done
 
 volumes:
   postgres_data:
