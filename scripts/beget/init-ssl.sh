@@ -41,12 +41,8 @@ $COMPOSE run --rm --entrypoint certbot certbot certonly \
   --agree-tos --no-eff-email \
   --non-interactive
 
-echo "==> 4. HTTPS-конфиг nginx"
-if [ -f nginx/nginx.prod.ssl.conf.bak ]; then
-  cp nginx/nginx.prod.ssl.conf.bak nginx/nginx.prod.conf
-else
-  git checkout nginx/nginx.prod.conf
-fi
+echo "==> 4. HTTPS-конфиг nginx (из git, не из .bak)"
+git checkout nginx/nginx.prod.conf
 $COMPOSE up -d --force-recreate nginx certbot
 
 echo "==> Готово: https://www.ekontaktor.ru/"
