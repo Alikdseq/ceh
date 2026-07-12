@@ -35,7 +35,14 @@ def send_quote_notification(quote_id: int) -> None:
     html = render_to_string("quotes/email_manager.html", {"quote": quote})
     msg = EmailMessage(subject=subject, body=html, to=recipients)
     msg.content_subtype = "html"
-    msg.send(fail_silently=False)
+    try:
+        msg.send(fail_silently=False)
+    except Exception:
+        logger.exception(
+            "Manager notification failed for %s. Run: python manage.py check_smtp",
+            quote.number,
+        )
+        raise
     logger.info("Manager notification sent for %s", quote.number)
 
 

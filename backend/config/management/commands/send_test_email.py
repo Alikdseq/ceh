@@ -2,6 +2,8 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.management.base import BaseCommand, CommandError
 
+from apps.core.email_diagnostics import smtp_error_hint
+
 
 class Command(BaseCommand):
     help = "Send a test email synchronously (diagnose SMTP without Celery)"
@@ -45,6 +47,7 @@ class Command(BaseCommand):
         try:
             sent = msg.send(fail_silently=False)
         except Exception as exc:
-            raise CommandError(f"SMTP failed: {exc}") from exc
+            hint = smtp_error_hint(exc)
+            raise CommandError(f"SMTP failed: {exc}\n\n{hint}") from exc
 
         self.stdout.write(self.style.SUCCESS(f"Sent ({sent} message). Check inbox and spam for {to}"))
