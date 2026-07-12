@@ -21,8 +21,8 @@ export function BrandLogo({ variant = "header", className, linked = true }: Bran
       priority={variant === "header"}
       unoptimized
       className={cn(
-        "w-auto object-contain",
-        variant === "header" && "h-10 sm:h-12 md:h-14",
+        "w-auto max-w-[min(100%,9rem)] object-contain sm:max-w-none",
+        variant === "header" && "h-8 sm:h-10 md:h-12 lg:h-14",
         variant === "footer" && "h-14 sm:h-16 md:h-20",
         className,
       )}
@@ -31,10 +31,10 @@ export function BrandLogo({ variant = "header", className, linked = true }: Bran
 
   if (!linked) {
     return (
-      <span className="inline-flex shrink-0 items-center gap-2 sm:gap-3">
+      <span className="inline-flex min-w-0 shrink items-center gap-1.5 sm:gap-2 md:gap-3">
         {img}
         {variant === "header" && (
-          <span className="font-display text-base font-bold tracking-tight text-white sm:text-lg md:text-xl">
+          <span className="hidden font-display text-sm font-bold tracking-tight text-white sm:inline md:text-lg lg:text-xl">
             Электроконтактор
           </span>
         )}
@@ -45,12 +45,12 @@ export function BrandLogo({ variant = "header", className, linked = true }: Bran
   return (
     <Link
       href="/"
-      className="inline-flex shrink-0 items-center gap-2 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 sm:gap-3"
+      className="inline-flex min-w-0 shrink items-center gap-1.5 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 sm:gap-2 md:gap-3"
       aria-label="Электроконтактор — на главную"
     >
       {img}
       {variant === "header" && (
-        <span className="font-display text-base font-bold tracking-tight text-white sm:text-lg md:text-xl">
+        <span className="hidden font-display text-sm font-bold tracking-tight text-white sm:inline md:text-lg lg:text-xl">
           Электроконтактор
         </span>
       )}

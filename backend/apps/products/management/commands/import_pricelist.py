@@ -3,6 +3,7 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 
+from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils.text import slugify
@@ -95,6 +96,9 @@ class Command(BaseCommand):
         coil_propagated = self._propagate_prices_to_coil_variants()
         if coil_propagated:
             self.stdout.write(f"  Propagated price to {coil_propagated} coil variants")
+
+        call_command("import_price_list", str(path))
+        self.stdout.write(self.style.SUCCESS("  Public /pricelist table synced"))
 
     def _propagate_prices_to_coil_variants(self) -> int:
         """Apply base SKU price to variants like КТ6012Б-У3-36V."""

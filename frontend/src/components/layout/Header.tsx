@@ -17,11 +17,11 @@ export async function Header() {
   const telHref = `tel:+7${phone.replace(/\D/g, "").replace(/^7/, "")}`;
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[var(--color-brand-blue-dark)] text-white shadow-md">
+    <header className="fixed inset-x-0 top-0 z-50 max-w-[100vw] overflow-hidden border-b border-white/10 bg-[var(--color-brand-blue-dark)] text-white shadow-md">
       <div className="container-page min-w-0">
         {/* Верхняя строка: логотип · поиск · действия */}
-        <div className="flex min-w-0 items-center gap-2 py-2.5 md:gap-3">
-          <div className="flex shrink-0 items-center gap-2">
+        <div className="flex min-w-0 items-center gap-1.5 py-2 sm:gap-2 md:gap-3 md:py-2.5">
+          <div className="flex min-w-0 shrink-0 items-center gap-1 sm:gap-2">
             <MobileNav phone={phone} telHref={telHref} />
             <BrandLogo variant="header" />
           </div>

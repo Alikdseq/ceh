@@ -1,5 +1,6 @@
 import type { ContentPage, FAQItem, NewsPost, NewsPostDetail, PaginatedResponse, SiteSettings } from "@/lib/types";
 
+import { getCmsPageFallback } from "@/lib/cms-fallbacks";
 import { fetchApi, toSearchParams } from "./client";
 
 export async function getFAQ(limit?: number): Promise<FAQItem[]> {
@@ -39,7 +40,7 @@ export async function getPage(slug: string): Promise<ContentPage | null> {
   try {
     return await fetchApi<ContentPage>(`/pages/${slug}/`, { revalidate: 3600 });
   } catch {
-    return null;
+    return getCmsPageFallback(slug);
   }
 }
 

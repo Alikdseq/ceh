@@ -8,6 +8,9 @@ python manage.py migrate --noinput
 echo "==> setup_groups"
 python manage.py setup_groups
 
+echo "==> ensure_site_content"
+python manage.py ensure_site_content
+
 STATIC_MARKER=/app/staticfiles/.collectstatic-done
 if [ ! -f "$STATIC_MARKER" ]; then
   echo "==> collectstatic (first run)"

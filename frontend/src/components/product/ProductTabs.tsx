@@ -19,7 +19,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
 
   return (
     <Tabs defaultValue="specs" className="mt-12">
-      <TabsList className="w-full justify-start overflow-x-auto">
+      <TabsList className="w-full max-w-full justify-start overflow-x-auto">
         <TabsTrigger value="specs">Характеристики</TabsTrigger>
         <TabsTrigger value="docs">Документация</TabsTrigger>
         <TabsTrigger value="description">Описание</TabsTrigger>

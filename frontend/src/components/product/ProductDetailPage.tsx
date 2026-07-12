@@ -55,13 +55,17 @@ export async function ProductDetailPage({ product }: ProductDetailPageProps) {
         data={buildProductSchema(product, defaultVariant ?? null, schemaBreadcrumbs, siteUrl)}
       />
       <div className="section-py pb-24 md:pb-16">
-        <div className="container-page">
+        <div className="container-page min-w-0">
           <Breadcrumbs items={breadcrumbs} className="mb-6" />
-          <div className="grid gap-10 lg:grid-cols-2">
-            <ProductGallery images={product.images} name={product.name} product={product} />
-            <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-              <ProductConfigurator product={product} basePath={basePath} />
-            </Suspense>
+          <div className="grid min-w-0 gap-10 lg:grid-cols-2">
+            <div className="min-w-0">
+              <ProductGallery images={product.images} name={product.name} product={product} />
+            </div>
+            <div className="min-w-0">
+              <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+                <ProductConfigurator product={product} basePath={basePath} />
+              </Suspense>
+            </div>
           </div>
           <ProductTabs product={product} />
           <ProductRelated

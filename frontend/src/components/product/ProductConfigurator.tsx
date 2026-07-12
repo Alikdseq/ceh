@@ -111,10 +111,10 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
   );
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 space-y-6">
       <div>
         <div className="flex flex-wrap items-start gap-2">
-          <h1 className="font-display text-2xl font-bold md:text-3xl">{product.h1 || product.name}</h1>
+          <h1 className="font-display text-2xl font-bold break-words md:text-3xl">{product.h1 || product.name}</h1>
           {product.honest_sign && (
             <Badge variant="neutral" title="Продукция маркируется в системе «Честный знак»">
               Честный знак
@@ -206,11 +206,11 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
         )}
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Label htmlFor="qty" className="sr-only">
           Количество
         </Label>
-        <div className="flex items-center rounded-md border">
+        <div className="flex shrink-0 items-center rounded-md border">
           <Button
             type="button"
             variant="ghost"
@@ -243,7 +243,13 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
             +
           </Button>
         </div>
-        <Button size="lg" variant="accent" className="flex-1 gap-2" onClick={handleAddToCart} disabled={!selected}>
+        <Button
+          size="lg"
+          variant="accent"
+          className="min-w-0 flex-1 basis-full gap-2 sm:basis-auto"
+          onClick={handleAddToCart}
+          disabled={!selected}
+        >
           <ShoppingCart className="h-4 w-4" />
           Добавить в заявку
         </Button>

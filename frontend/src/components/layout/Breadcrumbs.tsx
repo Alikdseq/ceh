@@ -16,7 +16,7 @@ interface BreadcrumbsProps {
 export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
   return (
     <nav aria-label="Хлебные крошки" className={cn("text-sm text-muted-foreground", className)}>
-      <ol className="flex flex-wrap items-center gap-1">
+      <ol className="flex min-w-0 flex-wrap items-center gap-1 break-words">
         <li>
           <Link href="/" className="hover:text-foreground">
             Главная

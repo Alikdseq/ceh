@@ -196,7 +196,7 @@ input[type="radio"] {
 }
 
 .container-page {
-  @apply mx-auto w-full max-w-[1280px] min-w-0 px-4;
+  @apply mx-auto w-full max-w-[1280px] min-w-0 px-3 sm:px-4;
 }
 
 .section-py {
