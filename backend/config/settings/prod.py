@@ -10,6 +10,23 @@ USE_X_FORWARDED_HOST = True
 SECURE_SSL_REDIRECT = env.bool("SECURE_SSL_REDIRECT", default=False)  # noqa: F405
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SAMESITE = "Lax"
+# Надёжные сессии админки: Redis + БД (иначе логин может «сбрасываться»)
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+
+# CSRF для POST /manage/login/ за nginx HTTPS
+_extra_csrf = ["https://ekontaktor.ru", "https://www.ekontaktor.ru"]
+if FRONTEND_URL:  # noqa: F405
+    _extra_csrf.append(FRONTEND_URL.rstrip("/"))
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys([*CSRF_TRUSTED_ORIGINS, *_extra_csrf]))  # noqa: F405
+
+# django-axes: реальный IP клиента из nginx
+AXES_IPWARE_PROXY_COUNT = 1
+AXES_IPWARE_META_PRECEDENCE_ORDER = [
+    "HTTP_X_FORWARDED_FOR",
+    "X_FORWARDED_FOR",
+    "REMOTE_ADDR",
+]
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True

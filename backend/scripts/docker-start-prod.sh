@@ -11,6 +11,9 @@ python manage.py setup_groups
 echo "==> ensure_site_content"
 python manage.py ensure_site_content
 
+echo "==> ensure_admin_user (unlock)"
+python manage.py ensure_admin_user --unlock
+
 STATIC_MARKER=/app/staticfiles/.collectstatic-done
 if [ ! -f "$STATIC_MARKER" ]; then
   echo "==> collectstatic (first run)"
