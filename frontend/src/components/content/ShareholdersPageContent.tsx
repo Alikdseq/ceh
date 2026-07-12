@@ -161,7 +161,7 @@ export function ShareholdersPageContent() {
             <div className="rounded-xl border bg-card p-6 shadow-sm">
               <h3 className="font-semibold">Руководство завода</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Генеральный директор: Гетоев Олег Михайлович — 53-33-44
+                Генеральный директор: Цхурбаев Сослан Муратович — 53-33-44
                 <br />
                 Главный бухгалтер: Плиева Светлана Саукудзовна — 53-62-79
               </p>
