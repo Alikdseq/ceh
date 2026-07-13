@@ -154,6 +154,19 @@ class ProductVariant(models.Model):
     def __str__(self):
         return self.sku_code
 
+    def save(self, *args, **kwargs):
+        if self.group_id:
+            product_type = self.group.product_type
+            if product_type == ProductGroup.ProductType.KTP:
+                self.coil_type = self.CoilType.DC
+            elif product_type == ProductGroup.ProductType.KT:
+                self.coil_type = self.CoilType.AC
+        if not self.slug and self.sku_code:
+            from apps.products.admin_labels import auto_variant_slug
+
+            self.slug = auto_variant_slug(self.sku_code)
+        super().save(*args, **kwargs)
+
 
 class ProductSpec(models.Model):
     group = models.ForeignKey(

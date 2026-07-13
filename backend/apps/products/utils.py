@@ -1,9 +1,13 @@
 """Shared catalog path helpers for API and SEO sitemap."""
 
+import logging
+
 from django.conf import settings
 from django.core.cache import cache
 
 from .models import Category
+
+logger = logging.getLogger(__name__)
 
 CATEGORIES_CACHE_KEY = "api:categories:tree"
 PUBLIC_CATEGORY_IDS_CACHE_KEY = "api:categories:public_ids"
@@ -50,5 +54,8 @@ def get_public_category_ids() -> list[int]:
 
 
 def invalidate_catalog_cache() -> None:
-    cache.delete(CATEGORIES_CACHE_KEY)
-    cache.delete(PUBLIC_CATEGORY_IDS_CACHE_KEY)
+    try:
+        cache.delete(CATEGORIES_CACHE_KEY)
+        cache.delete(PUBLIC_CATEGORY_IDS_CACHE_KEY)
+    except Exception:
+        logger.warning("Catalog cache invalidation skipped", exc_info=True)

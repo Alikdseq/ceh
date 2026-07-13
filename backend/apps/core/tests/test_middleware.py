@@ -27,7 +27,7 @@ def test_csp_header_in_production(middleware_response):
 
 
 @override_settings(DEBUG=False, ADMIN_URL="manage/")
-def test_csp_skipped_on_admin(middleware_response):
+def test_csp_skipped_on_admin():
     factory = RequestFactory()
     request = factory.get("/manage/products/productgroup/1/change/")
 

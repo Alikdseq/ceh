@@ -282,24 +282,7 @@ class ProductGroupAdmin(ModelAdmin):
         invalidate_catalog_cache()
 
     def save_formset(self, request, form, formset, change):
-        if formset.model is ProductVariant:
-            instances = formset.save(commit=False)
-            product_type = form.product_type
-            for instance in instances:
-                if product_type == "KTP":
-                    instance.coil_type = ProductVariant.CoilType.DC
-                elif product_type == "KT":
-                    instance.coil_type = ProductVariant.CoilType.AC
-                if not instance.slug and instance.sku_code:
-                    from .admin_labels import auto_variant_slug
-
-                    instance.slug = auto_variant_slug(instance.sku_code)
-                instance.save()
-            for obj in formset.deleted_objects:
-                obj.delete()
-            formset.save_m2m()
-        else:
-            super().save_formset(request, form, formset, change)
+        super().save_formset(request, form, formset, change)
         if formset.model in (ProductSpec, ProductVariant, ProductImage):
             invalidate_catalog_cache()
 
