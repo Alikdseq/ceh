@@ -1,4 +1,5 @@
 import json
+import re
 from pathlib import Path
 
 from django.core.management import call_command
@@ -21,11 +22,14 @@ class Command(BaseCommand):
         settings = SiteSettings.objects.first()
         if not settings:
             return
+        phone_main = settings.phone_main or ""
+        phone_sales = settings.phone_sales or ""
         changed = False
-        if "53-33-44" in settings.phone_main or settings.phone_main.endswith("533344"):
+        main_digits = re.sub(r"\D", "", phone_main)
+        if "53-33-44" in phone_main or main_digits.endswith("533344"):
             settings.phone_main = "(8672) 54-01-03"
             changed = True
-        if not settings.phone_sales or "53-33-44" in settings.phone_sales:
+        if not phone_sales or "53-33-44" in phone_sales:
             settings.phone_sales = "(8672) 54-01-03, (8672) 53-82-55"
             changed = True
         if changed:

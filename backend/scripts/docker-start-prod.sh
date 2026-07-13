@@ -9,7 +9,7 @@ echo "==> setup_groups"
 python manage.py setup_groups
 
 echo "==> ensure_site_content"
-python manage.py ensure_site_content
+python manage.py ensure_site_content || echo "WARNING: ensure_site_content failed (continuing startup)"
 
 echo "==> ensure_admin_user (unlock)"
 python manage.py ensure_admin_user --unlock
