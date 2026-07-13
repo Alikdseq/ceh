@@ -4,6 +4,7 @@ import yaml
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
+from apps.core.paths import resolve_data_file
 from apps.products.models import Category
 
 
@@ -11,14 +12,23 @@ class Command(BaseCommand):
     help = "Import category tree from YAML (STEP-031)"
 
     def add_arguments(self, parser):
-        parser.add_argument("yaml_path", type=str, help="Path to categories.yaml")
+        parser.add_argument(
+            "yaml_path",
+            nargs="?",
+            default="categories.yaml",
+            type=str,
+            help="Path to categories.yaml (host data/ or /data/ in Docker)",
+        )
         parser.add_argument("--clear", action="store_true", help="Delete existing categories first")
 
     @transaction.atomic
     def handle(self, *args, **options):
-        path = Path(options["yaml_path"])
-        if not path.exists():
-            raise CommandError(f"File not found: {path}")
+        path = resolve_data_file(options["yaml_path"], default_name="categories.yaml")
+        if not path.is_file():
+            raise CommandError(
+                f"File not found: {options['yaml_path']} "
+                f"(also checked /data/categories.yaml on the host mount)"
+            )
 
         if options["clear"]:
             Category.objects.all().delete()
