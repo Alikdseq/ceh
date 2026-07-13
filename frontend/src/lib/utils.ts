@@ -58,6 +58,10 @@ export function productImageUnoptimized(src: string): boolean {
   return /\.(jpe?g|png|webp)(\?|$)/i.test(src);
 }
 
+export function formatAuxContactsLabel(value: string): string {
+  return value.replace(/З/g, "з").replace(/Р/g, "р").replace(/\+/g, " + ");
+}
+
 export function executionLabel(code: string): string {
   return ({ B: "Б", BS: "БС", S: "С", NONE: "—" } as Record<string, string>)[code] ?? code;
 }

@@ -10,6 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { submitQuote } from "@/lib/api/quotes";
 import { ApiError } from "@/lib/api/client";
+import { cn } from "@/lib/utils";
+
+type CustomerType = "individual" | "company";
 
 interface QuoteFormProps {
   disabled?: boolean;
@@ -18,6 +21,7 @@ interface QuoteFormProps {
 export function QuoteForm({ disabled }: QuoteFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [customerType, setCustomerType] = useState<CustomerType>("company");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [privacy, setPrivacy] = useState(false);
@@ -35,14 +39,15 @@ export function QuoteForm({ disabled }: QuoteFormProps) {
 
     setLoading(true);
     try {
+      const isIndividual = customerType === "individual";
       const result = await submitQuote({
         contact_name: String(form.get("contact_name")),
-        company_name: String(form.get("company_name")),
+        company_name: isIndividual ? "Физическое лицо" : String(form.get("company_name")),
         email: String(form.get("email")),
         phone: String(form.get("phone")),
-        city: String(form.get("city") || ""),
-        inn: String(form.get("inn") || ""),
-        kpp: String(form.get("kpp") || ""),
+        city: isIndividual ? "" : String(form.get("city") || ""),
+        inn: isIndividual ? "" : String(form.get("inn") || ""),
+        kpp: isIndividual ? "" : String(form.get("kpp") || ""),
         comment: String(form.get("comment") || ""),
         privacy_accepted: true,
         privacy_policy_version: privacyPolicyVersion,
@@ -65,15 +70,54 @@ export function QuoteForm({ disabled }: QuoteFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        <Button
+          type="button"
+          size="sm"
+          variant={customerType === "individual" ? "default" : "outline"}
+          className={cn("flex-1 sm:flex-none")}
+          onClick={() => setCustomerType("individual")}
+        >
+          Физическое лицо
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={customerType === "company" ? "default" : "outline"}
+          className={cn("flex-1 sm:flex-none")}
+          onClick={() => setCustomerType("company")}
+        >
+          Юридическое лицо
+        </Button>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
+        <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="contact_name">ФИО *</Label>
           <Input id="contact_name" name="contact_name" required autoComplete="name" />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="company_name">Компания *</Label>
-          <Input id="company_name" name="company_name" required autoComplete="organization" />
-        </div>
+
+        {customerType === "company" && (
+          <>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="company_name">Компания *</Label>
+              <Input id="company_name" name="company_name" required autoComplete="organization" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="city">Город</Label>
+              <Input id="city" name="city" autoComplete="address-level2" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="inn">ИНН</Label>
+              <Input id="inn" name="inn" inputMode="numeric" pattern="[0-9]{10}|[0-9]{12}" />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="kpp">КПП</Label>
+              <Input id="kpp" name="kpp" inputMode="numeric" pattern="[0-9]{9}" />
+            </div>
+          </>
+        )}
+
         <div className="space-y-2">
           <Label htmlFor="email">Email *</Label>
           <Input id="email" name="email" type="email" required autoComplete="email" />
@@ -82,18 +126,7 @@ export function QuoteForm({ disabled }: QuoteFormProps) {
           <Label htmlFor="phone">Телефон *</Label>
           <Input id="phone" name="phone" type="tel" required placeholder="+7 (999) 123-45-67" />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="city">Город</Label>
-          <Input id="city" name="city" autoComplete="address-level2" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="inn">ИНН</Label>
-          <Input id="inn" name="inn" inputMode="numeric" pattern="[0-9]{10}|[0-9]{12}" />
-        </div>
-        <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="kpp">КПП</Label>
-          <Input id="kpp" name="kpp" inputMode="numeric" pattern="[0-9]{9}" />
-        </div>
+
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="comment">Комментарий</Label>
           <textarea
@@ -105,7 +138,6 @@ export function QuoteForm({ disabled }: QuoteFormProps) {
         </div>
       </div>
 
-      {/* Honeypot — hidden from users */}
       <div className="absolute -left-[9999px]" aria-hidden>
         <Label htmlFor="website">Website</Label>
         <Input id="website" name="website" tabIndex={-1} autoComplete="off" />

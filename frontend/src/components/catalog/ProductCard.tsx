@@ -11,7 +11,7 @@ import { addToCart } from "@/lib/cart";
 import { highlightMatch } from "@/lib/search-highlight";
 import type { ProductGroup, ProductVariant } from "@/lib/types";
 import { listAuxContacts, pickProductVariant } from "@/lib/variant-picker";
-import { cn, executionLabel, formatPrice, productImageSrc, productImageUnoptimized } from "@/lib/utils";
+import { cn, executionLabel, formatAuxContactsLabel, formatPrice, productImageSrc, productImageUnoptimized } from "@/lib/utils";
 
 interface ProductCardProps {
   product: ProductGroup;
@@ -169,7 +169,7 @@ export function ProductCard({
                 className="h-7 px-2 text-xs"
                 onClick={() => selectAuxContacts(value)}
               >
-                {value}
+                {formatAuxContactsLabel(value)}
               </Button>
             ))}
           </div>

@@ -15,16 +15,16 @@ const NAV_BTN =
   "absolute top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-card text-[var(--color-brand-blue-dark)] shadow-[0_4px_14px_rgba(0,86,132,0.12)] transition hover:border-[var(--color-brand-blue)] hover:bg-[var(--color-brand-blue)] hover:text-white disabled:cursor-not-allowed disabled:opacity-35 md:flex";
 
 const TRACK =
-  "flex gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] md:px-12 [&::-webkit-scrollbar]:hidden";
+  "flex gap-4 overflow-x-auto overscroll-x-contain scroll-smooth pb-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden";
 
-function PartnerCard({ partner }: { partner: Partner }) {
+export function PartnerCard({ partner, className }: { partner: Partner; className?: string }) {
   return (
     <article
       className={cn(
-        "group relative flex h-full min-h-[148px] w-[min(100%,280px)] shrink-0 snap-start flex-col",
+        "group relative flex h-full min-h-[168px] w-full flex-col",
         "rounded-lg border border-[var(--color-border)] bg-gradient-to-br from-card to-[var(--color-brand-blue-light)] p-5 shadow-sm",
         "transition-all duration-300 hover:border-[var(--color-brand-blue)] hover:shadow-md",
-        "sm:w-[300px] lg:w-[320px]",
+        className,
       )}
     >
       <div
@@ -50,23 +50,46 @@ function PartnerCard({ partner }: { partner: Partner }) {
           ) : null}
         </div>
       </div>
-      <div className="mt-auto pt-4 pl-2">
-        <span
-          className={cn(
-            "inline-flex items-center rounded-md px-2.5 py-1",
-            "bg-[var(--color-brand-blue-light)]/80 font-mono text-xs font-medium tracking-wide",
-            "text-[var(--color-brand-blue-dark)]",
-            "ring-1 ring-[var(--color-brand-blue)]/15",
+
+      {(partner.address || partner.phone || partner.email) && (
+        <div className="mt-3 space-y-1 pl-2 text-sm text-muted-foreground">
+          {partner.address && <p>{partner.address}</p>}
+          {partner.phone && (
+            <p>
+              <a href={`tel:${partner.phone.replace(/[^\d+]/g, "")}`} className="hover:text-primary">
+                {partner.phone}
+              </a>
+            </p>
           )}
-        >
-          ИНН&nbsp;{partner.inn}
-        </span>
-      </div>
+          {partner.email && (
+            <p>
+              <a href={`mailto:${partner.email}`} className="text-primary hover:underline">
+                {partner.email}
+              </a>
+            </p>
+          )}
+        </div>
+      )}
+
+      {partner.inn && (
+        <div className="mt-auto pt-4 pl-2">
+          <span
+            className={cn(
+              "inline-flex items-center rounded-md px-2.5 py-1",
+              "bg-[var(--color-brand-blue-light)]/80 font-mono text-xs font-medium tracking-wide",
+              "text-[var(--color-brand-blue-dark)]",
+              "ring-1 ring-[var(--color-brand-blue)]/15",
+            )}
+          >
+            ИНН&nbsp;{partner.inn}
+          </span>
+        </div>
+      )}
     </article>
   );
 }
 
-export function PartnersCarousel({ partners, className }: PartnersCarouselProps) {
+function PartnersCarouselTrack({ partners }: { partners: Partner[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -84,7 +107,6 @@ export function PartnersCarousel({ partners, className }: PartnersCarouselProps)
     if (!el) return;
 
     updateScrollState();
-
     el.addEventListener("scroll", updateScrollState, { passive: true });
     window.addEventListener("resize", updateScrollState);
 
@@ -101,14 +123,11 @@ export function PartnersCarousel({ partners, className }: PartnersCarouselProps)
     el.scrollBy({ left: direction === "left" ? -step : step, behavior: "smooth" });
   };
 
-  if (partners.length === 0) return null;
-
   return (
-    <div className={cn("relative", className)}>
+    <div className="relative">
       <div
         className={cn(
           "pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-muted/90 to-transparent",
-          "hidden md:block",
           !canScrollLeft && "opacity-0",
         )}
         aria-hidden
@@ -116,7 +135,6 @@ export function PartnersCarousel({ partners, className }: PartnersCarouselProps)
       <div
         className={cn(
           "pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-muted/90 to-transparent",
-          "hidden md:block",
           !canScrollRight && "opacity-0",
         )}
         aria-hidden
@@ -127,7 +145,7 @@ export function PartnersCarousel({ partners, className }: PartnersCarouselProps)
         onClick={() => scroll("left")}
         disabled={!canScrollLeft}
         aria-label="Прокрутить партнёров влево"
-        className={cn(NAV_BTN, "left-0")}
+        className={cn(NAV_BTN, "left-0 flex")}
       >
         <ChevronLeft className="h-5 w-5" aria-hidden />
       </button>
@@ -137,22 +155,44 @@ export function PartnersCarousel({ partners, className }: PartnersCarouselProps)
         onClick={() => scroll("right")}
         disabled={!canScrollRight}
         aria-label="Прокрутить партнёров вправо"
-        className={cn(NAV_BTN, "right-0")}
+        className={cn(NAV_BTN, "right-0 flex")}
       >
         <ChevronRight className="h-5 w-5" aria-hidden />
       </button>
 
       <div ref={trackRef} className={TRACK} role="list" aria-label="Список партнёров">
         {partners.map((partner) => (
-          <div key={partner.id} role="listitem" className="flex">
-            <PartnerCard partner={partner} />
+          <div key={partner.id} role="listitem" className="flex w-[min(100%,280px)] shrink-0 snap-start sm:w-[300px]">
+            <PartnerCard partner={partner} className="min-h-[148px]" />
           </div>
         ))}
       </div>
 
-      <p className="mt-3 text-center text-xs text-muted-foreground md:hidden">
-        Листайте влево и вправо
-      </p>
+      <p className="mt-3 text-center text-xs text-muted-foreground">Листайте влево и вправо</p>
+    </div>
+  );
+}
+
+export function PartnersCarousel({ partners, className }: PartnersCarouselProps) {
+  if (partners.length === 0) return null;
+
+  return (
+    <div className={cn(className)}>
+      <div className="md:hidden">
+        <PartnersCarouselTrack partners={partners} />
+      </div>
+
+      <div
+        className="hidden gap-4 md:grid md:grid-cols-2 lg:grid-cols-3"
+        role="list"
+        aria-label="Список партнёров"
+      >
+        {partners.map((partner) => (
+          <div key={partner.id} role="listitem">
+            <PartnerCard partner={partner} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

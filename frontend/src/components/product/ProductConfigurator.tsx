@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { addToCart } from "@/lib/cart";
 import type { ProductGroupDetail, ProductVariant } from "@/lib/types";
 import { listAuxContacts, pickProductVariant } from "@/lib/variant-picker";
-import { executionLabel, formatPrice } from "@/lib/utils";
+import { executionLabel, formatAuxContactsLabel, formatPrice } from "@/lib/utils";
 
 interface ProductConfiguratorProps {
   product: ProductGroupDetail;
@@ -176,7 +176,7 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
                 variant={auxContacts === value ? "default" : "outline"}
                 onClick={() => selectAuxContacts(value)}
               >
-                {value}
+                {formatAuxContactsLabel(value)}
               </Button>
             ))}
           </div>
@@ -191,7 +191,7 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
           </p>
           {selected.aux_contacts && (
             <p className="mt-1">
-              <span className="text-muted-foreground">Всп. контакты:</span> {selected.aux_contacts}
+              <span className="text-muted-foreground">Всп. контакты:</span> {formatAuxContactsLabel(selected.aux_contacts)}
             </p>
           )}
         </div>

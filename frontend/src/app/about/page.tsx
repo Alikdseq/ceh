@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ContentPageLayout } from "@/components/content/ContentPageLayout";
+import { AboutAwardsSection } from "@/components/content/AboutAwardsSection";
 import { getPage } from "@/lib/api/content";
 import { buildCmsPageMetadata } from "@/lib/seo";
 
@@ -48,7 +49,12 @@ export default async function AboutPage() {
         <Link href="/about/certificates" className="text-primary hover:underline">
           Сертификаты
         </Link>
+        <a href="#awards" className="text-primary hover:underline">
+          Награды
+        </a>
       </nav>
+
+      <AboutAwardsSection className="mt-14" />
     </ContentPageLayout>
   );
 }

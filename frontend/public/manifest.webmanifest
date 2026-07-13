@@ -12,12 +12,13 @@
       "src": "/photos/logonobag.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/favicon.ico",
-      "sizes": "48x48",
-      "type": "image/x-icon"
+      "src": "/photos/logonobag.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

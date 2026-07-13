@@ -1,9 +1,12 @@
 export interface Partner {
   id: string;
   name: string;
-  /** Дополнительная строка под названием (филиал, торговая марка) */
+  /** Дополнительная строка под названием (филиал, торговая марка, страна) */
   subtitle?: string;
-  inn: string;
+  inn?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
 }
 
 /** Официальные партнёры и дилеры завода */
@@ -44,5 +47,21 @@ export const PARTNERS: Partner[] = [
     id: "vesta",
     name: "ООО «Веста»",
     inn: "7805326544",
+  },
+  {
+    id: "transkomplekt",
+    name: "ЗАО «Транскомплект»",
+    subtitle: "Республика Беларусь, г. Минск",
+    address: "ул. Ботаническая, 7, к. 101",
+    phone: "+375 (17) 245-22-43",
+    email: "transkomplektm@yandex.ru",
+  },
+  {
+    id: "akep",
+    name: "ТОО «АКЭП»",
+    subtitle: "Республика Казахстан, г. Усть-Каменогорск",
+    address: "ул. Белинского, 18",
+    phone: "(7232) 22-55-45, 22-56-05",
+    email: "akep@akep.net",
   },
 ];

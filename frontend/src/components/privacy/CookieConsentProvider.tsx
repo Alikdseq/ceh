@@ -38,16 +38,19 @@ export function CookieConsentProvider({
   className?: string;
   onConsentChange?: (consent: CookieConsentState) => void;
 }) {
-  const [consent, setConsentState] = useState<CookieConsentState>(() => getDefaultConsent());
-  const [hasDecision, setHasDecision] = useState(false);
+  const [consent, setConsentState] = useState<CookieConsentState>(() => {
+    if (typeof window === "undefined") return getDefaultConsent();
+    return readConsent() ?? getDefaultConsent();
+  });
+  const [hasDecision, setHasDecision] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return readConsent() !== null;
+  });
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored = readConsent();
-    if (stored) {
-      setConsentState(stored);
-      setHasDecision(true);
-    }
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -89,7 +92,7 @@ export function CookieConsentProvider({
     <>
       {children}
 
-      {!hasDecision ? (
+      {!hasDecision && mounted ? (
         <div
           className={cn(
             "fixed inset-x-0 bottom-0 z-[60] border-t border-[var(--color-border)] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85",
