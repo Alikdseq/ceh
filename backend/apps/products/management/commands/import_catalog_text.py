@@ -88,13 +88,7 @@ class Command(BaseCommand):
             if not category:
                 raise CommandError(f"Category not found: {cat_slug}. Run import_categories first.")
 
-            name = build_group_name(product_type, series, current)
-            slug = build_group_slug(product_type, series, current)
-            seen_group_slugs.add(slug)
-
-            group_defaults = {
-                "category": category,
-                "name": name,
+            group_defaults_base = {
                 "short_description": page.purpose[:500] if page.purpose else "",
                 "full_description": page.purpose,
                 "series_code": series,
@@ -107,67 +101,87 @@ class Command(BaseCommand):
                 "is_active": True,
             }
 
-            if dry_run:
-                self.stdout.write(f"[dry-run] group {slug}: {page.models}")
-                group = ProductGroup.objects.filter(slug=slug).first()
-                g_created = group is None
-            else:
-                group, g_created = ProductGroup.objects.update_or_create(
-                    slug=slug,
-                    defaults=group_defaults,
-                )
-                if g_created:
-                    groups_created += 1
-                else:
-                    groups_updated += 1
-                self._upsert_specs(group, page.specs)
-
-            aux_options = parse_aux_contacts_options(page.specs)
-            multi_aux = len(aux_options) > 1
-            if not aux_options:
-                aux_options = [""]
-
-            variant_index = 0
+            # Group catalog models by execution — separate card per Б/БС/С
+            models_by_execution: dict[str, list[str]] = {}
             for model_raw in page.models:
-                parsed = parse_model_code(model_raw, page.specs)
-                base_sku = model_raw.replace(" ", "")
-                coil_type = "DC" if product_type == "KTP" else "AC"
-                coils = parsed.coil_voltages_dc if product_type == "KTP" else parsed.coil_voltages_ac
-                if not coils:
-                    coils = [None]
+                parsed_model = parse_model_code(model_raw, page.specs)
+                exec_key = parsed_model.execution if parsed_model.execution != "NONE" else "B"
+                models_by_execution.setdefault(exec_key, []).append(model_raw)
 
-                execution = parsed.execution if parsed.execution != "NONE" else "B"
-                for aux in aux_options:
-                    aux_suffix = aux_contacts_sku_suffix(aux, multi_aux)
-                    for coil in coils:
-                        coil_part = "" if coil is None else f"-{coil}V"
-                        sku = f"{base_sku}{coil_part}{aux_suffix}"
-                        seen_skus.add(sku)
-                        variant_slug = sku_to_slug(sku)
-                        variant_defaults = {
-                            "group": group,
-                            "slug": variant_slug,
-                            "execution": execution,
-                            "coil_type": coil_type,
-                            "coil_voltage_v": coil,
-                            "aux_contacts": aux,
-                            "is_default": variant_index == 0,
-                            "is_active": True,
-                        }
-                        if dry_run:
-                            self.stdout.write(
-                                f"  variant {sku} ({execution}, {coil}V, aux={aux or '—'})"
-                            )
-                        else:
-                            _, v_created = ProductVariant.objects.update_or_create(
-                                sku_code=sku,
-                                defaults=variant_defaults,
-                            )
-                            if v_created:
-                                variants_created += 1
+            for execution, models_for_exec in models_by_execution.items():
+                exec_slug = build_group_slug(product_type, series, current, execution)
+                exec_name = build_group_name(product_type, series, current, execution)
+                seen_group_slugs.add(exec_slug)
+
+                exec_cat_slug = category_slug_for_group(product_type, series, execution)
+                exec_category = Category.objects.filter(slug=exec_cat_slug).first() or category
+
+                group_defaults = {
+                    **group_defaults_base,
+                    "category": exec_category,
+                    "name": exec_name,
+                }
+
+                if dry_run:
+                    self.stdout.write(f"[dry-run] group {exec_slug} ({execution}): {models_for_exec}")
+                    group = ProductGroup.objects.filter(slug=exec_slug).first()
+                else:
+                    group, g_created = ProductGroup.objects.update_or_create(
+                        slug=exec_slug,
+                        defaults=group_defaults,
+                    )
+                    if g_created:
+                        groups_created += 1
+                    else:
+                        groups_updated += 1
+                    self._upsert_specs(group, page.specs)
+
+                aux_options = parse_aux_contacts_options(page.specs)
+                multi_aux = len(aux_options) > 1
+                if not aux_options:
+                    aux_options = [""]
+
+                variant_index = 0
+                for model_raw in models_for_exec:
+                    parsed = parse_model_code(model_raw, page.specs)
+                    base_sku = model_raw.replace(" ", "")
+                    coil_type = "DC" if product_type == "KTP" else "AC"
+                    coils = parsed.coil_voltages_dc if product_type == "KTP" else parsed.coil_voltages_ac
+                    if not coils:
+                        coils = [None]
+
+                    variant_execution = parsed.execution if parsed.execution != "NONE" else "B"
+                    for aux in aux_options:
+                        aux_suffix = aux_contacts_sku_suffix(aux, multi_aux)
+                        for coil in coils:
+                            coil_part = "" if coil is None else f"-{coil}V"
+                            sku = f"{base_sku}{coil_part}{aux_suffix}"
+                            seen_skus.add(sku)
+                            variant_slug = sku_to_slug(sku)
+                            variant_defaults = {
+                                "group": group,
+                                "slug": variant_slug,
+                                "execution": variant_execution,
+                                "coil_type": coil_type,
+                                "coil_voltage_v": coil,
+                                "aux_contacts": aux,
+                                "is_default": variant_index == 0,
+                                "is_active": True,
+                            }
+                            if dry_run:
+                                self.stdout.write(
+                                    f"  variant {sku} ({variant_execution}, {coil}V, aux={aux or '—'})"
+                                )
                             else:
-                                variants_updated += 1
-                        variant_index += 1
+                                _, v_created = ProductVariant.objects.update_or_create(
+                                    sku_code=sku,
+                                    defaults=variant_defaults,
+                                )
+                                if v_created:
+                                    variants_created += 1
+                                else:
+                                    variants_updated += 1
+                            variant_index += 1
 
         pruned_variants = pruned_groups = 0
         if options["prune"] and not dry_run:

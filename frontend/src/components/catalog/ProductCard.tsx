@@ -11,9 +11,16 @@ import { HonestSignMark } from "@/components/content/HonestSignMark";
 import { addToCart } from "@/lib/cart";
 import { showHonestSignMarking } from "@/lib/honest-sign";
 import { highlightMatch } from "@/lib/search-highlight";
-import type { ProductGroup, ProductVariant } from "@/lib/types";
+import type { ProductGroup } from "@/lib/types";
 import { listAuxContacts, pickProductVariant } from "@/lib/variant-picker";
-import { cn, executionLabel, formatAuxContactsLabel, formatPrice, productImageSrc, productImageUnoptimized, PRODUCT_IMAGE_ASPECT_CLASS } from "@/lib/utils";
+import {
+  cn,
+  formatAuxContactsLabel,
+  formatPrice,
+  productImageSrc,
+  productImageUnoptimized,
+  PRODUCT_IMAGE_ASPECT_CLASS,
+} from "@/lib/utils";
 
 interface ProductCardProps {
   product: ProductGroup;
@@ -33,10 +40,6 @@ export function ProductCard({
   const href = `/catalog/${[...categoryPath, product.slug].join("/")}`;
   const variants = product.variants_preview ?? (product.default_variant ? [product.default_variant] : []);
 
-  const executions = useMemo(
-    () => [...new Set(variants.map((v) => v.execution).filter((e) => e && e !== "NONE"))],
-    [variants],
-  );
   const coils = useMemo(
     () =>
       [...new Set(variants.map((v) => v.coil_voltage_v).filter((v): v is number => v != null))].sort(
@@ -49,11 +52,6 @@ export function ProductCard({
     return listAuxContacts(variants);
   }, [product.aux_contacts_options, variants]);
 
-  const [execution, setExecution] = useState<string | null>(
-    product.default_variant?.execution !== "NONE"
-      ? (product.default_variant?.execution ?? executions[0] ?? null)
-      : (executions[0] ?? null),
-  );
   const [coil, setCoil] = useState<number | null>(
     product.default_variant?.coil_voltage_v ?? coils[0] ?? null,
   );
@@ -62,37 +60,31 @@ export function ProductCard({
   );
 
   const selected =
-    pickProductVariant(variants, execution, coil, auxContacts) ??
+    pickProductVariant(variants, null, coil, auxContacts) ??
     product.default_variant ??
     variants[0];
 
   const imageSrc = productImageSrc(product.primary_image?.url, product);
   const hasHonestSign = showHonestSignMarking(product);
 
-  function syncSelection(nextExecution: string | null, nextCoil: number | null, nextAux: string | null) {
-    const matched = pickProductVariant(variants, nextExecution, nextCoil, nextAux);
-    if (matched?.execution && matched.execution !== "NONE") setExecution(matched.execution);
+  function syncSelection(nextCoil: number | null, nextAux: string | null) {
+    const matched = pickProductVariant(variants, null, nextCoil, nextAux);
     if (matched?.coil_voltage_v != null) setCoil(matched.coil_voltage_v);
     if (matched?.aux_contacts) setAuxContacts(matched.aux_contacts);
   }
 
-  function selectExecution(exec: string) {
-    setExecution(exec);
-    syncSelection(exec, coil, auxContacts);
-  }
-
   function selectCoil(voltage: number) {
     setCoil(voltage);
-    syncSelection(execution, voltage, auxContacts);
+    syncSelection(voltage, auxContacts);
   }
 
   function selectAuxContacts(value: string) {
     setAuxContacts(value);
-    syncSelection(execution, coil, value);
+    syncSelection(coil, value);
   }
 
   function handleAddToCart() {
-    const variant = pickProductVariant(variants, execution, coil, auxContacts) ?? selected;
+    const variant = pickProductVariant(variants, null, coil, auxContacts) ?? selected;
     if (!variant) return;
     void addToCart({
       variantId: variant.id,
@@ -107,7 +99,9 @@ export function ProductCard({
       href={href}
       className={cn(
         "relative block shrink-0 overflow-hidden bg-muted transition hover:opacity-95",
-        view === "grid" ? `${PRODUCT_IMAGE_ASPECT_CLASS} w-full` : `h-24 w-40 shrink-0 rounded-md ${PRODUCT_IMAGE_ASPECT_CLASS}`,
+        view === "grid"
+          ? `${PRODUCT_IMAGE_ASPECT_CLASS} w-full`
+          : `h-24 w-40 shrink-0 rounded-md ${PRODUCT_IMAGE_ASPECT_CLASS}`,
       )}
     >
       <Image
@@ -130,24 +124,8 @@ export function ProductCard({
   );
 
   const variantSwitcher =
-    executions.length > 0 || coils.length > 0 || auxOptions.length > 0 ? (
+    coils.length > 0 || auxOptions.length > 0 ? (
       <div className="mt-2 space-y-2" onClick={(e) => e.stopPropagation()}>
-        {executions.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {executions.map((exec) => (
-              <Button
-                key={exec}
-                type="button"
-                size="sm"
-                variant={execution === exec ? "default" : "outline"}
-                className="h-7 px-2 text-xs"
-                onClick={() => selectExecution(exec)}
-              >
-                {executionLabel(exec)}
-              </Button>
-            ))}
-          </div>
-        )}
         {coils.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {coils.map((v) => (

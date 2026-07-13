@@ -127,7 +127,9 @@ class Command(BaseCommand):
         ptype = parsed["product_type"]
 
         if ptype in ("KT", "KTP", "KTE") and series:
-            slug = build_group_slug(ptype, series, current)
+            execution = parsed.get("execution")
+            exec_key = execution if execution and execution != "NONE" else None
+            slug = build_group_slug(ptype, series, current, exec_key)
             group = ProductGroup.objects.filter(slug=slug).first()
             if group:
                 return group, False
@@ -149,8 +151,10 @@ class Command(BaseCommand):
                 raise CommandError("No categories in DB. Run import_categories first.")
 
         if ptype in ("KT", "KTP", "KTE") and series:
-            name = build_group_name(ptype, series, current)
-            slug = build_group_slug(ptype, series, current)
+            execution = parsed.get("execution")
+            exec_key = execution if execution and execution != "NONE" else None
+            name = build_group_name(ptype, series, current, exec_key)
+            slug = build_group_slug(ptype, series, current, exec_key)
         else:
             name = parsed["name"]
             slug = slugify(name, allow_unicode=False)[:255]

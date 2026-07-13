@@ -259,16 +259,36 @@ def group_key_from_page(page: ParsedPage) -> tuple[str, int | None, str]:
     return (parsed.series_code, parsed.nominal_current_a, parsed.product_type)
 
 
-def build_group_name(product_type: str, series: str, current: int | None) -> str:
+def build_group_name(
+    product_type: str,
+    series: str,
+    current: int | None,
+    execution: str | None = None,
+) -> str:
     prefix = {"KT": "КТ", "KTP": "КТП", "KTE": "КТЭ"}.get(product_type, "КТ")
     current_str = f" {current}А" if current else ""
-    return f"Контактор {prefix} {series}{current_str}".strip()
+    name = f"Контактор {prefix} {series}{current_str}".strip()
+    if execution and execution not in ("NONE", ""):
+        exec_label = {"B": "Б", "BS": "БС", "S": "С"}.get(execution, execution)
+        name = f"{name}, исполнение {exec_label}"
+    return name
 
 
-def build_group_slug(product_type: str, series: str, current: int | None) -> str:
+def execution_slug_suffix(execution: str) -> str:
+    return {"B": "b", "BS": "bs", "S": "s"}.get(execution, slugify(execution, allow_unicode=False))
+
+
+def build_group_slug(
+    product_type: str,
+    series: str,
+    current: int | None,
+    execution: str | None = None,
+) -> str:
     base = f"kontaktor-{product_type.lower()}-{series}"
     if current:
         base += f"-{current}a"
+    if execution and execution not in ("NONE", ""):
+        base += f"-{execution_slug_suffix(execution)}"
     return slugify(base, allow_unicode=False)
 
 

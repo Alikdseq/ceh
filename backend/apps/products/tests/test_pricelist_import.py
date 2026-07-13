@@ -22,8 +22,8 @@ def test_import_pricelist_keeps_kt_and_ktp_separate(tmp_path):
     kt = ProductGroup.objects.get(product_type="KT", series_code="6012")
     ktp = ProductGroup.objects.get(product_type="KTP", series_code="6012")
     assert kt.slug != ktp.slug
-    assert kt.slug == "kontaktor-kt-6012-100a"
-    assert ktp.slug == "kontaktor-ktp-6012-100a"
+    assert kt.slug == "kontaktor-kt-6012-100a-b"
+    assert ktp.slug == "kontaktor-ktp-6012-100a-b"
     assert kt.category.slug == "kt-6000b"
     assert ktp.category.slug == "ktp-6000b"
 

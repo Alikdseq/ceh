@@ -168,13 +168,13 @@ class ProductGroupListSerializer(serializers.ModelSerializer):
         return None
 
     def get_variants_preview(self, obj):
-        """One variant per (execution, coil, aux) so catalog cards show all pill options."""
+        """One variant per (coil, aux) — execution is a separate product card."""
         picked: list[ProductVariant] = []
         seen: set[tuple] = set()
         for variant in obj.variants.filter(is_active=True).order_by(
-            "execution", "coil_voltage_v", "aux_contacts", "price",
+            "coil_voltage_v", "aux_contacts", "price",
         ):
-            key = (variant.execution, variant.coil_voltage_v, variant.aux_contacts or "")
+            key = (variant.coil_voltage_v, variant.aux_contacts or "")
             if key in seen:
                 continue
             seen.add(key)
