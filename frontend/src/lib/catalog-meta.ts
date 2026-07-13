@@ -3,7 +3,6 @@ import {
   Bus,
   Cable,
   Grid3X3,
-  Package,
   ToggleLeft,
   Zap,
 } from "lucide-react";
@@ -33,12 +32,6 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
     icon: Bus,
     color: "bg-[#e8f5ee] text-[var(--color-success)]",
     description: "Для троллейбуса и трамвая",
-  },
-  "aksessuary-kontaktorov": {
-    icon: Package,
-    color: "bg-[#fff4e8] text-[var(--color-cta)]",
-    description: "Катушки, блокировки, соединения",
-    image: "/photos/мехблок.png",
   },
   vyklyuchateli: {
     icon: ToggleLeft,

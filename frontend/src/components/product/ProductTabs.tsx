@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ProductGroupDetail } from "@/lib/types";
-import { specKeyLabel } from "@/lib/utils";
+import { specKeyLabel, isVisibleSpecKey } from "@/lib/utils";
 
 interface ProductTabsProps {
   product: ProductGroupDetail;
@@ -16,6 +16,8 @@ interface ProductTabsProps {
 
 export function ProductTabs({ product }: ProductTabsProps) {
   const publicDocs = product.documents.filter((d) => d.document.is_public && d.document.file_url);
+  const visibleSpecs = product.specs.filter((spec) => isVisibleSpecKey(spec.spec_key));
+  const hasSpecs = visibleSpecs.length > 0 || Boolean(product.nominal_current_a);
 
   return (
     <Tabs defaultValue="specs" className="mt-12">
@@ -29,7 +31,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
       </TabsList>
 
       <TabsContent value="specs" className="mt-6">
-        {product.specs.length > 0 ? (
+        {hasSpecs ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -38,7 +40,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {product.specs.map((spec) => (
+              {visibleSpecs.map((spec) => (
                 <TableRow key={spec.spec_key}>
                   <TableCell className="font-medium">{specKeyLabel(spec.spec_key)}</TableCell>
                   <TableCell>
@@ -51,12 +53,6 @@ export function ProductTabs({ product }: ProductTabsProps) {
                 <TableRow>
                   <TableCell className="font-medium">Номинальный ток</TableCell>
                   <TableCell>{product.nominal_current_a} А</TableCell>
-                </TableRow>
-              )}
-              {product.application_category && (
-                <TableRow>
-                  <TableCell className="font-medium">Категория применения</TableCell>
-                  <TableCell>{product.application_category}</TableCell>
                 </TableRow>
               )}
             </TableBody>

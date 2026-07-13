@@ -46,7 +46,7 @@ export function QuoteForm({ disabled }: QuoteFormProps) {
         email: String(form.get("email")),
         phone: String(form.get("phone")),
         city: isIndividual ? "" : String(form.get("city") || ""),
-        inn: isIndividual ? "" : String(form.get("inn") || ""),
+        inn: String(form.get("inn") || ""),
         kpp: isIndividual ? "" : String(form.get("kpp") || ""),
         comment: String(form.get("comment") || ""),
         privacy_accepted: true,
@@ -97,6 +97,13 @@ export function QuoteForm({ disabled }: QuoteFormProps) {
           <Input id="contact_name" name="contact_name" required autoComplete="name" />
         </div>
 
+        {customerType === "individual" && (
+          <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="inn">ИНН</Label>
+            <Input id="inn" name="inn" inputMode="numeric" pattern="[0-9]{10}|[0-9]{12}" placeholder="10 или 12 цифр" />
+          </div>
+        )}
+
         {customerType === "company" && (
           <>
             <div className="space-y-2 sm:col-span-2">
@@ -108,8 +115,8 @@ export function QuoteForm({ disabled }: QuoteFormProps) {
               <Input id="city" name="city" autoComplete="address-level2" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="inn">ИНН</Label>
-              <Input id="inn" name="inn" inputMode="numeric" pattern="[0-9]{10}|[0-9]{12}" />
+              <Label htmlFor="inn_company">ИНН</Label>
+              <Input id="inn_company" name="inn" inputMode="numeric" pattern="[0-9]{10}|[0-9]{12}" />
             </div>
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="kpp">КПП</Label>

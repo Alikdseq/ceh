@@ -3,7 +3,6 @@ export { getCategories } from "./categories";
 export { getCatalogFilter, fetchCatalogFilterClient } from "./catalog-filter";
 export type { CatalogFilterResponse, CatalogFiltersMeta } from "./catalog-filter";
 export {
-  getAccessories,
   getFeaturedProducts,
   getProduct,
   getProducts,

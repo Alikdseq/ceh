@@ -7,11 +7,13 @@ import { ShoppingCart } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { HonestSignMark } from "@/components/content/HonestSignMark";
 import { addToCart } from "@/lib/cart";
+import { showHonestSignMarking } from "@/lib/honest-sign";
 import { highlightMatch } from "@/lib/search-highlight";
 import type { ProductGroup, ProductVariant } from "@/lib/types";
 import { listAuxContacts, pickProductVariant } from "@/lib/variant-picker";
-import { cn, executionLabel, formatAuxContactsLabel, formatPrice, productImageSrc, productImageUnoptimized } from "@/lib/utils";
+import { cn, executionLabel, formatAuxContactsLabel, formatPrice, productImageSrc, productImageUnoptimized, PRODUCT_IMAGE_ASPECT_CLASS } from "@/lib/utils";
 
 interface ProductCardProps {
   product: ProductGroup;
@@ -65,6 +67,7 @@ export function ProductCard({
     variants[0];
 
   const imageSrc = productImageSrc(product.primary_image?.url, product);
+  const hasHonestSign = showHonestSignMarking(product);
 
   function syncSelection(nextExecution: string | null, nextCoil: number | null, nextAux: string | null) {
     const matched = pickProductVariant(variants, nextExecution, nextCoil, nextAux);
@@ -104,7 +107,7 @@ export function ProductCard({
       href={href}
       className={cn(
         "relative block shrink-0 overflow-hidden bg-muted transition hover:opacity-95",
-        view === "grid" ? "aspect-[4/3] w-full" : "h-28 w-28 rounded-md",
+        view === "grid" ? `${PRODUCT_IMAGE_ASPECT_CLASS} w-full` : `h-24 w-40 shrink-0 rounded-md ${PRODUCT_IMAGE_ASPECT_CLASS}`,
       )}
     >
       <Image
@@ -120,6 +123,9 @@ export function ProductCard({
       <Badge variant="brand" className="absolute left-2 top-2 text-[10px]">
         Производитель
       </Badge>
+      {hasHonestSign && (
+        <HonestSignMark size="sm" className="absolute bottom-2 right-2 rounded bg-white/90 p-0.5" />
+      )}
     </Link>
   );
 

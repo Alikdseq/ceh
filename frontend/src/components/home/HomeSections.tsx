@@ -1,16 +1,23 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Award, Factory, ShieldCheck } from "lucide-react";
+import { Award, Factory } from "lucide-react";
 
 import { AntiCounterfeitBlock } from "@/components/content/AntiCounterfeitBlock";
+import { HonestSignSection } from "@/components/home/HonestSignSection";
 import { PartnersCarousel } from "@/components/home/PartnersCarousel";
 
 import { Button } from "@/components/ui/button";
+import { HONEST_SIGN_LOGO_COMPACT } from "@/lib/honest-sign";
 import { SERIES_BLOCKS } from "@/lib/catalog-meta";
 import { PARTNERS } from "@/lib/partners";
+import { publicAssetSrc } from "@/lib/utils";
 
 const TRUST_BADGES = [
-  { icon: ShieldCheck, label: "Честный знак", desc: "Маркировка и прослеживаемость" },
+  {
+    logo: HONEST_SIGN_LOGO_COMPACT,
+    label: "Честный знак",
+    desc: "Партнёр оператора маркировки, прослеживаемость продукции",
+  },
   { icon: Factory, label: "100% РФ", desc: "Собственное производство во Владикавказе" },
   { icon: Award, label: "EAC", desc: "Сертификация продукции" },
 ] as const;
@@ -93,14 +100,25 @@ export function TrustBadges() {
   return (
     <section className="border-y bg-background py-8" aria-label="Преимущества производителя">
       <div className="container-page grid gap-6 sm:grid-cols-3">
-        {TRUST_BADGES.map(({ icon: Icon, label, desc }) => (
-          <div key={label} className="flex items-start gap-4">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Icon className="h-5 w-5" aria-hidden />
+        {TRUST_BADGES.map((item) => (
+          <div key={item.label} className="flex items-start gap-4">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[#FAFF00]/40 p-1.5">
+              {"logo" in item ? (
+                <Image
+                  src={publicAssetSrc(item.logo)}
+                  alt=""
+                  width={44}
+                  height={44}
+                  unoptimized
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <item.icon className="h-5 w-5 text-primary" aria-hidden />
+              )}
             </div>
             <div>
-              <p className="font-display font-semibold">{label}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
+              <p className="font-display font-semibold">{item.label}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{item.desc}</p>
             </div>
           </div>
         ))}
@@ -108,6 +126,8 @@ export function TrustBadges() {
     </section>
   );
 }
+
+export { HonestSignSection };
 
 export function AntiCounterfeitBanner() {
   return (

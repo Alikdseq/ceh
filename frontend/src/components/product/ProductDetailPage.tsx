@@ -6,7 +6,7 @@ import { ProductConfigurator, ProductStickyBar } from "@/components/product/Prod
 import { ProductFAQ, ProductRelated } from "@/components/product/ProductRelated";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { ProductTabs } from "@/components/product/ProductTabs";
-import { getAccessories, getCategories, getFAQ } from "@/lib/api";
+import { getCategories, getFAQ } from "@/lib/api";
 import { buildCategoryBreadcrumbs, getCategoryPathSlugs } from "@/lib/categories";
 import { AntiCounterfeitBlock } from "@/components/content/AntiCounterfeitBlock";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -18,9 +18,8 @@ interface ProductDetailPageProps {
 }
 
 export async function ProductDetailPage({ product }: ProductDetailPageProps) {
-  const [categories, accessories, faq] = await Promise.all([
+  const [categories, faq] = await Promise.all([
     getCategories(),
-    getAccessories(4),
     getFAQ(5),
   ]);
 
@@ -70,7 +69,6 @@ export async function ProductDetailPage({ product }: ProductDetailPageProps) {
           <ProductTabs product={product} />
           <ProductRelated
             related={product.related}
-            accessories={accessories}
             categoryPathMap={pathMap}
           />
           <ProductFAQ items={faq} />

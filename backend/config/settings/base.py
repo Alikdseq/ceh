@@ -292,6 +292,11 @@ UNFOLD = {
                         "icon": "category",
                         "link": "/manage/products/category/",
                     },
+                    {
+                        "title": "Цены и артикулы",
+                        "icon": "payments",
+                        "link": "/manage/products/productvariant/",
+                    },
                 ],
             },
             {

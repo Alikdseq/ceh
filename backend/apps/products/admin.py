@@ -314,3 +314,61 @@ class ProductGroupAdmin(ModelAdmin):
             .select_related("category")
             .prefetch_related("images", "variants")
         )
+
+
+@admin.register(ProductVariant)
+class ProductVariantAdmin(ModelAdmin):
+    """Быстрое редактирование цен без входа в карточку товара."""
+
+    form = ProductVariantAdminForm
+    list_display = (
+        "sku_code",
+        "group",
+        "execution",
+        "coil_voltage_v",
+        "aux_contacts",
+        "price",
+        "stock_status",
+        "is_active",
+    )
+    list_display_links = ("sku_code",)
+    list_editable = ("price", "stock_status", "is_active")
+    list_filter = ("is_active", "stock_status", "group__category", "execution")
+    search_fields = ("sku_code", "group__name", "group__slug")
+    autocomplete_fields = ("group",)
+    list_per_page = 50
+    ordering = ("group__name", "sku_code")
+
+    fieldsets = (
+        (
+            "Вариант",
+            {
+                "fields": (
+                    "group",
+                    "sku_code",
+                    "slug",
+                    "execution",
+                    "coil_voltage_v",
+                    "aux_contacts",
+                    "price",
+                    "price_valid_from",
+                    "stock_status",
+                    "is_default",
+                    "is_active",
+                ),
+            },
+        ),
+    )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("group", "group__category")
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        invalidate_catalog_cache()
+
+    def changelist_view(self, request, extra_context=None):
+        response = super().changelist_view(request, extra_context=extra_context)
+        if request.method == "POST":
+            invalidate_catalog_cache()
+        return response

@@ -5,12 +5,14 @@ import { useMemo, useState } from "react";
 
 import { resolveStaticProductGallery, type ProductImageContext } from "@/lib/product-images";
 import type { ProductImageDetail } from "@/lib/types";
-import { cn, productImageSrc, productImageUnoptimized } from "@/lib/utils";
+import { showHonestSignMarking } from "@/lib/honest-sign";
+import { cn, productImageSrc, productImageUnoptimized, PRODUCT_IMAGE_ASPECT_CLASS } from "@/lib/utils";
+import { HonestSignMark } from "@/components/content/HonestSignMark";
 
 interface ProductGalleryProps {
   images: ProductImageDetail[];
   name: string;
-  product?: ProductImageContext;
+  product?: ProductImageContext & { honest_sign?: boolean; product_type?: string };
 }
 
 function galleryItemSrc(item: ProductImageDetail | { url?: string; image?: string }): string {
@@ -39,10 +41,11 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
   const [active, setActive] = useState(0);
   const current = list[active] ?? list[0];
   const mainSrc = productImageSrc(galleryItemSrc(current), product);
+  const hasHonestSign = product ? showHonestSignMarking(product) : false;
 
   return (
     <div className="space-y-3">
-      <div className="relative aspect-square overflow-hidden rounded-lg border bg-muted">
+      <div className={cn("relative overflow-hidden rounded-lg border bg-muted", PRODUCT_IMAGE_ASPECT_CLASS)}>
         <Image
           src={mainSrc}
           alt={current.alt || name}
@@ -52,6 +55,9 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
           className="object-contain p-6"
           sizes="(max-width:768px) 100vw, 50vw"
         />
+        {hasHonestSign && (
+          <HonestSignMark size="md" className="absolute bottom-3 right-3 rounded-md bg-white/95 p-1 shadow-sm" />
+        )}
       </div>
       {list.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-1">

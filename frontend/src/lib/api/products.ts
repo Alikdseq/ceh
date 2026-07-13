@@ -23,15 +23,6 @@ export async function tryGetProduct(slug: string): Promise<ProductGroupDetail | 
   }
 }
 
-export async function getAccessories(limit = 6): Promise<ProductGroup[]> {
-  try {
-    const data = await getProducts({ category: "aksessuary-kontaktorov", page_size: limit });
-    return data.results;
-  } catch {
-    return [];
-  }
-}
-
 export async function getFeaturedProducts(limit = 4): Promise<ProductGroup[]> {
   try {
     const featured = await getProducts({ featured: true, page_size: limit });

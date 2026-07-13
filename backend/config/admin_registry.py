@@ -18,12 +18,10 @@ def hide_unneeded_admin_models():
     from apps.docs.models import Document, ProductDocument
     from apps.leads.models import CallbackLead, ContactLead, DocumentRequestLead
     from apps.newsletter.models import NewsletterCampaign, NewsletterSendLog, NewsletterSubscriber
-    from apps.products.models import ProductVariant
     from apps.quotes.models import QuoteCart
     from apps.seo.models import Redirect, SearchQueryLog
 
     for model in (
-        ProductVariant,
         QuoteCart,
         Page,
         FAQItem,

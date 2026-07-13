@@ -28,6 +28,9 @@ export function formatDate(iso: string): string {
 
 export const PLACEHOLDER_PRODUCT_SRC = "/placeholder-product.svg";
 
+/** Горизонтальное соотношение фото в карточках каталога */
+export const PRODUCT_IMAGE_ASPECT_CLASS = "aspect-[16/10]";
+
 /** Encode Cyrillic/spaces in local public asset paths for reliable loading. */
 export function publicAssetSrc(path: string): string {
   if (!path.startsWith("/")) return path;
@@ -88,6 +91,13 @@ export function coilTypeLabel(code: string): string {
       NONE: "—",
     } as Record<string, string>
   )[code] ?? code;
+}
+
+/** Параметры, не показываемые в таблице характеристик на сайте */
+export const HIDDEN_SPEC_KEYS = new Set(["application_category"]);
+
+export function isVisibleSpecKey(key: string): boolean {
+  return !HIDDEN_SPEC_KEYS.has(key);
 }
 
 export function specKeyLabel(key: string): string {

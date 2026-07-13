@@ -6,7 +6,8 @@ import { CatalogPagination, CatalogToolbar } from "@/components/catalog/CatalogT
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { SmartCatalogFilter } from "@/components/catalog/SmartCatalogFilter";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { CatalogGridSkeleton, Skeleton } from "@/components/ui/skeleton";
+import { cn, PRODUCT_IMAGE_ASPECT_CLASS } from "@/lib/utils";
 import {
   fetchCatalogFilterClient,
   type CatalogFilterResponse,
@@ -145,7 +146,7 @@ export function CatalogListingClient({
           {isPending && products.length === 0 ? (
             <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="aspect-[4/3] w-full rounded-lg" />
+                <Skeleton key={i} className={cn("w-full rounded-lg", PRODUCT_IMAGE_ASPECT_CLASS)} />
               ))}
             </div>
           ) : products.length === 0 ? (

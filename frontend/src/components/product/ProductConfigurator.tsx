@@ -5,11 +5,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import { CompareButton } from "@/components/product/CompareButton";
+import { HonestSignMark } from "@/components/content/HonestSignMark";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { addToCart } from "@/lib/cart";
+import { showHonestSignMarking } from "@/lib/honest-sign";
 import type { ProductGroupDetail, ProductVariant } from "@/lib/types";
 import { listAuxContacts, pickProductVariant } from "@/lib/variant-picker";
 import { executionLabel, formatAuxContactsLabel, formatPrice } from "@/lib/utils";
@@ -115,10 +116,8 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
       <div>
         <div className="flex flex-wrap items-start gap-2">
           <h1 className="font-display text-2xl font-bold break-words md:text-3xl">{product.h1 || product.name}</h1>
-          {product.honest_sign && (
-            <Badge variant="neutral" title="Продукция маркируется в системе «Честный знак»">
-              Честный знак
-            </Badge>
+          {showHonestSignMarking(product) && (
+            <HonestSignMark size="md" className="mt-1 rounded-md bg-[#FAFF00]/25 p-1" />
           )}
         </div>
         {product.nominal_current_a && (

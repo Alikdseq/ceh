@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { ProductCard } from "@/components/catalog/ProductCard";
 import {
   Accordion,
@@ -11,17 +9,15 @@ import type { FAQItem, ProductGroup } from "@/lib/types";
 
 interface ProductRelatedProps {
   related: ProductGroup[];
-  accessories: ProductGroup[];
   categoryPathMap: (slug: string) => string[];
 }
 
-export function ProductRelated({ related, accessories, categoryPathMap }: ProductRelatedProps) {
-  if (related.length === 0 && accessories.length === 0) return null;
+export function ProductRelated({ related, categoryPathMap }: ProductRelatedProps) {
+  if (related.length === 0) return null;
 
   return (
     <div className="mt-16 space-y-12">
-      {related.length > 0 && (
-        <section aria-labelledby="related-heading">
+      <section aria-labelledby="related-heading">
           <h2 id="related-heading" className="font-display text-2xl font-bold">
             Похожие товары
           </h2>
@@ -34,30 +30,7 @@ export function ProductRelated({ related, accessories, categoryPathMap }: Produc
               />
             ))}
           </div>
-        </section>
-      )}
-
-      {accessories.length > 0 && (
-        <section aria-labelledby="accessories-heading">
-          <div className="flex items-end justify-between gap-4">
-            <h2 id="accessories-heading" className="font-display text-2xl font-bold">
-              Аксессуары
-            </h2>
-            <Link href="/catalog/aksessuary-kontaktorov" className="text-sm text-primary hover:underline">
-              Все аксессуары
-            </Link>
-          </div>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {accessories.map((p) => (
-              <ProductCard
-                key={p.id}
-                product={p}
-                categoryPath={categoryPathMap(p.category_slug)}
-              />
-            ))}
-          </div>
-        </section>
-      )}
+      </section>
     </div>
   );
 }

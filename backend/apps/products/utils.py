@@ -9,6 +9,9 @@ CATEGORIES_CACHE_KEY = "api:categories:tree"
 PUBLIC_CATEGORY_IDS_CACHE_KEY = "api:categories:public_ids"
 CATEGORIES_CACHE_TTL = getattr(settings, "CACHE_TTL_CATEGORIES", 3600)
 
+# Не отдаём в публичное API / не показываем в таблице характеристик
+PUBLIC_HIDDEN_SPEC_KEYS = frozenset({"application_category"})
+
 
 def category_path_slugs(category) -> list[str]:
     """Return MPTT slug path from root to category (inclusive)."""

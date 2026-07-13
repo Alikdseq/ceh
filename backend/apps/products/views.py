@@ -29,7 +29,7 @@ from .services.catalog_filter import (
     params_to_dict,
 )
 from .services.search import search_products, search_products_queryset
-from .utils import CATEGORIES_CACHE_KEY, get_public_category_ids
+from .utils import CATEGORIES_CACHE_KEY, PUBLIC_HIDDEN_SPEC_KEYS, get_public_category_ids
 
 CATEGORIES_CACHE_TTL = getattr(settings, "CACHE_TTL_CATEGORIES", 3600)
 
@@ -159,12 +159,17 @@ class CompareView(APIView):
         id_order = {vid: idx for idx, vid in enumerate(ids)}
         sorted_variants = sorted(variants, key=lambda v: id_order.get(v.id, 999))
 
-        spec_keys = list(
-            ProductSpec.objects.filter(group__in=[v.group for v in sorted_variants], filterable=True)
+        spec_keys = [
+            key
+            for key in ProductSpec.objects.filter(
+                group__in=[v.group for v in sorted_variants],
+                filterable=True,
+            )
             .values_list("spec_key", flat=True)
             .distinct()
             .order_by("spec_key")
-        )
+            if key not in PUBLIC_HIDDEN_SPEC_KEYS
+        ]
 
         return Response({
             "variants": CompareVariantSerializer(

@@ -5,6 +5,7 @@ import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import {
   AntiCounterfeitBanner,
   HeroSection,
+  HonestSignSection,
   PartnersSection,
   TrustBadges,
 } from "@/components/home/HomeSections";
@@ -29,6 +30,7 @@ export default async function HomePage() {
     <>
       <JsonLd data={[buildOrganizationSchema(settings ?? undefined), buildWebSiteSchema(settings ?? undefined)]} />
       <HeroSection />
+      <HonestSignSection />
       <section className="section-py bg-background" aria-labelledby="home-catalog-heading">
         <div className="container-page">
           <h2 id="home-catalog-heading" className="font-display text-2xl font-bold md:text-3xl">

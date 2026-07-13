@@ -4,7 +4,7 @@ from rest_framework import serializers
 from apps.docs.models import Document, ProductDocument
 
 from .models import Category, ProductGroup, ProductImage, ProductSpec, ProductVariant
-from .utils import category_path_slugs, get_public_category_ids, is_category_public
+from .utils import category_path_slugs, get_public_category_ids, is_category_public, PUBLIC_HIDDEN_SPEC_KEYS
 
 
 def _absolute_media_url(obj, request):
@@ -105,13 +105,17 @@ class ProductVariantDetailSerializer(ProductVariantListSerializer):
     group_slug = serializers.CharField(source="group.slug", read_only=True)
     dimensions = serializers.JSONField()
     documents = serializers.SerializerMethodField()
-    specs = ProductSpecSerializer(source="group.specs", many=True, read_only=True)
+    specs = serializers.SerializerMethodField()
 
     class Meta(ProductVariantListSerializer.Meta):
         fields = ProductVariantListSerializer.Meta.fields + (
             "group_name", "group_slug", "weight_net_kg", "weight_gross_kg",
             "dimensions", "documents", "specs",
         )
+
+    def get_specs(self, obj):
+        specs = obj.group.specs.exclude(spec_key__in=PUBLIC_HIDDEN_SPEC_KEYS)
+        return ProductSpecSerializer(specs, many=True).data
 
     def get_documents(self, obj):
         links = ProductDocument.objects.filter(
@@ -191,17 +195,21 @@ class ProductGroupListSerializer(serializers.ModelSerializer):
 
 class ProductGroupDetailSerializer(ProductGroupListSerializer):
     variants = ProductVariantListSerializer(many=True, read_only=True)
-    specs = ProductSpecSerializer(many=True, read_only=True)
+    specs = serializers.SerializerMethodField()
     images = ProductImageSerializer(many=True, read_only=True)
     documents = ProductDocumentSerializer(many=True, read_only=True)
     related = serializers.SerializerMethodField()
 
     class Meta(ProductGroupListSerializer.Meta):
         fields = ProductGroupListSerializer.Meta.fields + (
-            "full_description", "application_category", "designation_structure",
+            "full_description", "designation_structure",
             "meta_title", "meta_description", "h1",
             "variants", "specs", "images", "documents", "related",
         )
+
+    def get_specs(self, obj):
+        specs = obj.specs.exclude(spec_key__in=PUBLIC_HIDDEN_SPEC_KEYS)
+        return ProductSpecSerializer(specs, many=True).data
 
     def get_related(self, obj):
         related = obj.related_groups.filter(is_active=True)[:6]

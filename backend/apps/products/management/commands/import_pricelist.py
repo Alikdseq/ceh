@@ -144,8 +144,6 @@ class Command(BaseCommand):
         cat_slug = pricelist_category_slug(parsed, notes)
         category = Category.objects.filter(slug=cat_slug).first()
         if not category:
-            category = Category.objects.filter(slug="aksessuary-kontaktorov").first()
-        if not category:
             category = Category.objects.first()
             if not category:
                 raise CommandError("No categories in DB. Run import_categories first.")

@@ -15,7 +15,7 @@ import {
   removeFromCompare,
   setCompareIds,
 } from "@/lib/compare";
-import { cn, coilTypeLabel, executionLabel, formatPrice, productTypeLabel, specKeyLabel } from "@/lib/utils";
+import { cn, coilTypeLabel, executionLabel, formatPrice, isVisibleSpecKey, productTypeLabel, specKeyLabel } from "@/lib/utils";
 import type { CompareResponse, CompareVariant } from "@/lib/types";
 
 const BASE_ROWS: { key: string; label: string; get: (v: CompareVariant) => string }[] = [
@@ -127,7 +127,7 @@ export function ComparePageClient() {
 
   const specRows =
     data?.spec_keys
-      .filter((key) => !baseSpecKeys.has(key))
+      .filter((key) => !baseSpecKeys.has(key) && isVisibleSpecKey(key))
       .map((key) => ({
         key: `spec:${key}`,
         label: specKeyLabel(key),
