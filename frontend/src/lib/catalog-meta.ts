@@ -3,6 +3,7 @@ import {
   Bus,
   Cable,
   Grid3X3,
+  Package,
   ToggleLeft,
   Zap,
 } from "lucide-react";
