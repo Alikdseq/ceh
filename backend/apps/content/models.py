@@ -5,7 +5,7 @@ class SiteSettings(models.Model):
     """Singleton — всегда pk=1."""
     company_name = models.CharField("Название", max_length=255, default='АО «Электроконтактор»')
     phone_main = models.CharField("Телефон", max_length=30, default="(8672) 54-01-03")
-    phone_sales = models.CharField("Отдел сбыта", max_length=30, blank=True)
+    phone_sales = models.CharField("Отдел сбыта", max_length=80, blank=True)
     email_main = models.EmailField("Email", default="info@ekontaktor.ru")
     order_emails = models.TextField(
         "Email для заявок (через запятую)",
