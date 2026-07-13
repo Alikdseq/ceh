@@ -245,6 +245,26 @@ UNFOLD = {
     "SITE_HEADER": "Управление сайтом",
     "SITE_SUBHEADER": "Каталог, заявки, прайс и новости",
     "SITE_SYMBOL": "dashboard",
+    "SITE_ICON": "/photos/logonobag.png",
+    "SITE_FAVICONS": [
+        {
+            "rel": "icon",
+            "sizes": "32x32",
+            "type": "image/png",
+            "href": "/photos/logonobag.png",
+        },
+        {
+            "rel": "shortcut icon",
+            "type": "image/png",
+            "href": "/photos/logonobag.png",
+        },
+        {
+            "rel": "apple-touch-icon",
+            "sizes": "180x180",
+            "type": "image/png",
+            "href": "/photos/logonobag.png",
+        },
+    ],
     "SHOW_HISTORY": False,
     "SHOW_VIEW_ON_SITE": True,
     "DASHBOARD_CALLBACK": "config.admin_dashboard.dashboard_callback",

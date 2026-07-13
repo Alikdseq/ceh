@@ -28,12 +28,13 @@ class Command(BaseCommand):
         main_digits = re.sub(r"\D", "", phone_main)
         if "53-33-44" in phone_main or main_digits.endswith("533344"):
             settings.phone_main = "(8672) 54-01-03"
+            settings.save(update_fields=["phone_main"])
             changed = True
         if not phone_sales or "53-33-44" in phone_sales:
             settings.phone_sales = "(8672) 54-01-03, (8672) 53-82-55"
+            settings.save(update_fields=["phone_sales"])
             changed = True
         if changed:
-            settings.save(update_fields=["phone_main", "phone_sales"])
             self.stdout.write(self.style.SUCCESS("Updated SiteSettings phone numbers"))
 
 

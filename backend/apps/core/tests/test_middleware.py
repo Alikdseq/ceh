@@ -27,16 +27,16 @@ def test_csp_header_in_production(middleware_response):
 
 
 @override_settings(DEBUG=False, ADMIN_URL="manage/")
-def test_csp_allows_unsafe_eval_on_admin(middleware_response):
+def test_csp_skipped_on_admin(middleware_response):
     factory = RequestFactory()
-    request = factory.get("/manage/login/")
+    request = factory.get("/manage/products/productgroup/1/change/")
 
     def get_response(req):
         from django.http import HttpResponse
         return HttpResponse("ok")
 
     response = SecurityHeadersMiddleware(get_response)(request)
-    assert "unsafe-eval" in response["Content-Security-Policy"]
+    assert "Content-Security-Policy" not in response
 
 
 @override_settings(DEBUG=True)
