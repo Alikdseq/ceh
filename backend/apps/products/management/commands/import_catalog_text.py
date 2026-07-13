@@ -110,7 +110,7 @@ class Command(BaseCommand):
 
             for execution, models_for_exec in models_by_execution.items():
                 exec_slug = build_group_slug(product_type, series, current, execution)
-                exec_name = build_group_name(product_type, series, current, execution)
+                exec_name = build_group_name(product_type, series, current, execution) or exec_name
                 seen_group_slugs.add(exec_slug)
 
                 exec_cat_slug = category_slug_for_group(product_type, series, execution)

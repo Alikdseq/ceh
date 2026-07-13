@@ -265,13 +265,65 @@ def build_group_name(
     current: int | None,
     execution: str | None = None,
 ) -> str:
-    prefix = {"KT": "КТ", "KTP": "КТП", "KTE": "КТЭ"}.get(product_type, "КТ")
-    current_str = f" {current}А" if current else ""
-    name = f"Контактор {prefix} {series}{current_str}".strip()
-    if execution and execution not in ("NONE", ""):
-        exec_label = {"B": "Б", "BS": "БС", "S": "С"}.get(execution, execution)
-        name = f"{name}, исполнение {exec_label}"
-    return name
+    """Каталожное обозначение слитно, например КТ6012Б-У3."""
+    prefix = {"KT": "КТ", "KTP": "КТП", "KTE": "КТЭ"}.get(product_type, "")
+    if product_type in ("KT", "KTP") and series and execution not in (None, "", "NONE"):
+        exec_char = {"B": "Б", "BS": "БС", "S": "С"}.get(execution, "")
+        return f"{prefix}{series}{exec_char}-У3"
+    if product_type == "KTE" and series:
+        if "-" in series:
+            return f"КТЭ{series}-У3"
+        if len(series) >= 4:
+            return f"КТЭ{series[:2]}-{series[2:]}-У3"
+        return f"КТЭ{series}-У3"
+    return ""
+
+
+def build_catalog_display_name(group) -> str:
+    """Имя карточки как в каталоге — из артикула или серии/исполнения."""
+    variant = (
+        group.variants.filter(is_active=True)
+        .order_by("-is_default", "price", "sku_code")
+        .first()
+    )
+    if variant and variant.sku_code:
+        sku = variant.sku_code.replace(" ", "")
+        match = re.match(r"^(.+?-У\d)", sku, re.IGNORECASE)
+        if match:
+            label = match.group(1)
+            return label.replace("у", "У").replace("-у", "-У")
+        head = re.match(r"^([A-ZА-Я0-9]+(?:-[A-ZА-Я0-9]+)?)", sku)
+        if head:
+            return head.group(1)
+
+    if group.product_type in ("KT", "KTP", "KTE") and group.series_code:
+        execution = (
+            group.variants.filter(is_active=True)
+            .exclude(execution="NONE")
+            .values_list("execution", flat=True)
+            .first()
+        )
+        catalog = build_group_name(
+            group.product_type,
+            group.series_code,
+            group.nominal_current_a,
+            execution,
+        )
+        if catalog:
+            return catalog
+
+    raw = (group.name or "").strip()
+
+    if group.product_type in ("CAM", "SWITCH", "ACCESSORY", "OTHER"):
+        if variant and variant.sku_code:
+            return re.sub(r"\s+", "", variant.sku_code)
+        compact = re.sub(r"\s+", "", raw)
+        if compact:
+            return compact
+
+    if raw and not raw.lower().startswith("контактор"):
+        return re.sub(r"\s+", "", raw)
+    return raw
 
 
 def execution_slug_suffix(execution: str) -> str:
@@ -366,8 +418,12 @@ def normalize_pricelist_name(name: str) -> dict:
     else:
         sku_code = sku_base[:50] if sku_base else slugify(name, allow_unicode=False)[:50].upper()
 
+    display_name = name.strip()
+    if product_type not in ("KT", "KTP", "KTE"):
+        display_name = re.sub(r"\s+", "", display_name)
+
     return {
-        "name": name,
+        "name": display_name,
         "product_type": product_type,
         "series_code": series,
         "execution": execution,

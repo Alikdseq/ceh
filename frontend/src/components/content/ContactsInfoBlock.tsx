@@ -1,7 +1,14 @@
 import { Mail, MapPin, Phone } from "lucide-react";
 
 import type { SiteSettings } from "@/lib/types";
-import { phoneToTelHref, YANDEX_FACTORY_MAP_URL } from "@/lib/site-links";
+import {
+  FACTORY_PHONE,
+  formatLocalExtension,
+  localExtensionTelHref,
+  phoneToTelHref,
+  SALES_PHONE_EXTENSIONS,
+  YANDEX_FACTORY_MAP_URL,
+} from "@/lib/site-links";
 
 interface ContactsInfoBlockProps {
   settings: SiteSettings | null;
@@ -9,7 +16,7 @@ interface ContactsInfoBlockProps {
 
 const DEFAULTS = {
   address: "362003, г. Владикавказ, ул. Кабардинская, 8",
-  phone: "(8672) 53-33-44",
+  phone: FACTORY_PHONE,
   email: "info@ekontaktor.ru",
   salesEmail: "elkonreal@yandex.ru",
 };
@@ -68,9 +75,29 @@ export function ContactsInfoBlock({ settings }: ContactsInfoBlockProps) {
           </span>
         </li>
         <li className="flex gap-2.5">
-          <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+          <Phone className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
           <span>
             <span className="text-muted-foreground">Отдел сбыта: </span>
+            <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+              {SALES_PHONE_EXTENSIONS.map((ext, index) => {
+                const label = formatLocalExtension(ext);
+                const href = localExtensionTelHref(ext);
+                return (
+                  <span key={ext}>
+                    {index > 0 && <span className="text-muted-foreground">, </span>}
+                    <a href={href} className="font-medium text-primary underline-offset-2 hover:underline">
+                      {label}
+                    </a>
+                  </span>
+                );
+              })}
+            </span>
+          </span>
+        </li>
+        <li className="flex gap-2.5">
+          <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+          <span>
+            <span className="text-muted-foreground">Email отдела сбыта: </span>
             <a
               href={`mailto:${salesEmail}`}
               className="font-medium text-primary underline-offset-2 hover:underline"

@@ -192,7 +192,7 @@ export function SearchAutocomplete({
         <ul
           id={listId}
           role="listbox"
-          className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-auto rounded-md border bg-popover py-1 text-popover-foreground shadow-lg"
+          className="absolute left-0 right-0 top-full z-[60] mt-1 max-h-80 overflow-auto rounded-md border bg-popover py-1 text-popover-foreground shadow-lg"
         >
           {suggestions.length === 0 && !loading && (
             <li className="px-3 py-2 text-sm text-muted-foreground">Ничего не найдено</li>

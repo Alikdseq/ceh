@@ -44,14 +44,15 @@ def _copy_specs(source: ProductGroup, target: ProductGroup) -> int:
 
 
 def _group_fields(source: ProductGroup, execution: str, category) -> dict:
+    catalog_name = build_group_name(
+        source.product_type,
+        source.series_code,
+        source.nominal_current_a,
+        execution,
+    ) or source.name
     return {
         "category": category,
-        "name": build_group_name(
-            source.product_type,
-            source.series_code,
-            source.nominal_current_a,
-            execution,
-        ),
+        "name": catalog_name,
         "short_description": source.short_description,
         "full_description": source.full_description,
         "series_code": source.series_code,
@@ -64,12 +65,7 @@ def _group_fields(source: ProductGroup, execution: str, category) -> dict:
         "honest_sign": source.honest_sign,
         "meta_title": source.meta_title,
         "meta_description": source.meta_description,
-        "h1": source.h1 or build_group_name(
-            source.product_type,
-            source.series_code,
-            source.nominal_current_a,
-            execution,
-        ),
+        "h1": catalog_name,
         "is_active": True,
         "is_featured": source.is_featured,
         "sort_order": source.sort_order,

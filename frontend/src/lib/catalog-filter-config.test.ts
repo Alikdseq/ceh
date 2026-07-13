@@ -19,6 +19,6 @@ describe("catalog-filter-config", () => {
 
 describe("phoneToTelHref", () => {
   it("formats factory phone", () => {
-    expect(phoneToTelHref("(8672) 53-33-44")).toBe("tel:+78672533344");
+    expect(phoneToTelHref("(8672) 54-01-03")).toBe("tel:+78672540103");
   });
 });

@@ -1,4 +1,4 @@
-/** Static product photos from /public/tovar — keyed by type + series (e.g. KT6012). */
+/** Static product photos from /public/tovar and /public/photos — keyed by type + series (e.g. KT6012). */
 
 export interface ProductImageContext {
   series_code?: string;
@@ -51,6 +51,11 @@ const TOVAR_FILES = [
   "КТП6633(2).JPG",
 ] as const;
 
+const CAM_IMAGES: Record<string, string> = {
+  "54": "/tovar/КЭ-54.png",
+  "47": "/photos/КЭ.png",
+};
+
 function tovarPublicUrl(filename: string): string {
   return `/tovar/${encodeURIComponent(filename)}`;
 }
@@ -102,6 +107,21 @@ function extractSeriesCode(context: ProductImageContext): string | null {
   return null;
 }
 
+function extractCamModelNumber(context: ProductImageContext): string | null {
+  const sources = [context.sku_code, context.name, context.slug].filter(Boolean) as string[];
+  for (const source of sources) {
+    const match = source.match(/КЭ[\s-]*(\d+)/i);
+    if (match) return match[1];
+  }
+  return null;
+}
+
+function resolveCamImage(context: ProductImageContext): string | null {
+  const model = extractCamModelNumber(context);
+  if (!model) return null;
+  return CAM_IMAGES[model] ?? null;
+}
+
 function resolveImageKey(context: ProductImageContext): string | null {
   const series = extractSeriesCode(context);
   if (!series) return null;
@@ -118,12 +138,18 @@ function resolveImageKey(context: ProductImageContext): string | null {
 }
 
 export function resolveStaticProductImage(context: ProductImageContext): string | null {
+  const camImage = resolveCamImage(context);
+  if (camImage) return camImage;
+
   const key = resolveImageKey(context);
   if (!key) return null;
   return IMAGE_MAP.get(key)?.[0] ?? null;
 }
 
 export function resolveStaticProductGallery(context: ProductImageContext): string[] {
+  const camImage = resolveCamImage(context);
+  if (camImage) return [camImage];
+
   const key = resolveImageKey(context);
   if (!key) return [];
   return IMAGE_MAP.get(key) ?? [];

@@ -57,8 +57,8 @@ export function HeroSection() {
           <div className="hero-product-stage mx-auto w-full max-w-lg lg:mx-0 lg:max-w-none lg:justify-self-end">
             <div className="hero-product-shadow" aria-hidden />
             <Image
-              src="/photos/kt.png"
-              alt="Контактор КТ — продукция завода Электроконтактор"
+              src={publicAssetSrc("/photos/КТ6023-fotor-bg-remover-20260713162710.png")}
+              alt="Контактор КТ6023 — продукция завода Электроконтактор"
               width={900}
               height={680}
               priority

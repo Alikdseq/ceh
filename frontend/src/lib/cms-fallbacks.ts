@@ -15,7 +15,7 @@ export const CMS_PAGE_FALLBACKS: Record<string, ContentPage> = {
   contacts: {
     title: "Контакты",
     slug: "contacts",
-    body: "<p><strong>Адрес:</strong> 362003, г. Владикавказ, ул. Кабардинская, 8</p><p><strong>Телефон:</strong> (8672) 53-33-44</p><p><strong>Email:</strong> info@ekontaktor.ru</p>",
+    body: "<p><strong>Адрес:</strong> 362003, г. Владикавказ, ул. Кабардинская, 8</p><p><strong>Телефон:</strong> (8672) 54-01-03</p><p><strong>Email:</strong> info@ekontaktor.ru</p><p><strong>Отдел сбыта:</strong> (8672) 54-01-03, (8672) 53-82-55 · elkonreal@yandex.ru</p>",
     meta_title: "Контакты Электроконтактор",
     meta_description: "Контактная информация АО «Электроконтактор».",
     h1: "Контакты",

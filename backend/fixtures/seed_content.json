@@ -4,8 +4,8 @@
     "pk": 1,
     "fields": {
       "company_name": "АО «Владикавказский завод «Электроконтактор»",
-      "phone_main": "(8672) 53-33-44",
-      "phone_sales": "(8672) 53-33-44",
+      "phone_main": "(8672) 54-01-03",
+      "phone_sales": "(8672) 54-01-03, (8672) 53-82-55",
       "email_main": "info@ekontaktor.ru",
       "order_emails": "info@ekontaktor.ru,elkonreal@yandex.ru",
       "address": "362003, Республика Северная Осетия — Алания, г. Владикавказ, ул. Кабардинская, 8, а/я 1034",
@@ -36,7 +36,7 @@
     "fields": {
       "title": "Контакты",
       "slug": "contacts",
-      "body": "<p><strong>Адрес:</strong> 362003, г. Владикавказ, ул. Кабардинская, 8</p><p><strong>Телефон:</strong> (8672) 53-33-44</p><p><strong>Email:</strong> info@ekontaktor.ru</p><p><strong>Отдел сбыта:</strong> elkonreal@yandex.ru</p>",
+      "body": "<p><strong>Адрес:</strong> 362003, г. Владикавказ, ул. Кабардинская, 8</p><p><strong>Телефон:</strong> (8672) 54-01-03</p><p><strong>Email:</strong> info@ekontaktor.ru</p><p><strong>Отдел сбыта:</strong> (8672) 54-01-03, (8672) 53-82-55 · elkonreal@yandex.ru</p>",
       "meta_title": "Контакты Электроконтактор",
       "meta_description": "Контактная информация АО «Электроконтактор»: адрес, телефон, email отдела сбыта.",
       "h1": "Контакты",

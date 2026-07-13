@@ -4,7 +4,7 @@ from pathlib import Path
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 
-from apps.content.models import Page, PriceListSection
+from apps.content.models import Page, PriceListSection, SiteSettings
 
 CRITICAL_PAGE_SLUGS = ("about", "contacts", "about-production", "about-certificates", "support")
 
@@ -13,8 +13,25 @@ class Command(BaseCommand):
     help = "Idempotent bootstrap: CMS pages (seed) and public price list table"
 
     def handle(self, *args, **options):
+        self._ensure_site_settings()
         self._ensure_cms_pages()
         self._ensure_price_list()
+
+    def _ensure_site_settings(self) -> None:
+        settings = SiteSettings.objects.first()
+        if not settings:
+            return
+        changed = False
+        if "53-33-44" in settings.phone_main or settings.phone_main.endswith("533344"):
+            settings.phone_main = "(8672) 54-01-03"
+            changed = True
+        if not settings.phone_sales or "53-33-44" in settings.phone_sales:
+            settings.phone_sales = "(8672) 54-01-03, (8672) 53-82-55"
+            changed = True
+        if changed:
+            settings.save(update_fields=["phone_main", "phone_sales"])
+            self.stdout.write(self.style.SUCCESS("Updated SiteSettings phone numbers"))
+
 
     def _fixture_path(self) -> Path:
         path = Path(__file__).resolve().parents[4] / "fixtures" / "seed_content.json"
