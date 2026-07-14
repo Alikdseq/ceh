@@ -11,7 +11,6 @@ from pathlib import Path
 
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
-from django.db import transaction
 
 from apps.core.paths import resolve_data_file
 from apps.products.contactor_dimensions import dimensions_for
@@ -56,14 +55,18 @@ class Command(BaseCommand):
         parser.add_argument("--skip-dimensions", action="store_true")
         parser.add_argument("--skip-featured", action="store_true")
         parser.add_argument("--skip-images", action="store_true")
+        parser.add_argument(
+            "--force-csv-rewrite",
+            action="store_true",
+            help="Rewrite pricelist.csv even when prices already include VAT",
+        )
 
-    @transaction.atomic
     def handle(self, *args, **options):
         if not options["skip_dimensions"]:
             self._apply_dimensions()
         if not options["skip_prices"]:
-            self._update_pricelist_csv()
-            call_command("import_pricelist", "/data/pricelist.csv")
+            self._update_pricelist_csv(force=options["force_csv_rewrite"])
+            self._import_prices()
         if not options["skip_featured"]:
             self._set_featured()
         if not options["skip_images"]:
@@ -97,9 +100,53 @@ class Command(BaseCommand):
                 updated += 1
         self.stdout.write(f"  Dimensions: {updated} product cards")
 
-    def _update_pricelist_csv(self) -> None:
-        path = resolve_data_file("data/pricelist.csv")
+    def _pricelist_path(self) -> Path:
+        return resolve_data_file("data/pricelist.csv")
+
+    def _csv_is_import_only(self, path: Path) -> bool:
+        """Docker prod mounts ./data at /data:ro — rewrite there always fails."""
+        return str(path).replace("\\", "/").startswith("/data/")
+
+    def _csv_already_with_vat(self, rows: list[dict]) -> bool:
+        """Detect CSV that was already updated (+22% VAT) to avoid double markup."""
+        sample = PVP_PRICES_WITH_VAT["ПВП 17-29 (63А) 2-пакетный"]
+        for row in rows:
+            if row["sku_name"] == "ПВП 17-29 (63А) 2-пакетный":
+                try:
+                    return int(row["price_rub"]) == sample
+                except (TypeError, ValueError):
+                    return False
+        return False
+
+    def _import_prices(self) -> None:
+        path = self._pricelist_path()
+        if not path.is_file():
+            self.stdout.write(self.style.ERROR(f"  Pricelist CSV not found: {path}"))
+            return
+        csv_arg = str(path)
+        call_command("import_pricelist", csv_arg)
+        call_command("import_price_list", csv_arg)
+        self.stdout.write(self.style.SUCCESS(f"  Prices imported from {path}"))
+
+    def _update_pricelist_csv(self, *, force: bool = False) -> None:
+        path = self._pricelist_path()
+        if not path.is_file():
+            self.stdout.write(self.style.WARNING(f"  Pricelist CSV not found: {path}"))
+            return
+
+        if self._csv_is_import_only(path):
+            self.stdout.write(
+                self.style.WARNING(
+                    f"  Pricelist CSV at {path} is import-only — skip rewrite"
+                )
+            )
+            return
+
         rows = list(csv.DictReader(path.open(encoding="utf-8")))
+        if not force and self._csv_already_with_vat(rows):
+            self.stdout.write("  Pricelist CSV already includes VAT — skip rewrite")
+            return
+
         fieldnames = rows[0].keys() if rows else [
             "category", "sku_name", "price_rub", "nominal_current_a", "product_type", "notes",
         ]
@@ -125,10 +172,19 @@ class Command(BaseCommand):
                     new_rows.insert(i + 1, dict(KT6032BS_ROW))
                     break
 
-        with path.open("w", encoding="utf-8", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(new_rows)
+        try:
+            with path.open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(new_rows)
+        except OSError as exc:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"  Cannot write pricelist CSV ({path}): {exc} — will import as-is"
+                )
+            )
+            return
+
         self.stdout.write(f"  Pricelist CSV updated ({len(new_rows)} rows)")
 
     def _set_featured(self) -> None:
