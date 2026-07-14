@@ -230,38 +230,80 @@ function normalizeExecution(raw: string | undefined | null): ProductExecution | 
   return null;
 }
 
-function executionFromLabel(label: string): ProductExecution {
-  const compact = label.replace(/\s+/g, "").toUpperCase();
-  if (compact.includes("БС")) return "BS";
-  if (compact.includes("БК")) return "NONE";
-  if (compact.includes("Б")) return "B";
-  if (compact.includes("С")) return "S";
-  return "NONE";
+function normalizeCatalogLabel(label: string): string {
+  return label.replace(/\s+/g, "").toUpperCase();
+}
+
+function executionFromSeriesTail(tail: string): ProductExecution {
+  const match = tail.match(/^(БС|БК|Б|С)/);
+  if (!match) return "NONE";
+  if (match[1] === "БС") return "BS";
+  if (match[1] === "БК") return "NONE";
+  if (match[1] === "Б") return "B";
+  return "S";
+}
+
+function resolveExecution(compact: string, context: ProductImageContext): ProductExecution {
+  const fromTail = executionFromSeriesTail(
+    compact.slice(compact.search(/КТП?\d{4}/) + compact.match(/КТП?\d{4}/)![0].length),
+  );
+  if (/КТП?\d{4}[БС]/.test(compact) || /КТП?\d{4}-/.test(compact)) {
+    return fromTail;
+  }
+  return normalizeExecution(context.execution) ?? fromTail;
+}
+
+/** Direct match for cards whose DB execution/name format differs from catalog rules. */
+function shouldRotateByCatalogName(context: ProductImageContext): boolean {
+  const labels = [context.name, context.sku_code, context.slug].filter(Boolean) as string[];
+  const coil36v =
+    labels.some((label) => /36\s*V/i.test(normalizeCatalogLabel(label))) ||
+    context.coil_voltage_v === 36;
+
+  for (const label of labels) {
+    const compact = normalizeCatalogLabel(label);
+
+    if (/КТ6633/.test(compact) && !/6633(?:БС|Б|С)/.test(compact)) {
+      return true;
+    }
+
+    if (/КТ7223/.test(compact) && coil36v) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function resolveProductIdentity(context: ProductImageContext): ProductIdentity | null {
   const labels = [context.name, context.sku_code, context.slug].filter(Boolean) as string[];
   const coil36v =
-    labels.some((label) => /36\s*V/i.test(label.replace(/\s+/g, ""))) ||
+    labels.some((label) => /36\s*V/i.test(normalizeCatalogLabel(label))) ||
     context.coil_voltage_v === 36;
 
   for (const label of labels) {
-    const compact = label.replace(/\s+/g, "").toUpperCase();
-    const ktp = compact.match(/^КТП(\d{4})/);
+    const compact = normalizeCatalogLabel(label);
+    const ktp = compact.match(/КТП(\d{4})/);
     if (ktp) {
+      const tail = compact.slice(ktp.index! + ktp[0].length);
       return {
         product_type: "KTP",
         series: ktp[1],
-        execution: normalizeExecution(context.execution) ?? executionFromLabel(compact),
+        execution: executionFromSeriesTail(tail) !== "NONE"
+          ? executionFromSeriesTail(tail)
+          : resolveExecution(compact, context),
         coil36v,
       };
     }
-    const kt = compact.match(/^КТ(\d{4})/);
+    const kt = compact.match(/КТ(\d{4})/);
     if (kt) {
+      const tail = compact.slice(kt.index! + kt[0].length);
       return {
         product_type: "KT",
         series: kt[1],
-        execution: normalizeExecution(context.execution) ?? executionFromLabel(compact),
+        execution: executionFromSeriesTail(tail) !== "NONE"
+          ? executionFromSeriesTail(tail)
+          : resolveExecution(compact, context),
         coil36v,
       };
     }
@@ -271,9 +313,7 @@ function resolveProductIdentity(context: ProductImageContext): ProductIdentity |
   const productType = context.product_type?.toUpperCase();
   if (!series || (productType !== "KT" && productType !== "KTP")) return null;
 
-  const execution = normalizeExecution(context.execution) ??
-    labels.map(executionFromLabel).find((value) => value !== "NONE") ??
-    "NONE";
+  const execution = normalizeExecution(context.execution) ?? "NONE";
 
   return {
     product_type: productType,
@@ -284,16 +324,18 @@ function resolveProductIdentity(context: ProductImageContext): ProductIdentity |
 }
 
 function identitiesMatch(left: ProductIdentity, right: ProductIdentity): boolean {
-  return (
-    left.product_type === right.product_type &&
-    left.series === right.series &&
-    left.execution === right.execution &&
-    left.coil36v === right.coil36v
-  );
+  if (left.product_type !== right.product_type || left.series !== right.series) {
+    return false;
+  }
+  if (left.coil36v || right.coil36v) {
+    return left.coil36v === right.coil36v;
+  }
+  return left.execution === right.execution;
 }
 
 export function shouldRotateProductImage(context?: ProductImageContext): boolean {
   if (!context) return false;
+  if (shouldRotateByCatalogName(context)) return true;
   const identity = resolveProductIdentity(context);
   if (!identity) return false;
   return ROTATED_PRODUCTS.some((rule) => identitiesMatch(rule, identity));

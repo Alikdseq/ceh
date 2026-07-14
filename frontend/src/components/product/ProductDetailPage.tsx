@@ -58,7 +58,19 @@ export async function ProductDetailPage({ product }: ProductDetailPageProps) {
           <Breadcrumbs items={breadcrumbs} className="mb-6" />
           <div className="grid min-w-0 gap-10 lg:grid-cols-2">
             <div className="min-w-0">
-              <ProductGallery images={product.images} name={product.name} product={product} />
+              <ProductGallery
+                images={product.images}
+                name={product.name}
+                product={{
+                  name: product.name,
+                  slug: product.slug,
+                  series_code: product.series_code,
+                  product_type: product.product_type,
+                  sku_code: defaultVariant?.sku_code,
+                  execution: defaultVariant?.execution,
+                  coil_voltage_v: defaultVariant?.coil_voltage_v,
+                }}
+              />
             </div>
             <div className="min-w-0">
               <Suspense fallback={<Skeleton className="h-96 w-full" />}>

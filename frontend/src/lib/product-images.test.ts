@@ -86,6 +86,30 @@ describe("product-images", () => {
     ).toBe(true);
     expect(
       shouldRotateProductImage({
+        name: "Контактор КТ 6633 (250А)",
+        product_type: "KT",
+        series_code: "6633",
+        execution: "S",
+      }),
+    ).toBe(true);
+    expect(
+      shouldRotateProductImage({
+        name: "Контактор КТ 7223 (125А)",
+        product_type: "KT",
+        series_code: "7223",
+        coil_voltage_v: 36,
+      }),
+    ).toBe(true);
+    expect(
+      shouldRotateProductImage({
+        name: "КТ6633С-У3",
+        product_type: "KT",
+        series_code: "6633",
+        execution: "S",
+      }),
+    ).toBe(false);
+    expect(
+      shouldRotateProductImage({
         name: "КТП6633С",
         product_type: "KTP",
         series_code: "6633",
