@@ -167,6 +167,9 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
         <span className="font-display text-3xl font-bold text-foreground">
           {formatPrice(selected?.price)}
         </span>
+        {selected && parseFloat(selected.price) > 0 && (
+          <span className="text-sm text-muted-foreground">с НДС</span>
+        )}
         {selected && parseFloat(selected.price) <= 0 && (
           <span className="text-sm text-muted-foreground">уточняйте у менеджера</span>
         )}

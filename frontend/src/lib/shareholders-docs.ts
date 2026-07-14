@@ -2,6 +2,7 @@ export interface PriceListItem {
   id: number;
   name: string;
   price: string;
+  price_without_vat: string;
   nominal_current_a: number | null;
   product_type: string;
   notes: string;

@@ -114,6 +114,7 @@ export function specKeyLabel(key: string): string {
     weight_net: "Масса нетто",
     weight_gross: "Масса брутто",
     aux_contacts: "Вспомогательные контакты",
+    overall_dimensions: "Габаритные и установочные размеры",
     series_code: "Серия",
     product_type: "Тип продукции",
     execution: "Исполнение",

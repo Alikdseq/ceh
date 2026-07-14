@@ -141,13 +141,14 @@ export function CartPageClient() {
         {items.length > 0 && (
           <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_380px]">
             <div className="overflow-x-auto rounded-lg border">
-              <table className="w-full min-w-[640px] text-sm">
+              <table className="w-full min-w-[720px] text-sm">
                 <thead className="border-b bg-muted/40">
                   <tr>
                     <th className="px-4 py-3 text-left font-medium">Товар</th>
-                    <th className="px-4 py-3 text-left font-medium">Цена</th>
+                    <th className="px-4 py-3 text-left font-medium whitespace-nowrap">Без НДС</th>
+                    <th className="px-4 py-3 text-left font-medium whitespace-nowrap">С НДС</th>
                     <th className="px-4 py-3 text-left font-medium">Кол-во</th>
-                    <th className="px-4 py-3 text-left font-medium">Сумма</th>
+                    <th className="px-4 py-3 text-left font-medium whitespace-nowrap">Сумма с НДС</th>
                     <th className="px-4 py-3" />
                   </tr>
                 </thead>
@@ -180,6 +181,9 @@ export function CartPageClient() {
                               <p className="text-xs text-muted-foreground">{item.sku_code}</p>
                             </div>
                           </div>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-muted-foreground">
+                          {formatPrice(item.unit_price_without_vat ?? item.unit_price)}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">{formatPrice(item.unit_price)}</td>
                         <td className="px-4 py-3">
@@ -235,11 +239,15 @@ export function CartPageClient() {
                   <span className="text-muted-foreground">Позиций</span>
                   <span>{cart?.item_count}</span>
                 </div>
+                <div className="mt-2 flex justify-between text-sm">
+                  <span className="text-muted-foreground">Итого без НДС</span>
+                  <span>{formatPrice(cart?.subtotal_without_vat ?? cart?.subtotal ?? "0")}</span>
+                </div>
                 <div className="mt-2 flex justify-between text-lg font-semibold">
-                  <span>Итого</span>
+                  <span>Итого с НДС</span>
                   <span className="font-semibold text-foreground">{formatPrice(cart?.subtotal ?? "0")}</span>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">Цены указаны с НДС</p>
+                <p className="mt-1 text-xs text-muted-foreground">Цены указаны с НДС 22%</p>
               </div>
 
               <div className="rounded-lg border bg-card p-5">

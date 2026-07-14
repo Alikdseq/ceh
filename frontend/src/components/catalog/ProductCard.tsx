@@ -1,13 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HonestSignMark } from "@/components/content/HonestSignMark";
-import { ProductImageFit } from "@/components/product/ProductImageFit";
 import { addToCart } from "@/lib/cart";
 import { showHonestSignMarking } from "@/lib/honest-sign";
 import { highlightMatch } from "@/lib/search-highlight";
@@ -104,7 +104,7 @@ export function ProductCard({
           : `h-24 w-40 shrink-0 rounded-md ${PRODUCT_IMAGE_ASPECT_CLASS}`,
       )}
     >
-      <ProductImageFit
+      <Image
         src={imageSrc}
         alt={product.primary_image?.alt ?? product.name}
         fill
@@ -183,6 +183,7 @@ export function ProductCard({
         )}
         <p className="mt-2 text-lg font-semibold text-foreground">
           от {formatPrice(selected?.price ?? product.price_from)}
+          <span className="ml-1 text-xs font-normal text-muted-foreground">с НДС</span>
         </p>
       </Link>
       {variantSwitcher}

@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from apps.core.pricing import price_without_vat_display
+
 from .models import FAQItem, NewsPost, Page, PriceListItem, PriceListSection, SiteSettings
 
 
@@ -50,17 +52,23 @@ class FAQItemSerializer(serializers.ModelSerializer):
 
 
 class PriceListItemSerializer(serializers.ModelSerializer):
+    price_without_vat = serializers.SerializerMethodField()
+
     class Meta:
         model = PriceListItem
         fields = (
             "id",
             "name",
             "price",
+            "price_without_vat",
             "nominal_current_a",
             "product_type",
             "notes",
             "sort_order",
         )
+
+    def get_price_without_vat(self, obj):
+        return price_without_vat_display(obj.price)
 
 
 class PriceListSectionSerializer(serializers.ModelSerializer):

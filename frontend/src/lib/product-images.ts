@@ -1,4 +1,4 @@
-/** Static product photos from /public/tovar and /public/photos — keyed by type + series (e.g. KT6012). */
+/** Static product photos from /public/tovar and /public/photos. */
 
 export interface ProductImageContext {
   series_code?: string;
@@ -51,10 +51,34 @@ const TOVAR_FILES = [
   "КТП6633(2).JPG",
 ] as const;
 
-const CAM_IMAGES: Record<string, string> = {
-  "54": "/tovar/КЭ-54.png",
-  "47": "/photos/КЭ.png",
-};
+/** Explicit name/sku → photo mapping for non-series products. */
+const NAMED_IMAGES: Array<{ pattern: RegExp; url: string; gallery?: string[] }> = [
+  {
+    pattern: /блок\s*контакт/i,
+    url: "/tovar/блокконтактов.jpeg",
+  },
+  {
+    pattern: /выключатель\s*путев|впк\s*3110/i,
+    url: "/tovar/Выклю Путевой 1.jpeg",
+    gallery: ["/tovar/Выклю Путевой 1.jpeg", "/tovar/Вык пут 2.jpeg"],
+  },
+  {
+    pattern: /эу[\s-]*5/i,
+    url: "/tovar/ЭУ5.jpg",
+  },
+  {
+    pattern: /кэ[\s-]*46/i,
+    url: "/tovar/КЭ-46.jpg",
+  },
+  {
+    pattern: /кэ[\s-]*47/i,
+    url: "/tovar/КЭ-47.jpg",
+  },
+  {
+    pattern: /кэ[\s-]*54/i,
+    url: "/tovar/КЭ-54.png",
+  },
+];
 
 function tovarPublicUrl(filename: string): string {
   return `/tovar/${encodeURIComponent(filename)}`;
@@ -91,6 +115,21 @@ function buildImageMap(): Map<string, string[]> {
 
 const IMAGE_MAP = buildImageMap();
 
+function productLabel(context: ProductImageContext): string {
+  return [context.name, context.sku_code, context.slug].filter(Boolean).join(" ");
+}
+
+function resolveNamedImage(context: ProductImageContext): { url: string; gallery?: string[] } | null {
+  const label = productLabel(context);
+  if (!label) return null;
+  for (const entry of NAMED_IMAGES) {
+    if (entry.pattern.test(label)) {
+      return { url: entry.url, gallery: entry.gallery };
+    }
+  }
+  return null;
+}
+
 function extractSeriesCode(context: ProductImageContext): string | null {
   const fromField = context.series_code?.replace(/\D/g, "");
   if (fromField && fromField.length >= 4) return fromField.slice(0, 4);
@@ -105,21 +144,6 @@ function extractSeriesCode(context: ProductImageContext): string | null {
     if (digits) return digits[1];
   }
   return null;
-}
-
-function extractCamModelNumber(context: ProductImageContext): string | null {
-  const sources = [context.sku_code, context.name, context.slug].filter(Boolean) as string[];
-  for (const source of sources) {
-    const match = source.match(/КЭ[\s-]*(\d+)/i);
-    if (match) return match[1];
-  }
-  return null;
-}
-
-function resolveCamImage(context: ProductImageContext): string | null {
-  const model = extractCamModelNumber(context);
-  if (!model) return null;
-  return CAM_IMAGES[model] ?? null;
 }
 
 function resolveImageKey(context: ProductImageContext): string | null {
@@ -138,8 +162,8 @@ function resolveImageKey(context: ProductImageContext): string | null {
 }
 
 export function resolveStaticProductImage(context: ProductImageContext): string | null {
-  const camImage = resolveCamImage(context);
-  if (camImage) return camImage;
+  const named = resolveNamedImage(context);
+  if (named) return named.url;
 
   const key = resolveImageKey(context);
   if (!key) return null;
@@ -147,8 +171,8 @@ export function resolveStaticProductImage(context: ProductImageContext): string 
 }
 
 export function resolveStaticProductGallery(context: ProductImageContext): string[] {
-  const camImage = resolveCamImage(context);
-  if (camImage) return [camImage];
+  const named = resolveNamedImage(context);
+  if (named) return named.gallery ?? [named.url];
 
   const key = resolveImageKey(context);
   if (!key) return [];

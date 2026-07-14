@@ -34,7 +34,8 @@ export async function PriceListTable() {
                   <th className="px-4 py-3 font-medium">Наименование</th>
                   <th className="px-4 py-3 font-medium whitespace-nowrap">Ток, А</th>
                   <th className="px-4 py-3 font-medium">Примечание</th>
-                  <th className="px-4 py-3 text-right font-medium whitespace-nowrap">Цена</th>
+                  <th className="px-4 py-3 text-right font-medium whitespace-nowrap">Без НДС</th>
+                  <th className="px-4 py-3 text-right font-medium whitespace-nowrap">С НДС</th>
                 </tr>
               </thead>
               <tbody>
@@ -48,6 +49,9 @@ export async function PriceListTable() {
                       {item.nominal_current_a ?? "—"}
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">{item.notes || "—"}</td>
+                    <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                      {formatPrice(item.price_without_vat)}
+                    </td>
                     <td className="px-4 py-3 text-right font-semibold tabular-nums">
                       {formatPrice(item.price)}
                     </td>

@@ -34,7 +34,8 @@
           <th style="width:52%">Наименование</th>
           <th style="width:12%">Ток, А</th>
           <th style="width:18%">Примечание</th>
-          <th style="width:18%">Цена, ₽</th>
+          <th style="width:12%">Без НДС, ₽</th>
+          <th style="width:12%">С НДС, ₽</th>
         </tr>
       </thead>
       <tbody>
@@ -43,6 +44,7 @@
             <td>{{ item.name }}</td>
             <td>{% if item.nominal_current_a %}{{ item.nominal_current_a }}{% else %}—{% endif %}</td>
             <td class="notes">{{ item.notes }}</td>
+            <td class="price">{{ item.price_without_vat|floatformat:0 }}</td>
             <td class="price">{{ item.price|floatformat:0 }}</td>
           </tr>
         {% endfor %}

@@ -11,6 +11,7 @@ SPEC_KEY_CHOICES: list[tuple[str, str]] = [
     ("application_category", "Категория применения"),
     ("coil_voltage_ac", "Напряжение катушки (переменный ток)"),
     ("coil_voltage_dc", "Напряжение катушки (постоянный ток)"),
+    ("overall_dimensions", "Габаритные и установочные размеры"),
     ("aux_contacts", "Вспомогательные контакты"),
     ("weight_net", "Масса нетто"),
     ("weight_gross", "Масса брутто"),

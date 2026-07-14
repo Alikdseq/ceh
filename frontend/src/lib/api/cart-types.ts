@@ -7,7 +7,9 @@ export interface CartItemDto {
   category_slug: string;
   quantity: number;
   unit_price: string;
+  unit_price_without_vat: string;
   line_total: string;
+  line_total_without_vat: string;
   image_url: string | null;
   coil_voltage_v: number | null;
 }
@@ -16,6 +18,7 @@ export interface CartDto {
   items: CartItemDto[];
   item_count: number;
   subtotal: string;
+  subtotal_without_vat: string;
   vat_included: boolean;
 }
 

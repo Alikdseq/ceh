@@ -2,6 +2,7 @@ import secrets
 from datetime import timedelta
 from decimal import Decimal
 
+from apps.core.pricing import price_without_vat_display
 from django.core.cache import cache
 from django.db import transaction
 from django.utils import timezone
@@ -93,7 +94,9 @@ def serialize_cart(cart: QuoteCart, request) -> dict:
             "category_slug": group.category.slug if group.category_id else "",
             "quantity": item.quantity,
             "unit_price": str(item.unit_price_snapshot),
+            "unit_price_without_vat": price_without_vat_display(item.unit_price_snapshot),
             "line_total": str(item.line_total),
+            "line_total_without_vat": price_without_vat_display(item.line_total),
             "image_url": image_url,
             "coil_voltage_v": item.coil_voltage_snapshot,
         })
@@ -102,6 +105,7 @@ def serialize_cart(cart: QuoteCart, request) -> dict:
         "items": items,
         "item_count": sum(i.quantity for i in cart.items.all()),
         "subtotal": str(subtotal),
+        "subtotal_without_vat": price_without_vat_display(subtotal),
         "vat_included": True,
     }
 
