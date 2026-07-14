@@ -16,7 +16,8 @@ import {
 } from "@/lib/api/cart";
 import { dispatchCartUpdated } from "@/lib/cart";
 import { useCart } from "@/hooks/use-cart";
-import { formatPrice, productImageSrc, productImageUnoptimized } from "@/lib/utils";
+import { cn, formatPrice, productImageSrc, productImageUnoptimized } from "@/lib/utils";
+import { productImageRotateClass } from "@/lib/product-images";
 
 export function CartPageClient() {
   const { cart, loading } = useCart();
@@ -156,10 +157,12 @@ export function CartPageClient() {
                   {items.map((item) => {
                     const href = `/catalog/${item.category_slug}/${item.product_slug}`;
                     const busy = busyId === item.id;
-                    const imageSrc = productImageSrc(item.image_url, {
+                    const imageContext = {
                       name: item.product_name,
                       sku_code: item.sku_code,
-                    });
+                    };
+                    const imageSrc = productImageSrc(item.image_url, imageContext);
+                    const rotateClass = productImageRotateClass(imageContext);
                     return (
                       <tr key={item.id} className="border-b">
                         <td className="px-4 py-3">
@@ -170,7 +173,7 @@ export function CartPageClient() {
                                 alt={item.product_name}
                                 fill
                                 unoptimized={productImageUnoptimized(imageSrc)}
-                                className="object-contain p-1"
+                                className={cn("object-contain p-1", rotateClass)}
                                 sizes="64px"
                               />
                             </div>

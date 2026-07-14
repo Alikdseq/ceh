@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 
-import { resolveStaticProductGallery, type ProductImageContext } from "@/lib/product-images";
+import { resolveStaticProductGallery, productImageRotateClass, type ProductImageContext } from "@/lib/product-images";
 import type { ProductImageDetail } from "@/lib/types";
 import { showHonestSignMarking } from "@/lib/honest-sign";
 import { cn, productImageSrc, productImageUnoptimized, PRODUCT_IMAGE_ASPECT_CLASS } from "@/lib/utils";
@@ -42,6 +42,7 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
   const current = list[active] ?? list[0];
   const mainSrc = productImageSrc(galleryItemSrc(current), product);
   const hasHonestSign = product ? showHonestSignMarking(product) : false;
+  const rotateClass = productImageRotateClass(product);
 
   return (
     <div className="space-y-3">
@@ -52,7 +53,7 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
           fill
           priority
           unoptimized={productImageUnoptimized(mainSrc)}
-          className="object-contain p-6"
+          className={cn("object-contain p-6", rotateClass)}
           sizes="(max-width:768px) 100vw, 50vw"
         />
         {hasHonestSign && (
@@ -78,7 +79,7 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
                   alt=""
                   fill
                   unoptimized={productImageUnoptimized(thumbSrc)}
-                  className="object-contain p-1"
+                  className={cn("object-contain p-1", rotateClass)}
                   sizes="64px"
                 />
               </button>

@@ -6,7 +6,47 @@ export interface ProductImageContext {
   name?: string;
   slug?: string;
   sku_code?: string;
+  execution?: string;
+  coil_voltage_v?: number | null;
 }
+
+type ProductExecution = "B" | "BS" | "S" | "NONE";
+
+interface ProductIdentity {
+  product_type: "KT" | "KTP";
+  series: string;
+  execution: ProductExecution;
+  coil36v: boolean;
+}
+
+/** Product cards that need a 90° clockwise photo rotation in the UI. */
+const ROTATED_PRODUCTS: ProductIdentity[] = [
+  { product_type: "KT", series: "6014", execution: "B", coil36v: false },
+  { product_type: "KT", series: "6014", execution: "BS", coil36v: false },
+  { product_type: "KT", series: "6032", execution: "B", coil36v: false },
+  { product_type: "KT", series: "6032", execution: "BS", coil36v: false },
+  { product_type: "KT", series: "6043", execution: "B", coil36v: false },
+  { product_type: "KT", series: "6043", execution: "BS", coil36v: false },
+  { product_type: "KT", series: "6053", execution: "B", coil36v: false },
+  { product_type: "KT", series: "6053", execution: "BS", coil36v: false },
+  { product_type: "KT", series: "6623", execution: "S", coil36v: false },
+  { product_type: "KT", series: "6633", execution: "NONE", coil36v: false },
+  { product_type: "KT", series: "6642", execution: "S", coil36v: false },
+  { product_type: "KT", series: "7223", execution: "NONE", coil36v: true },
+  { product_type: "KTP", series: "6012", execution: "B", coil36v: false },
+  { product_type: "KTP", series: "6012", execution: "BS", coil36v: false },
+  { product_type: "KTP", series: "6013", execution: "B", coil36v: false },
+  { product_type: "KTP", series: "6013", execution: "BS", coil36v: false },
+  { product_type: "KTP", series: "6014", execution: "B", coil36v: false },
+  { product_type: "KTP", series: "6014", execution: "BS", coil36v: false },
+  { product_type: "KTP", series: "6032", execution: "B", coil36v: false },
+  { product_type: "KTP", series: "6032", execution: "BS", coil36v: false },
+  { product_type: "KTP", series: "6043", execution: "B", coil36v: false },
+  { product_type: "KTP", series: "6043", execution: "BS", coil36v: false },
+  { product_type: "KTP", series: "6633", execution: "NONE", coil36v: false },
+  { product_type: "KTP", series: "6633", execution: "B", coil36v: false },
+  { product_type: "KTP", series: "6633", execution: "S", coil36v: false },
+];
 
 const TOVAR_FILES = [
   "Кт6012.JPG",
@@ -181,4 +221,85 @@ export function resolveStaticProductGallery(context: ProductImageContext): strin
   const key = resolveImageKey(context);
   if (!key) return [];
   return IMAGE_MAP.get(key) ?? [];
+}
+
+function normalizeExecution(raw: string | undefined | null): ProductExecution | null {
+  if (!raw) return null;
+  const value = raw.toUpperCase();
+  if (value === "B" || value === "BS" || value === "S" || value === "NONE") return value;
+  return null;
+}
+
+function executionFromLabel(label: string): ProductExecution {
+  const compact = label.replace(/\s+/g, "").toUpperCase();
+  if (compact.includes("БС")) return "BS";
+  if (compact.includes("БК")) return "NONE";
+  if (compact.includes("Б")) return "B";
+  if (compact.includes("С")) return "S";
+  return "NONE";
+}
+
+function resolveProductIdentity(context: ProductImageContext): ProductIdentity | null {
+  const labels = [context.name, context.sku_code, context.slug].filter(Boolean) as string[];
+  const coil36v =
+    labels.some((label) => /36\s*V/i.test(label.replace(/\s+/g, ""))) ||
+    context.coil_voltage_v === 36;
+
+  for (const label of labels) {
+    const compact = label.replace(/\s+/g, "").toUpperCase();
+    const ktp = compact.match(/^КТП(\d{4})/);
+    if (ktp) {
+      return {
+        product_type: "KTP",
+        series: ktp[1],
+        execution: normalizeExecution(context.execution) ?? executionFromLabel(compact),
+        coil36v,
+      };
+    }
+    const kt = compact.match(/^КТ(\d{4})/);
+    if (kt) {
+      return {
+        product_type: "KT",
+        series: kt[1],
+        execution: normalizeExecution(context.execution) ?? executionFromLabel(compact),
+        coil36v,
+      };
+    }
+  }
+
+  const series = context.series_code?.replace(/\D/g, "").slice(0, 4);
+  const productType = context.product_type?.toUpperCase();
+  if (!series || (productType !== "KT" && productType !== "KTP")) return null;
+
+  const execution = normalizeExecution(context.execution) ??
+    labels.map(executionFromLabel).find((value) => value !== "NONE") ??
+    "NONE";
+
+  return {
+    product_type: productType,
+    series,
+    execution,
+    coil36v,
+  };
+}
+
+function identitiesMatch(left: ProductIdentity, right: ProductIdentity): boolean {
+  return (
+    left.product_type === right.product_type &&
+    left.series === right.series &&
+    left.execution === right.execution &&
+    left.coil36v === right.coil36v
+  );
+}
+
+export function shouldRotateProductImage(context?: ProductImageContext): boolean {
+  if (!context) return false;
+  const identity = resolveProductIdentity(context);
+  if (!identity) return false;
+  return ROTATED_PRODUCTS.some((rule) => identitiesMatch(rule, identity));
+}
+
+/** Tailwind class for a 90° clockwise product photo rotation. */
+export function productImageRotateClass(context?: ProductImageContext): string {
+  return shouldRotateProductImage(context) ? "rotate-90" : "";
 }

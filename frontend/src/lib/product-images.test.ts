@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveStaticProductGallery, resolveStaticProductImage } from "@/lib/product-images";
+import { resolveStaticProductGallery, resolveStaticProductImage, productImageRotateClass, shouldRotateProductImage } from "@/lib/product-images";
 
 describe("product-images", () => {
   it("maps KT series to static photo", () => {
@@ -49,5 +49,48 @@ describe("product-images", () => {
       name: "Контактор КТ 9999",
     });
     expect(url).toBeNull();
+  });
+
+  it("rotates only listed product cards", () => {
+    expect(
+      shouldRotateProductImage({
+        name: "КТ6043Б-У3",
+        product_type: "KT",
+        series_code: "6043",
+        execution: "B",
+      }),
+    ).toBe(true);
+    expect(
+      shouldRotateProductImage({
+        name: "КТ6043БК-У3",
+        product_type: "KT",
+        series_code: "6043",
+        execution: "BK",
+      }),
+    ).toBe(false);
+    expect(
+      shouldRotateProductImage({
+        name: "КТ6012Б-У3",
+        product_type: "KT",
+        series_code: "6012",
+        execution: "B",
+      }),
+    ).toBe(false);
+    expect(
+      shouldRotateProductImage({
+        name: "КТ7223У-36V",
+        product_type: "KT",
+        series_code: "7223",
+        coil_voltage_v: 36,
+      }),
+    ).toBe(true);
+    expect(
+      shouldRotateProductImage({
+        name: "КТП6633С",
+        product_type: "KTP",
+        series_code: "6633",
+        execution: "S",
+      }),
+    ).toBe(true);
   });
 });

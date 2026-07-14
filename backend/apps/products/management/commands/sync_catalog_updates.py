@@ -39,11 +39,6 @@ KT6032BS_ROW = {
 
 FEATURED_SERIES = ("6023", "6033", "6043", "6053")
 
-ROTATE_IMAGES = (
-    "КТ6053.JPG",
-    "КТП6014.JPG",
-)
-
 SPEC_KEY = "overall_dimensions"
 
 
@@ -198,28 +193,4 @@ class Command(BaseCommand):
         self.stdout.write(f"  Featured (hits): {count} cards — series {', '.join(FEATURED_SERIES)}")
 
     def _rotate_images(self) -> None:
-        try:
-            from PIL import Image
-        except ImportError:
-            self.stdout.write(self.style.WARNING("  Pillow not installed — skip image rotation"))
-            return
-
-        tovar_dir = Path(__file__).resolve().parents[5] / "frontend" / "public" / "tovar"
-        if not tovar_dir.is_dir():
-            tovar_dir = Path("/app/frontend/public/tovar")
-        if not tovar_dir.is_dir():
-            self.stdout.write(self.style.WARNING(f"  tovar dir not found: {tovar_dir}"))
-            return
-
-        rotated = 0
-        for filename in ROTATE_IMAGES:
-            path = tovar_dir / filename
-            if not path.is_file():
-                self.stdout.write(self.style.WARNING(f"  missing image: {filename}"))
-                continue
-            with Image.open(path) as img:
-                if img.width >= img.height:
-                    continue
-                img.transpose(Image.Transpose.ROTATE_270).save(path, quality=92)
-                rotated += 1
-        self.stdout.write(f"  Rotated {rotated} product photos to landscape")
+        self.stdout.write("  Image rotation is configured per product in the frontend")

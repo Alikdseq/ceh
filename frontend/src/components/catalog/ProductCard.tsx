@@ -13,6 +13,7 @@ import { showHonestSignMarking } from "@/lib/honest-sign";
 import { highlightMatch } from "@/lib/search-highlight";
 import type { ProductGroup } from "@/lib/types";
 import { listAuxContacts, pickProductVariant } from "@/lib/variant-picker";
+import { productImageRotateClass } from "@/lib/product-images";
 import {
   cn,
   formatAuxContactsLabel,
@@ -66,6 +67,16 @@ export function ProductCard({
 
   const imageSrc = productImageSrc(product.primary_image?.url, product);
   const hasHonestSign = showHonestSignMarking(product);
+  const imageContext = {
+    name: product.name,
+    slug: product.slug,
+    series_code: product.series_code,
+    product_type: product.product_type,
+    sku_code: selected?.sku_code ?? product.default_variant?.sku_code,
+    execution: selected?.execution ?? product.default_variant?.execution,
+    coil_voltage_v: selected?.coil_voltage_v ?? product.default_variant?.coil_voltage_v,
+  };
+  const rotateClass = productImageRotateClass(imageContext);
 
   function syncSelection(nextCoil: number | null, nextAux: string | null) {
     const matched = pickProductVariant(variants, null, nextCoil, nextAux);
@@ -111,7 +122,7 @@ export function ProductCard({
         priority={priority}
         loading={priority ? "eager" : "lazy"}
         unoptimized={productImageUnoptimized(imageSrc)}
-        className="object-contain p-3"
+        className={cn("object-contain p-3", rotateClass)}
         sizes={view === "grid" ? "(max-width:640px) 100vw, 33vw" : "112px"}
       />
       <Badge variant="brand" className="absolute left-2 top-2 text-[10px]">
