@@ -1,8 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
-
-import { ProductImageFit } from "@/components/product/ProductImageFit";
 
 import { resolveStaticProductGallery, type ProductImageContext } from "@/lib/product-images";
 import type { ProductImageDetail } from "@/lib/types";
@@ -47,7 +46,7 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
   return (
     <div className="space-y-3">
       <div className={cn("relative overflow-hidden rounded-lg border bg-muted", PRODUCT_IMAGE_ASPECT_CLASS)}>
-        <ProductImageFit
+        <Image
           src={mainSrc}
           alt={current.alt || name}
           fill
@@ -74,7 +73,7 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
                   idx === active && "ring-2 ring-primary",
                 )}
               >
-                <ProductImageFit
+                <Image
                   src={thumbSrc}
                   alt=""
                   fill

@@ -22,12 +22,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "32x32", type: "image/png" },
       { url: "/photos/logonobag.png", type: "image/png", sizes: "512x512" },
       { url: "/photos/logonobag.png", type: "image/png", sizes: "192x192" },
     ],
     apple: [{ url: "/photos/logonobag.png", type: "image/png", sizes: "180x180" }],
-    shortcut: ["/favicon.ico"],
+    shortcut: ["/photos/logonobag.png"],
   },
 };
 

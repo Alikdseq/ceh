@@ -78,6 +78,10 @@ const NAMED_IMAGES: Array<{ pattern: RegExp; url: string; gallery?: string[] }> 
     pattern: /кэ[\s-]*54/i,
     url: "/tovar/КЭ-54.png",
   },
+  {
+    pattern: /кэ[\s-]*61/i,
+    url: "/photos/кэ61.png",
+  },
 ];
 
 function tovarPublicUrl(filename: string): string {

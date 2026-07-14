@@ -7,12 +7,14 @@ import { MobileNav } from "@/components/layout/MobileNav";
 import { CartBadge } from "@/components/layout/CartBadge";
 import { CompareBadge } from "@/components/layout/CompareBadge";
 import { Button } from "@/components/ui/button";
+import { getSiteSettings } from "@/lib/api";
 import { HeaderLeadActions } from "@/components/leads/HeaderLeadActions";
 import { NAV_LINKS } from "@/lib/catalog-meta";
 import { FACTORY_PHONE, phoneToTelHref } from "@/lib/site-links";
 
 export async function Header() {
-  const phone = FACTORY_PHONE;
+  const settings = await getSiteSettings();
+  const phone = settings?.phone_main ?? FACTORY_PHONE;
   const telHref = phoneToTelHref(phone);
 
   return (
