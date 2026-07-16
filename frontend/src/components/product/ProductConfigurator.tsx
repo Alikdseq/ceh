@@ -13,6 +13,7 @@ import { addToCart } from "@/lib/cart";
 import { showHonestSignMarking } from "@/lib/honest-sign";
 import type { ProductGroupDetail, ProductVariant } from "@/lib/types";
 import { listAuxContacts, pickProductVariant } from "@/lib/variant-picker";
+import { sortCoilVoltages } from "@/lib/coil-voltages";
 import { formatAuxContactsLabel, formatPrice } from "@/lib/utils";
 
 interface ProductConfiguratorProps {
@@ -29,8 +30,8 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
 
   const coils = useMemo(
     () =>
-      [...new Set(variants.map((v) => v.coil_voltage_v).filter((v): v is number => v != null))].sort(
-        (a, b) => a - b,
+      sortCoilVoltages(
+        variants.map((v) => v.coil_voltage_v).filter((v): v is number => v != null),
       ),
     [variants],
   );

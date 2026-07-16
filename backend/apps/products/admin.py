@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.db.models import Min
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join
 from django.utils.text import slugify
 from mptt.admin import DraggableMPTTAdmin
 from unfold.admin import ModelAdmin, StackedInline, TabularInline
@@ -132,7 +132,7 @@ class ProductGroupAdmin(ModelAdmin):
     autocomplete_fields = ("category",)
     filter_horizontal = ("related_groups",)
     inlines = [ProductImageInline, ProductVariantInline, ProductSpecInline]
-    readonly_fields = ("card_preview", "updated_at", "created_at")
+    readonly_fields = ("card_preview", "photos_preview", "dimensions_preview", "updated_at", "created_at")
     list_per_page = 25
     warn_unsaved_form = True
 
@@ -142,6 +142,8 @@ class ProductGroupAdmin(ModelAdmin):
             {
                 "fields": (
                     "card_preview",
+                    "photos_preview",
+                    "dimensions_preview",
                     "name",
                     "category",
                     "h1",
@@ -233,6 +235,36 @@ class ProductGroupAdmin(ModelAdmin):
         if price:
             return f"{price:,.0f} ₽".replace(",", " ")
         return "по запросу"
+
+    @display(description="Габариты")
+    def dimensions_preview(self, obj):
+        if not obj.pk:
+            return "—"
+        spec = obj.specs.filter(spec_key="overall_dimensions").first()
+        return spec.spec_value if spec else "—"
+
+    @display(description="Фотографии")
+    def photos_preview(self, obj):
+        if not obj.pk:
+            return "—"
+        images = list(obj.images.all()[:12])
+        if not images:
+            return format_html('<p class="text-sm opacity-70">Нет загруженных фото</p>')
+        parts = [
+            format_html(
+                '<figure style="display:inline-block;margin:4px;text-align:center;">'
+                '<img src="{}" alt="" style="height:72px;width:72px;object-fit:contain;border:1px solid #dce4ec;border-radius:8px;background:#fff;" />'
+                '<figcaption style="font-size:11px;max-width:72px;">{}</figcaption></figure>',
+                img.image.url,
+                "★" if img.is_primary else f"#{img.sort_order}",
+            )
+            for img in images
+        ]
+        return format_html(
+            '<div><p class="text-sm mb-2">Всего: {} шт.</p><div>{}</div></div>',
+            obj.images.count(),
+            format_html_join("", parts),
+        )
 
     @display(description="Сводка")
     def card_preview(self, obj):

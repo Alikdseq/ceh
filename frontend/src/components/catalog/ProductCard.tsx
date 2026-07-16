@@ -14,6 +14,7 @@ import { highlightMatch } from "@/lib/search-highlight";
 import type { ProductGroup } from "@/lib/types";
 import { listAuxContacts, pickProductVariant } from "@/lib/variant-picker";
 import { productImageRotateClass } from "@/lib/product-images";
+import { sortCoilVoltages } from "@/lib/coil-voltages";
 import {
   cn,
   formatAuxContactsLabel,
@@ -43,8 +44,8 @@ export function ProductCard({
 
   const coils = useMemo(
     () =>
-      [...new Set(variants.map((v) => v.coil_voltage_v).filter((v): v is number => v != null))].sort(
-        (a, b) => a - b,
+      sortCoilVoltages(
+        variants.map((v) => v.coil_voltage_v).filter((v): v is number => v != null),
       ),
     [variants],
   );

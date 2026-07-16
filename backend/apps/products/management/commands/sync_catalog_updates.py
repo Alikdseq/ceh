@@ -64,6 +64,11 @@ class Command(BaseCommand):
             self._import_prices()
         if not options["skip_featured"]:
             self._set_featured()
+        call_command("update_catalog_product_names")
+        call_command("ensure_configurator_variants")
+        text_path = resolve_data_file("data/тексткаталога.txt")
+        if text_path.is_file():
+            call_command("import_catalog_text", str(text_path))
         if not options["skip_images"]:
             self._rotate_images()
         invalidate_catalog_cache()

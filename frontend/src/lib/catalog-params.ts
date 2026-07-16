@@ -248,7 +248,7 @@ export const DOC_FILTER_OPTIONS = [
 
 export const CURRENT_OPTIONS = [80, 100, 125, 160, 250, 400, 630, 1000] as const;
 
-export const COIL_OPTIONS = [36, 110, 117, 220, 380] as const;
+export const COIL_OPTIONS = [220, 380, 36, 127, 660] as const;
 
 export const POLES_OPTIONS = [2, 3] as const;
 

@@ -19,7 +19,7 @@ interface ProductIdentity {
   coil36v: boolean;
 }
 
-/** Product cards that need a 90° clockwise photo rotation in the UI. */
+/** Product cards that need 180° rotation (counter-clockwise) in the UI. */
 const ROTATED_PRODUCTS: ProductIdentity[] = [
   { product_type: "KT", series: "6014", execution: "B", coil36v: false },
   { product_type: "KT", series: "6014", execution: "BS", coil36v: false },
@@ -27,8 +27,6 @@ const ROTATED_PRODUCTS: ProductIdentity[] = [
   { product_type: "KT", series: "6032", execution: "BS", coil36v: false },
   { product_type: "KT", series: "6043", execution: "B", coil36v: false },
   { product_type: "KT", series: "6043", execution: "BS", coil36v: false },
-  { product_type: "KT", series: "6053", execution: "B", coil36v: false },
-  { product_type: "KT", series: "6053", execution: "BS", coil36v: false },
   { product_type: "KT", series: "6623", execution: "S", coil36v: false },
   { product_type: "KT", series: "6633", execution: "NONE", coil36v: false },
   { product_type: "KT", series: "6642", execution: "S", coil36v: false },
@@ -37,8 +35,6 @@ const ROTATED_PRODUCTS: ProductIdentity[] = [
   { product_type: "KTP", series: "6012", execution: "BS", coil36v: false },
   { product_type: "KTP", series: "6013", execution: "B", coil36v: false },
   { product_type: "KTP", series: "6013", execution: "BS", coil36v: false },
-  { product_type: "KTP", series: "6014", execution: "B", coil36v: false },
-  { product_type: "KTP", series: "6014", execution: "BS", coil36v: false },
   { product_type: "KTP", series: "6032", execution: "B", coil36v: false },
   { product_type: "KTP", series: "6032", execution: "BS", coil36v: false },
   { product_type: "KTP", series: "6043", execution: "B", coil36v: false },
@@ -107,6 +103,10 @@ const NAMED_IMAGES: Array<{ pattern: RegExp; url: string; gallery?: string[] }> 
     url: "/tovar/ЭУ5.jpg",
   },
   {
+    pattern: /эу[\s-]*1\b/i,
+    url: "/tovar/ЭУ1.jpg",
+  },
+  {
     pattern: /кэ[\s-]*46/i,
     url: "/tovar/КЭ-46.jpg",
   },
@@ -122,7 +122,31 @@ const NAMED_IMAGES: Array<{ pattern: RegExp; url: string; gallery?: string[] }> 
     pattern: /кэ[\s-]*61/i,
     url: "/photos/кэ61.png",
   },
+  {
+    pattern: /ктп\s*6052|ktp6052/i,
+    url: "/tovar/catalog-docx/image26.jpeg",
+  },
+  {
+    pattern: /ктп\s*6643|ktp6643/i,
+    url: "/tovar/catalog-docx/image24.jpeg",
+  },
+  {
+    pattern: /ктп\s*6642|ktp6642/i,
+    url: "/tovar/catalog-docx/image23.jpeg",
+  },
+  {
+    pattern: /ктп\s*6653|ktp6653/i,
+    url: "/tovar/catalog-docx/image25.jpeg",
+  },
 ];
+
+/** Series without /tovar photos — images from catalog DOCX export. */
+const CATALOG_DOCX_FALLBACK: Partial<Record<string, string>> = {
+  KTP6052: "/tovar/catalog-docx/image26.jpeg",
+  KTP6653: "/tovar/catalog-docx/image25.jpeg",
+  KTP6643: "/tovar/catalog-docx/image24.jpeg",
+  KTP6642: "/tovar/catalog-docx/image23.jpeg",
+};
 
 function tovarPublicUrl(filename: string): string {
   return `/tovar/${encodeURIComponent(filename)}`;
@@ -211,7 +235,9 @@ export function resolveStaticProductImage(context: ProductImageContext): string 
 
   const key = resolveImageKey(context);
   if (!key) return null;
-  return IMAGE_MAP.get(key)?.[0] ?? null;
+  const mapped = IMAGE_MAP.get(key)?.[0];
+  if (mapped) return mapped;
+  return CATALOG_DOCX_FALLBACK[key] ?? null;
 }
 
 export function resolveStaticProductGallery(context: ProductImageContext): string[] {
@@ -220,7 +246,11 @@ export function resolveStaticProductGallery(context: ProductImageContext): strin
 
   const key = resolveImageKey(context);
   if (!key) return [];
-  return IMAGE_MAP.get(key) ?? [];
+  const gallery = IMAGE_MAP.get(key) ?? [];
+  if (key === "KT7223") {
+    return gallery.length ? [gallery[0]] : [];
+  }
+  return gallery;
 }
 
 function normalizeExecution(raw: string | undefined | null): ProductExecution | null {
@@ -341,7 +371,7 @@ export function shouldRotateProductImage(context?: ProductImageContext): boolean
   return ROTATED_PRODUCTS.some((rule) => identitiesMatch(rule, identity));
 }
 
-/** Tailwind class for a 90° clockwise product photo rotation. */
+/** Tailwind class for 180° product photo rotation. */
 export function productImageRotateClass(context?: ProductImageContext): string {
-  return shouldRotateProductImage(context) ? "rotate-90" : "";
+  return shouldRotateProductImage(context) ? "rotate-180" : "";
 }

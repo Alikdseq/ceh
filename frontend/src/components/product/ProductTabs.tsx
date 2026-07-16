@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { ProductGroupDetail } from "@/lib/types";
+import { formatCoilSpecValue } from "@/lib/coil-voltages";
 import { specKeyLabel, isVisibleSpecKey } from "@/lib/utils";
 
 interface ProductTabsProps {
@@ -16,7 +17,9 @@ interface ProductTabsProps {
 
 export function ProductTabs({ product }: ProductTabsProps) {
   const publicDocs = product.documents.filter((d) => d.document.is_public && d.document.file_url);
-  const visibleSpecs = product.specs.filter((spec) => isVisibleSpecKey(spec.spec_key));
+  const visibleSpecs = product.specs
+    .filter((spec) => isVisibleSpecKey(spec.spec_key))
+    .sort((a, b) => a.sort_order - b.sort_order || a.spec_key.localeCompare(b.spec_key));
   const hasSpecs = visibleSpecs.length > 0 || Boolean(product.nominal_current_a);
 
   return (
@@ -44,8 +47,11 @@ export function ProductTabs({ product }: ProductTabsProps) {
                 <TableRow key={spec.spec_key}>
                   <TableCell className="font-medium">{specKeyLabel(spec.spec_key)}</TableCell>
                   <TableCell>
-                    {spec.spec_value}
-                    {spec.spec_unit ? ` ${spec.spec_unit}` : ""}
+                    {spec.spec_key.includes("coil_voltage")
+                      ? formatCoilSpecValue(
+                          `${spec.spec_value}${spec.spec_unit ? ` ${spec.spec_unit}` : ""}`,
+                        )
+                      : `${spec.spec_value}${spec.spec_unit ? ` ${spec.spec_unit}` : ""}`}
                   </TableCell>
                 </TableRow>
               ))}

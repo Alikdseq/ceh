@@ -269,7 +269,7 @@ def build_group_name(
     prefix = {"KT": "КТ", "KTP": "КТП", "KTE": "КТЭ"}.get(product_type, "")
     if product_type in ("KT", "KTP") and series and execution not in (None, "", "NONE"):
         exec_char = {"B": "Б", "BS": "БС", "S": "С"}.get(execution, "")
-        return f"{prefix}{series}{exec_char}-У3"
+        return f"{prefix}{series}{exec_char}"
     if product_type == "KTE" and series:
         if "-" in series:
             return f"КТЭ{series}-У3"
@@ -279,8 +279,13 @@ def build_group_name(
     return ""
 
 
+def strip_climate_suffix(label: str) -> str:
+    """Remove trailing -У3 / -У4 climate suffix from catalog designation."""
+    return re.sub(r"-У\d+$", "", label.strip(), flags=re.IGNORECASE)
+
+
 def build_catalog_display_name(group) -> str:
-    """Имя карточки как в каталоге — из артикула или серии/исполнения."""
+    """Имя карточки — каталожное обозначение без суффикса климатического исполнения."""
     variant = (
         group.variants.filter(is_active=True)
         .order_by("-is_default", "price", "sku_code")
@@ -291,10 +296,11 @@ def build_catalog_display_name(group) -> str:
         match = re.match(r"^(.+?-У\d)", sku, re.IGNORECASE)
         if match:
             label = match.group(1)
-            return label.replace("у", "У").replace("-у", "-У")
+            label = label.replace("у", "У").replace("-у", "-У")
+            return strip_climate_suffix(label)
         head = re.match(r"^([A-ZА-Я0-9]+(?:-[A-ZА-Я0-9]+)?)", sku)
         if head:
-            return head.group(1)
+            return strip_climate_suffix(head.group(1))
 
     if group.product_type in ("KT", "KTP", "KTE") and group.series_code:
         execution = (
