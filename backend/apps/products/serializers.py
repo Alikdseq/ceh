@@ -106,15 +106,21 @@ class ProductVariantListSerializer(serializers.ModelSerializer):
 class ProductVariantDetailSerializer(ProductVariantListSerializer):
     group_name = serializers.CharField(source="group.name", read_only=True)
     group_slug = serializers.CharField(source="group.slug", read_only=True)
+    group_category_path = serializers.SerializerMethodField()
     dimensions = serializers.JSONField()
     documents = serializers.SerializerMethodField()
     specs = serializers.SerializerMethodField()
 
     class Meta(ProductVariantListSerializer.Meta):
         fields = ProductVariantListSerializer.Meta.fields + (
-            "group_name", "group_slug", "weight_net_kg", "weight_gross_kg",
+            "group_name", "group_slug", "group_category_path", "weight_net_kg", "weight_gross_kg",
             "dimensions", "documents", "specs",
         )
+
+    def get_group_category_path(self, obj):
+        if not obj.group.category_id:
+            return []
+        return category_path_slugs(obj.group.category)
 
     def get_specs(self, obj):
         specs = obj.group.specs.exclude(spec_key__in=PUBLIC_HIDDEN_SPEC_KEYS)

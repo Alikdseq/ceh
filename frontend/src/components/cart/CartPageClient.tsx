@@ -15,6 +15,7 @@ import {
   updateCartItem,
 } from "@/lib/api/cart";
 import { dispatchCartUpdated } from "@/lib/cart";
+import { catalogProductHref } from "@/lib/catalog-url";
 import { useCart } from "@/hooks/use-cart";
 import { cn, formatPrice, productImageSrc, productImageUnoptimized } from "@/lib/utils";
 import { productImageRotateClass } from "@/lib/product-images";
@@ -155,7 +156,7 @@ export function CartPageClient() {
                 </thead>
                 <tbody>
                   {items.map((item) => {
-                    const href = `/catalog/${item.category_slug}/${item.product_slug}`;
+                    const href = catalogProductHref(item);
                     const busy = busyId === item.id;
                     const imageContext = {
                       name: item.product_name,

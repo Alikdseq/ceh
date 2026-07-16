@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import {
   CategoryListing,
@@ -7,6 +7,7 @@ import {
 } from "@/components/catalog/CategoryListing";
 import { ProductDetailPage } from "@/components/product/ProductDetailPage";
 import { getCategories, tryGetProduct } from "@/lib/api";
+import { catalogPathsEqual, catalogProductPath, normalizeCatalogPath } from "@/lib/catalog-url";
 import { getCategoryPathSlugs } from "@/lib/categories";
 import { buildProductMetadata } from "@/lib/seo";
 
@@ -37,6 +38,16 @@ export default async function CatalogCategoryPage({ params, searchParams }: Page
   const lastSegment = slug[slug.length - 1];
   const product = await tryGetProduct(lastSegment);
   if (product) {
+    const categories = await getCategories();
+    const catPath =
+      product.category_path?.length
+        ? product.category_path
+        : getCategoryPathSlugs(categories, product.category_slug);
+    const canonical = catalogProductPath({ slug: product.slug, category_path: catPath });
+    const current = normalizeCatalogPath(`/catalog/${slug.join("/")}`);
+    if (!catalogPathsEqual(current, canonical)) {
+      redirect(`${canonical}/`);
+    }
     return <ProductDetailPage product={product} />;
   }
 

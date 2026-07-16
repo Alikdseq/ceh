@@ -5,6 +5,7 @@ export interface CartItemDto {
   product_name: string;
   product_slug: string;
   category_slug: string;
+  category_path?: string[];
   quantity: number;
   unit_price: string;
   unit_price_without_vat: string;

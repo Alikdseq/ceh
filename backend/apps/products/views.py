@@ -28,8 +28,9 @@ from .services.catalog_filter import (
     params_from_request,
     params_to_dict,
 )
+from .services.catalog_path_resolve import find_group_by_catalog_segment
 from .services.search import search_products, search_products_queryset
-from .utils import CATEGORIES_CACHE_KEY, PUBLIC_HIDDEN_SPEC_KEYS, get_public_category_ids
+from .utils import CATEGORIES_CACHE_KEY, PUBLIC_HIDDEN_SPEC_KEYS, category_path_slugs, get_public_category_ids
 
 CATEGORIES_CACHE_TTL = getattr(settings, "CACHE_TTL_CATEGORIES", 3600)
 
@@ -102,6 +103,17 @@ class ProductGroupDetailView(generics.RetrieveAPIView):
             )
             .annotate(min_price=Min("variants__price", filter=Q(variants__is_active=True)))
         )
+
+    def get_object(self):
+        slug = self.kwargs[self.lookup_field]
+        queryset = self.get_queryset()
+        obj = queryset.filter(**{self.lookup_field: slug}).first()
+        if obj is not None:
+            return obj
+        resolved = find_group_by_catalog_segment(slug, queryset)
+        if resolved is not None:
+            return resolved
+        return super().get_object()
 
 
 class ProductVariantDetailView(generics.RetrieveAPIView):
@@ -253,6 +265,7 @@ class SearchSuggestView(APIView):
                 "sku": variant.sku_code if variant else group.series_code,
                 "category_name": group.category.name,
                 "category_slug": group.category.slug,
+                "category_path": category_path_slugs(group.category),
                 "product_slug": group.slug,
                 "variant_id": variant.id if variant else None,
             })

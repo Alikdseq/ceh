@@ -54,7 +54,11 @@ def build_group_search_text(group: ProductGroup) -> str:
     if group.nominal_current_a:
         parts.append(f"{group.nominal_current_a}a")
         parts.append(f"{group.nominal_current_a}а")
-        parts.append(f"кт{group.series_code}")
+    for series in set(re.findall(r"\d{4}", group.name or "")) | ({group.series_code} if group.series_code else set()):
+        if series:
+            parts.append(f"кт{series}")
+            parts.append(f"kt{series}")
+            parts.append(series)
     return " ".join(p for p in parts if p).lower()
 
 

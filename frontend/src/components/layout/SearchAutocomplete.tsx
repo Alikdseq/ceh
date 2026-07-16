@@ -8,6 +8,7 @@ import { Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getSearchSuggestions, type SearchSuggestion } from "@/lib/api/search";
+import { catalogProductHref } from "@/lib/catalog-url";
 import { highlightMatch } from "@/lib/search-highlight";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +31,7 @@ function useDebouncedValue<T>(value: T, delayMs: number): T {
 }
 
 function suggestionHref(item: SearchSuggestion): string {
-  return `/catalog/${item.category_slug}/${item.product_slug}`;
+  return catalogProductHref(item);
 }
 
 export function SearchAutocomplete({

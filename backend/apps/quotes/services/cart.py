@@ -10,6 +10,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from apps.products.models import ProductVariant
+from apps.products.utils import category_path_slugs
 
 from ..models import QuoteCart, QuoteCartItem
 
@@ -98,6 +99,7 @@ def serialize_cart(cart: QuoteCart, request) -> dict:
             "product_name": group.name,
             "product_slug": group.slug,
             "category_slug": group.category.slug if group.category_id else "",
+            "category_path": category_path_slugs(group.category) if group.category_id else [],
             "quantity": item.quantity,
             "unit_price": str(item.unit_price_snapshot),
             "unit_price_without_vat": price_without_vat_display(item.unit_price_snapshot),

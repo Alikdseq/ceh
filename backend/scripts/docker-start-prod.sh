@@ -5,6 +5,9 @@ set -e
 echo "==> migrate"
 python manage.py migrate --noinput
 
+echo "==> sync_product_catalog_redirects"
+python manage.py sync_product_catalog_redirects || echo "WARNING: sync_product_catalog_redirects failed"
+
 echo "==> sync_catalog_photos_to_media"
 python manage.py sync_catalog_photos_to_media || echo "WARNING: sync_catalog_photos_to_media failed"
 

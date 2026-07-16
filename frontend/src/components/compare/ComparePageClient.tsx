@@ -8,6 +8,7 @@ import { Loader2, ShoppingCart, Trash2, X } from "lucide-react";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { fetchApiClient } from "@/lib/api/client";
+import { catalogProductHref } from "@/lib/catalog-url";
 import { addToCart } from "@/lib/cart";
 import {
   clearCompare,
@@ -197,7 +198,10 @@ export function ComparePageClient() {
                       <div className="flex items-start justify-between gap-2">
                         <div>
                           <Link
-                            href={`/catalog/${v.group_slug}`}
+                            href={catalogProductHref({
+                              slug: v.group_slug,
+                              category_path: v.group_category_path,
+                            })}
                             className="font-display font-semibold hover:text-primary"
                           >
                             {v.group_name}

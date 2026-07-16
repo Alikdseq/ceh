@@ -155,6 +155,7 @@ export interface FAQItem {
 export interface CompareVariant extends ProductVariant {
   group_name: string;
   group_slug: string;
+  group_category_path?: string[];
   weight_net_kg?: string | null;
   weight_gross_kg?: string | null;
   dimensions?: Record<string, unknown>;

@@ -7,6 +7,7 @@ export interface SearchSuggestion {
   sku: string;
   category_name: string;
   category_slug: string;
+  category_path?: string[];
   product_slug: string;
   variant_id: number | null;
 }
