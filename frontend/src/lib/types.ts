@@ -44,6 +44,8 @@ export interface ProductGroup {
   poles: number | null;
   honest_sign: boolean;
   is_featured: boolean;
+  /** 0, 90, 180, 270 — from CMS; overrides default rotation when not 0. */
+  image_rotation?: number;
   price_from: string | null;
   category_name: string;
   category_slug: string;

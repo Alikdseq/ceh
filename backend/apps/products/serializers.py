@@ -142,6 +142,7 @@ class ProductGroupListSerializer(serializers.ModelSerializer):
         fields = (
             "id", "name", "slug", "short_description", "series_code", "product_type",
             "nominal_current_a", "nominal_voltage_v", "poles", "honest_sign", "is_featured",
+            "image_rotation",
             "price_from", "category_name", "category_slug", "category_path", "primary_image",
             "default_variant", "variants_preview", "aux_contacts_options",
         )

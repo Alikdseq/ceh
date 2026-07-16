@@ -77,7 +77,7 @@ export function ProductCard({
     execution: selected?.execution ?? product.default_variant?.execution,
     coil_voltage_v: selected?.coil_voltage_v ?? product.default_variant?.coil_voltage_v,
   };
-  const rotateClass = productImageRotateClass(imageContext);
+  const rotateClass = productImageRotateClass(imageContext, product.image_rotation);
 
   function syncSelection(nextCoil: number | null, nextAux: string | null) {
     const matched = pickProductVariant(variants, null, nextCoil, nextAux);

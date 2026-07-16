@@ -69,6 +69,7 @@ export async function ProductDetailPage({ product }: ProductDetailPageProps) {
                   sku_code: defaultVariant?.sku_code,
                   execution: defaultVariant?.execution,
                   coil_voltage_v: defaultVariant?.coil_voltage_v,
+                  image_rotation: product.image_rotation,
                 }}
               />
             </div>

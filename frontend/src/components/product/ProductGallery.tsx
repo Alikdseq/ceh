@@ -12,7 +12,7 @@ import { HonestSignMark } from "@/components/content/HonestSignMark";
 interface ProductGalleryProps {
   images: ProductImageDetail[];
   name: string;
-  product?: ProductImageContext & { honest_sign?: boolean; product_type?: string };
+  product?: ProductImageContext & { honest_sign?: boolean; product_type?: string; image_rotation?: number };
 }
 
 function galleryItemSrc(item: ProductImageDetail | { url?: string; image?: string }): string {
@@ -42,7 +42,7 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
   const current = list[active] ?? list[0];
   const mainSrc = productImageSrc(galleryItemSrc(current), product);
   const hasHonestSign = product ? showHonestSignMarking(product) : false;
-  const rotateClass = productImageRotateClass(product);
+  const rotateClass = productImageRotateClass(product, product?.image_rotation);
 
   return (
     <div className="space-y-3">

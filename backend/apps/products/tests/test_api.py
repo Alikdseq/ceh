@@ -105,3 +105,13 @@ def test_compare_max_four(api_client, catalog_sample):
     assert response.status_code == 200
     assert len(response.data["variants"]) == 3
     assert "spec_keys" in response.data
+
+
+@pytest.mark.django_db
+def test_products_include_image_rotation(api_client, catalog_sample):
+    group = catalog_sample["group_b"]
+    group.image_rotation = 90
+    group.save(update_fields=["image_rotation"])
+    response = api_client.get("/api/v1/products/kontaktor-kt-6043/")
+    assert response.status_code == 200
+    assert response.data["image_rotation"] == 90

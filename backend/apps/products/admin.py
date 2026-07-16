@@ -1,5 +1,8 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.core.exceptions import PermissionDenied
 from django.db.models import Min
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import path, reverse
 from django.utils.html import format_html, format_html_join
 from django.utils.text import slugify
 from mptt.admin import DraggableMPTTAdmin
@@ -132,7 +135,14 @@ class ProductGroupAdmin(ModelAdmin):
     autocomplete_fields = ("category",)
     filter_horizontal = ("related_groups",)
     inlines = [ProductImageInline, ProductVariantInline, ProductSpecInline]
-    readonly_fields = ("card_preview", "photos_preview", "dimensions_preview", "updated_at", "created_at")
+    readonly_fields = (
+        "card_preview",
+        "photos_preview",
+        "image_rotation_controls",
+        "dimensions_preview",
+        "updated_at",
+        "created_at",
+    )
     list_per_page = 25
     warn_unsaved_form = True
 
@@ -143,6 +153,7 @@ class ProductGroupAdmin(ModelAdmin):
                 "fields": (
                     "card_preview",
                     "photos_preview",
+                    "image_rotation_controls",
                     "dimensions_preview",
                     "name",
                     "category",
@@ -328,6 +339,71 @@ class ProductGroupAdmin(ModelAdmin):
             .get_queryset(request)
             .select_related("category")
             .prefetch_related("images", "variants")
+        )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path(
+                "<int:object_id>/rotate-image/",
+                self.admin_site.admin_view(self.rotate_image_view),
+                name="products_productgroup_rotate_image",
+            ),
+        ]
+        return custom + urls
+
+    def rotate_image_view(self, request, object_id):
+        obj = get_object_or_404(ProductGroup, pk=object_id)
+        if not self.has_change_permission(request, obj):
+            raise PermissionDenied
+        direction = request.GET.get("dir")
+        if direction == "cw":
+            obj.image_rotation = (obj.image_rotation + 90) % 360
+        elif direction == "ccw":
+            obj.image_rotation = (obj.image_rotation - 90) % 360
+        elif direction == "reset":
+            obj.image_rotation = 0
+        else:
+            messages.error(request, "Неизвестное действие поворота.")
+            return redirect(reverse("admin:products_productgroup_change", args=[object_id]))
+        obj.save(update_fields=["image_rotation", "updated_at"])
+        invalidate_catalog_cache()
+        messages.success(request, f"Поворот фото на сайте: {obj.image_rotation}°")
+        return redirect(reverse("admin:products_productgroup_change", args=[object_id]))
+
+    @display(description="Поворот фото на сайте")
+    def image_rotation_controls(self, obj):
+        if not obj.pk:
+            return format_html(
+                '<p class="text-sm opacity-70">Сохраните карточку — появятся кнопки поворота для каталога и страницы товара.</p>'
+            )
+        rotate_url = reverse("admin:products_productgroup_rotate_image", args=[obj.pk])
+        primary = obj.images.filter(is_primary=True).first() or obj.images.first()
+        preview_html = ""
+        if primary and primary.image:
+            preview_html = format_html(
+                '<img src="{}" alt="" style="height:120px;width:120px;object-fit:contain;'
+                'border:1px solid #dce4ec;border-radius:8px;background:#fff;'
+                'transform:rotate({}deg);margin-right:16px;" />',
+                primary.image.url,
+                obj.image_rotation,
+            )
+        return format_html(
+            '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;">'
+            "{}"
+            '<div style="display:flex;flex-direction:column;gap:8px;">'
+            '<p style="margin:0;font-weight:600;">Текущий угол: {}°</p>'
+            '<p style="margin:0;font-size:12px;opacity:0.75;">Действует для фото в каталоге и в карточке на сайте (в т.ч. статические снимки).</p>'
+            '<div style="display:flex;flex-wrap:wrap;gap:8px;">'
+            '<a class="button" href="{}?dir=ccw">↺ 90° против часовой</a>'
+            '<a class="button" href="{}?dir=cw">↻ 90° по часовой</a>'
+            '<a class="button" href="{}?dir=reset">Сброс (0°)</a>'
+            "</div></div></div>",
+            preview_html,
+            obj.image_rotation,
+            rotate_url,
+            rotate_url,
+            rotate_url,
         )
 
 

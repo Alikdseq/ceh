@@ -371,7 +371,24 @@ export function shouldRotateProductImage(context?: ProductImageContext): boolean
   return ROTATED_PRODUCTS.some((rule) => identitiesMatch(rule, identity));
 }
 
-/** Tailwind class for 180° product photo rotation. */
-export function productImageRotateClass(context?: ProductImageContext): string {
-  return shouldRotateProductImage(context) ? "rotate-180" : "";
+/** Degrees from admin (0/90/180/270) or legacy hardcoded list when admin value is 0. */
+export function productImageRotationDegrees(
+  context?: ProductImageContext,
+  adminRotation?: number | null,
+): number {
+  const normalized = ((adminRotation ?? 0) % 360 + 360) % 360;
+  if (normalized !== 0) return normalized;
+  return shouldRotateProductImage(context) ? 180 : 0;
+}
+
+/** Tailwind class for product photo rotation (admin override + legacy defaults). */
+export function productImageRotateClass(
+  context?: ProductImageContext,
+  adminRotation?: number | null,
+): string {
+  const deg = productImageRotationDegrees(context, adminRotation);
+  if (deg === 90) return "rotate-90";
+  if (deg === 180) return "rotate-180";
+  if (deg === 270) return "-rotate-90";
+  return "";
 }

@@ -72,6 +72,11 @@ class ProductGroup(models.Model):
     is_active = models.BooleanField("Активен", default=True, db_index=True)
     is_featured = models.BooleanField("Хит продаж", default=False)
     sort_order = models.PositiveIntegerField("Порядок", default=0)
+    image_rotation = models.PositiveSmallIntegerField(
+        "Поворот фото (градусы)",
+        default=0,
+        help_text="Отображение на сайте: 0, 90, 180 или 270. Настраивается кнопками в админке.",
+    )
     search_vector = models.TextField("Search index", blank=True, editable=False)
     related_groups = models.ManyToManyField(
         "self", blank=True, symmetrical=False,
