@@ -195,6 +195,12 @@ input[type="radio"] {
   display: none !important;
 }
 
+/* Radix Select: closed dropdown must not intercept clicks during route updates */
+[data-slot="select-content"][data-state="closed"] {
+  display: none !important;
+  pointer-events: none !important;
+}
+
 .container-page {
   @apply mx-auto w-full max-w-[1280px] min-w-0 px-3 sm:px-4;
 }

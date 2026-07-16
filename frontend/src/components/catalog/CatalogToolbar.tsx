@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Grid3X3, LayoutList } from "lucide-react";
 
@@ -18,6 +19,7 @@ import {
   buildCatalogQuery,
   buildSearchQuery,
 } from "@/lib/catalog-params";
+import { cn } from "@/lib/utils";
 
 interface CatalogToolbarProps {
   basePath: string;
@@ -40,6 +42,34 @@ function buildQueryString(
   return buildCatalogQuery(params, patch);
 }
 
+function ToolbarSelect({
+  value,
+  onValueChange,
+  triggerClassName,
+  children,
+}: {
+  value: string;
+  onValueChange: (value: string) => void;
+  triggerClassName?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+
+  function handleValueChange(next: string) {
+    setOpen(false);
+    queueMicrotask(() => onValueChange(next));
+  }
+
+  return (
+    <Select open={open} onOpenChange={setOpen} value={value} onValueChange={handleValueChange}>
+      <SelectTrigger className={triggerClassName}>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>{children}</SelectContent>
+    </Select>
+  );
+}
+
 export function CatalogToolbar({
   basePath,
   params,
@@ -49,59 +79,58 @@ export function CatalogToolbar({
   onParamsChange,
 }: CatalogToolbarProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   function navigate(patch: Partial<CatalogSearchParams>) {
     if (onParamsChange) {
       onParamsChange(patch);
       return;
     }
-    router.push(
-      `${basePath}${buildQueryString(mode, params, patch, searchQuery)}`,
-      { scroll: false },
-    );
+
+    const href = `${basePath}${buildQueryString(mode, params, patch, searchQuery)}`;
+    startTransition(() => {
+      router.push(href, { scroll: false });
+    });
   }
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-4">
+    <div
+      className={cn(
+        "flex flex-wrap items-center justify-between gap-3 border-b pb-4 transition-opacity duration-200",
+        isPending && "opacity-70",
+      )}
+    >
       <p className="text-sm text-muted-foreground">
         Найдено: <span className="font-medium text-foreground">{total}</span>
       </p>
       <div className="flex flex-wrap items-center gap-2">
-        <Select
+        <ToolbarSelect
           value={params.ordering ?? "sort_order"}
           onValueChange={(v) =>
             navigate({ ordering: v === "sort_order" ? undefined : v, page: "1" })
           }
+          triggerClassName="w-[180px]"
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Сортировка" />
-          </SelectTrigger>
-          <SelectContent>
-            {SORT_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>
-                {o.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {SORT_OPTIONS.map((o) => (
+            <SelectItem key={o.value} value={o.value}>
+              {o.label}
+            </SelectItem>
+          ))}
+        </ToolbarSelect>
 
-        <Select
+        <ToolbarSelect
           value={params.page_size ?? "24"}
           onValueChange={(v) =>
             navigate({ page_size: v === "24" ? undefined : v, page: "1" })
           }
+          triggerClassName="w-[100px]"
         >
-          <SelectTrigger className="w-[100px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {PAGE_SIZE_OPTIONS.map((n) => (
-              <SelectItem key={n} value={String(n)}>
-                {n}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          {PAGE_SIZE_OPTIONS.map((n) => (
+            <SelectItem key={n} value={String(n)}>
+              {n}
+            </SelectItem>
+          ))}
+        </ToolbarSelect>
 
         <div className="flex rounded-md border p-0.5">
           <Button
@@ -139,6 +168,7 @@ export function CatalogPagination({
   onPageChange,
 }: CatalogToolbarProps & { onPageChange?: (page: number) => void }) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const pageSize = Number(params.page_size ?? 24);
   const page = Number(params.page ?? 1);
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -150,15 +180,27 @@ export function CatalogPagination({
       onPageChange(p);
       return;
     }
-    router.push(
-      `${basePath}${buildQueryString(mode, params, { page: p === 1 ? undefined : String(p) }, searchQuery)}`,
-      { scroll: true },
-    );
+
+    const href = `${basePath}${buildQueryString(
+      mode,
+      params,
+      { page: p === 1 ? undefined : String(p) },
+      searchQuery,
+    )}`;
+    startTransition(() => {
+      router.push(href, { scroll: true });
+    });
   }
 
   return (
-    <nav className="mt-8 flex justify-center gap-2" aria-label="Пагинация">
-      <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => goTo(page - 1)}>
+    <nav
+      className={cn(
+        "mt-8 flex justify-center gap-2 transition-opacity duration-200",
+        isPending && "opacity-70",
+      )}
+      aria-label="Пагинация"
+    >
+      <Button variant="outline" size="sm" disabled={page <= 1 || isPending} onClick={() => goTo(page - 1)}>
         Назад
       </Button>
       <span className="flex items-center px-3 text-sm text-muted-foreground">
@@ -167,7 +209,7 @@ export function CatalogPagination({
       <Button
         variant="outline"
         size="sm"
-        disabled={page >= totalPages}
+        disabled={page >= totalPages || isPending}
         onClick={() => goTo(page + 1)}
       >
         Вперёд
