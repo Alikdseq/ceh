@@ -42,6 +42,16 @@ describe("product-images", () => {
     expect(gallery.length).toBeGreaterThanOrEqual(1);
   });
 
+  it("maps KT6052Б png to series 6052", () => {
+    const url = resolveStaticProductImage({
+      series_code: "6052",
+      product_type: "KT",
+      name: "КТ 6052Б",
+    });
+    expect(url).toContain("6052");
+    expect(decodeURIComponent(url ?? "")).toMatch(/6052/i);
+  });
+
   it("returns null for unknown series", () => {
     const url = resolveStaticProductImage({
       series_code: "9999",

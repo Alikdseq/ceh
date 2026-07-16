@@ -88,6 +88,19 @@ const TOVAR_FILES = [
   "КТП6043(2).JPG",
   "КТП6633.JPG",
   "КТП6633(2).JPG",
+  "КТ6052Б.png",
+  "КТ6612С.png",
+  "КТ6622С.png",
+  "КТ6634.png",
+  "КТ6652С.png",
+  "КТП6023Б.png",
+  "КТП6053Б.png",
+  "КТП6053БС.png",
+  "КТП6613С.png",
+  "КТП6622С.png",
+  "КТП6632.png",
+  "КТП6634.png",
+  "КТП6652С.png",
 ] as const;
 
 /** Explicit name/sku → photo mapping for non-series products. */
@@ -156,10 +169,12 @@ function tovarPublicUrl(filename: string): string {
 }
 
 function fileToImageKey(filename: string): string | null {
-  const base = filename.replace(/\.jpg$/i, "").replace(/\(2\)$/i, "");
+  const base = filename.replace(/\.(jpe?g|png)$/i, "").replace(/\(2\)$/i, "");
   const upper = base.toUpperCase();
-  if (upper.startsWith("КТП")) return `KTP${upper.slice(3)}`;
-  if (upper.startsWith("КТ")) return `KT${upper.slice(2)}`;
+  const ktp = upper.match(/^КТП(\d{4})/);
+  if (ktp) return `KTP${ktp[1]}`;
+  const kt = upper.match(/^КТ(\d{4})/);
+  if (kt) return `KT${kt[1]}`;
   return null;
 }
 

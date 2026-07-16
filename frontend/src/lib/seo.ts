@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import type { Category, ContentPage } from "@/lib/types";
+import { productImageSrc } from "@/lib/utils";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
 const SITE_NAME = "Электроконтактор";
@@ -128,6 +129,8 @@ export function buildProductMetadata(
     primary_image?: { url: string | null } | null;
     category_path?: string[];
     category_slug?: string;
+    series_code?: string;
+    product_type?: string;
   },
   categoryPath?: string[],
 ): Metadata {
@@ -144,7 +147,13 @@ export function buildProductMetadata(
     product.meta_description ||
     product.short_description ||
     fallbackProductDescription(product);
-  const ogImage = product.primary_image?.url || undefined;
+  const ogImage =
+    productImageSrc(product.primary_image?.url, {
+      name: product.name,
+      slug: product.slug,
+      series_code: product.series_code,
+      product_type: product.product_type,
+    }) || undefined;
 
   return buildPageMetadata({ title, description, path, ogImage });
 }

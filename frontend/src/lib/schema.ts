@@ -1,4 +1,4 @@
-import type { FAQItem } from "@/lib/types";
+import { productImageSrc } from "@/lib/utils";
 
 const DEFAULT_SITE_URL = "https://ekontaktor.ru";
 
@@ -57,6 +57,7 @@ export function buildProductSchema(
     primary_image?: { url: string } | null;
     price_from: string | null;
     series_code: string;
+    product_type?: string;
   },
   variant: {
     sku_code: string;
@@ -85,7 +86,12 @@ export function buildProductSchema(
       name: product.name,
       description: product.short_description,
       sku: variant?.sku_code ?? product.series_code,
-      image: product.primary_image?.url,
+      image: productImageSrc(product.primary_image?.url, {
+        name: product.name,
+        slug: product.slug,
+        series_code: product.series_code,
+        product_type: product.product_type,
+      }),
       brand: {
         "@type": "Brand",
         name: "Электроконтактор",

@@ -153,8 +153,11 @@ class ProductGroupListSerializer(serializers.ModelSerializer):
     def get_primary_image(self, obj):
         img = obj.images.filter(is_primary=True).first() or obj.images.first()
         if img and img.image:
-            url = public_media_url(img.image.url, self.context.get("request"))
-            return {"url": url, "alt": img.alt or obj.name}
+            from django.core.files.storage import default_storage
+
+            if default_storage.exists(img.image.name):
+                url = public_media_url(img.image.url, self.context.get("request"))
+                return {"url": url, "alt": img.alt or obj.name}
         return {"url": "/placeholder-product.svg", "alt": obj.name, "is_placeholder": True}
 
     def get_default_variant(self, obj):
