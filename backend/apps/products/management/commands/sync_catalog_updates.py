@@ -54,6 +54,10 @@ class Command(BaseCommand):
             "--force-csv-rewrite",
             action="store_true",
             help="Rewrite pricelist.csv even when prices already include VAT",
+        parser.add_argument(
+            "--import-catalog-text",
+            action="store_true",
+            help="Heavy: re-import data/тексткаталогa.txt (variants/specs). Off by default.",
         )
 
     def handle(self, *args, **options):
@@ -66,9 +70,12 @@ class Command(BaseCommand):
             self._set_featured()
         call_command("update_catalog_product_names")
         call_command("ensure_configurator_variants")
-        text_path = resolve_data_file("data/тексткаталога.txt")
-        if text_path.is_file():
-            call_command("import_catalog_text", str(text_path))
+        if options["import_catalog_text"]:
+            text_path = resolve_data_file("data/тексткаталога.txt")
+            if text_path.is_file():
+                call_command("import_catalog_text", str(text_path))
+            else:
+                self.stdout.write(self.style.WARNING("  тексткаталога.txt not found — skip import"))
         if not options["skip_images"]:
             self._rotate_images()
         invalidate_catalog_cache()

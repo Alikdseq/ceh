@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/favicon.ico",
+        destination: "/icon.png",
+        permanent: true,
+      },
+      {
         source: "/manage",
         destination: `${backendPublic}/manage/`,
         permanent: false,
