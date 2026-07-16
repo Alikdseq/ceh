@@ -10,9 +10,19 @@ from .utils import category_path_slugs, get_public_category_ids, is_category_pub
 
 
 def _absolute_media_url(obj, request):
+    from apps.products.product_media import safe_image_url
+
     if not obj:
         return None
-    url = obj.url if hasattr(obj, "url") else str(obj)
+    url = safe_image_url(obj) if hasattr(obj, "storage") else None
+    if not url:
+        if hasattr(obj, "url"):
+            try:
+                url = obj.url
+            except (ValueError, OSError):
+                return None
+        else:
+            url = str(obj)
     return public_media_url(url, request)
 
 
@@ -151,13 +161,12 @@ class ProductGroupListSerializer(serializers.ModelSerializer):
         return category_path_slugs(obj.category)
 
     def get_primary_image(self, obj):
-        img = obj.images.filter(is_primary=True).first() or obj.images.first()
-        if img and img.image:
-            from django.core.files.storage import default_storage
+        from apps.products.product_media import image_file_exists
 
-            if default_storage.exists(img.image.name):
-                url = public_media_url(img.image.url, self.context.get("request"))
-                return {"url": url, "alt": img.alt or obj.name}
+        img = obj.images.filter(is_primary=True).first() or obj.images.first()
+        if img and img.image and image_file_exists(img.image):
+            url = public_media_url(img.image.url, self.context.get("request"))
+            return {"url": url, "alt": img.alt or obj.name}
         return {"url": "/placeholder-product.svg", "alt": obj.name, "is_placeholder": True}
 
     def get_default_variant(self, obj):

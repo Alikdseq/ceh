@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from apps.products.models import ProductGroup, ProductImage
+from apps.products.product_media import image_file_exists
 
 PLACEHOLDER_NAME = "placeholder-product.svg"
 
@@ -37,7 +38,11 @@ class Command(BaseCommand):
         assigned = 0
 
         for group in ProductGroup.objects.filter(is_active=True):
-            if group.images.exists():
+            has_valid = any(
+                image_file_exists(img.image)
+                for img in group.images.all()
+            )
+            if has_valid:
                 continue
             ProductImage.objects.create(
                 group=group,

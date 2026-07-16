@@ -86,7 +86,11 @@ def serialize_cart(cart: QuoteCart, request) -> dict:
         image = group.images.filter(is_primary=True).first() or group.images.first()
         image_url = None
         if image and image.image:
-            image_url = public_media_url(image.image.url, request)
+            from apps.products.product_media import safe_image_url
+
+            local = safe_image_url(image.image)
+            if local:
+                image_url = public_media_url(local, request)
         items.append({
             "id": item.pk,
             "variant_id": variant.pk,

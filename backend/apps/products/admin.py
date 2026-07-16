@@ -10,8 +10,9 @@ from unfold.admin import ModelAdmin, StackedInline, TabularInline
 from unfold.decorators import display
 
 from .admin_forms import ProductGroupAdminForm, ProductSpecAdminForm, ProductVariantAdminForm
-from .admin_helpers import ProductImageAdminForm, safe_file_url
+from .admin_helpers import ProductImageAdminForm, SafeClearableFileInput, safe_file_url
 from .models import Category, ProductGroup, ProductImage, ProductSpec, ProductVariant
+from .product_media import prune_broken_images_for_group
 from .utils import invalidate_catalog_cache
 
 
@@ -27,6 +28,8 @@ class ProductImageInline(StackedInline):
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if db_field.name == "image":
+            formfield.widget = SafeClearableFileInput()
         if db_field.name == "alt":
             formfield.label = "Подпись к фото"
             formfield.help_text = "Кратко опишите, что на изображении."
@@ -344,6 +347,14 @@ class ProductGroupAdmin(ModelAdmin):
     def delete_model(self, request, obj):
         super().delete_model(request, obj)
         invalidate_catalog_cache()
+
+    def change_view(self, request, object_id, form_url="", extra_context=None):
+        obj = self.get_object(request, object_id)
+        if obj is not None:
+            removed = prune_broken_images_for_group(obj)
+            if removed:
+                invalidate_catalog_cache()
+        return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
     def get_queryset(self, request):
         return (

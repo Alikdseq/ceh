@@ -5,6 +5,9 @@ set -e
 echo "==> migrate"
 python manage.py migrate --noinput
 
+echo "==> prune_broken_product_images"
+python manage.py prune_broken_product_images || echo "WARNING: prune_broken_product_images failed"
+
 echo "==> setup_groups"
 python manage.py setup_groups
 
