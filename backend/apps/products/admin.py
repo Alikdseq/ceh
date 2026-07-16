@@ -12,7 +12,7 @@ from unfold.decorators import display
 from .admin_forms import ProductGroupAdminForm, ProductSpecAdminForm, ProductVariantAdminForm
 from .admin_helpers import ProductImageAdminForm, SafeClearableFileInput, safe_file_url
 from .models import Category, ProductGroup, ProductImage, ProductSpec, ProductVariant
-from .product_media import prune_broken_images_for_group
+from .product_media import image_file_exists, prune_broken_images_for_group
 from .utils import invalidate_catalog_cache
 
 
@@ -25,6 +25,18 @@ class ProductImageInline(StackedInline):
     fields = ("image", "alt", "sort_order", "is_primary")
     classes = []
     ordering = ("sort_order",)
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        broken_ids = [
+            img.pk
+            for img in qs
+            if img.image.name and not image_file_exists(img.image)
+        ]
+        if broken_ids:
+            ProductImage.objects.filter(pk__in=broken_ids).delete()
+            return super().get_queryset(request)
+        return qs
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
@@ -349,14 +361,13 @@ class ProductGroupAdmin(ModelAdmin):
         invalidate_catalog_cache()
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
-        obj = self.get_object(request, object_id)
-        if obj is not None:
-            removed = prune_broken_images_for_group(obj)
+        try:
+            group = ProductGroup.objects.get(pk=object_id)
+            removed = prune_broken_images_for_group(group)
             if removed:
                 invalidate_catalog_cache()
-            # Avoid stale prefetched images after inline rows were deleted.
-            if getattr(obj, "_prefetched_objects_cache", None):
-                obj._prefetched_objects_cache.pop("images", None)
+        except ProductGroup.DoesNotExist:
+            pass
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
     def get_queryset(self, request):
@@ -364,7 +375,7 @@ class ProductGroupAdmin(ModelAdmin):
             super()
             .get_queryset(request)
             .select_related("category")
-            .prefetch_related("images", "variants")
+            .prefetch_related("variants")
         )
 
     def get_urls(self):
