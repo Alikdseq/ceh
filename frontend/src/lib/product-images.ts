@@ -98,6 +98,7 @@ const TOVAR_FILES = [
   "КТП6053БС.png",
   "КТП6613С.png",
   "КТП6622С.png",
+  "КТП6623С.png",
   "КТП6632.png",
   "КТП6634.png",
   "КТП6652С.png",
@@ -162,6 +163,7 @@ const CATALOG_DOCX_FALLBACK: Partial<Record<string, string>> = {
   KTP6653: "/tovar/catalog-docx/image25.jpeg",
   KTP6643: "/tovar/catalog-docx/image24.jpeg",
   KTP6642: "/tovar/catalog-docx/image23.jpeg",
+  KTP6623: "/tovar/КТП6623С.png",
 };
 
 function tovarPublicUrl(filename: string): string {

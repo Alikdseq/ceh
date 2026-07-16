@@ -28,3 +28,24 @@ def test_admin_change_ktp6623s_with_cyrillic_missing_file(client):
     response = client.get(url)
     assert response.status_code == 200
     assert not ProductImage.objects.filter(group=group).exists()
+
+
+@pytest.mark.django_db
+def test_admin_change_clears_prefetched_images_after_prune(client):
+    user = get_user_model().objects.create_superuser("admin6623b", "b6623@test.local", "pass")
+    client.force_login(user)
+    cat = Category.objects.create(name="КТП", slug="ktp-prefetch")
+    group = ProductGroup.objects.create(
+        name="КТП6623С",
+        slug="ktp6623s-prefetch",
+        category=cat,
+        product_type="KTP",
+        series_code="6623",
+    )
+    ProductImage.objects.create(group=group, image="products/missing.png", is_primary=True)
+    qs = ProductGroup.objects.prefetch_related("images")
+    obj = qs.get(pk=group.pk)
+    assert list(obj.images.all())
+
+    url = reverse("admin:products_productgroup_change", args=[group.pk])
+    assert client.get(url).status_code == 200

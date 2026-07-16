@@ -354,6 +354,9 @@ class ProductGroupAdmin(ModelAdmin):
             removed = prune_broken_images_for_group(obj)
             if removed:
                 invalidate_catalog_cache()
+            # Avoid stale prefetched images after inline rows were deleted.
+            if getattr(obj, "_prefetched_objects_cache", None):
+                obj._prefetched_objects_cache.pop("images", None)
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
     def get_queryset(self, request):

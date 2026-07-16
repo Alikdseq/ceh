@@ -32,6 +32,8 @@ def prune_broken_images_for_group(group: ProductGroup) -> int:
         if img.image.name and not image_file_exists(img.image):
             img.delete()
             removed += 1
+    if removed and getattr(group, "_prefetched_objects_cache", None):
+        group._prefetched_objects_cache.pop("images", None)
     return removed
 
 
