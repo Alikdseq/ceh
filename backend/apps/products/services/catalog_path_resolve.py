@@ -6,7 +6,7 @@ import re
 
 from django.db.models import Q, QuerySet
 
-from apps.products.models import ProductGroup, ProductVariant
+from apps.products.models import ProductGroup
 from apps.products.services.catalog_parser import build_group_slug
 from apps.products.utils import get_public_category_ids, product_catalog_path
 
@@ -14,6 +14,9 @@ CATALOG_SEGMENT_RE = re.compile(
     r"^kontaktor-(?P<ptype>kt|ktp|kte)-(?P<series>\d{4})(?:-(?P<current>\d+)a)?(?:-(?P<exec>b|bs|s))?$",
     re.IGNORECASE,
 )
+
+# Nominal currents often wrong in legacy URLs / old pricelist rows (6634 was 160 vs 250).
+STANDARD_NOMINAL_CURRENTS = (80, 100, 125, 160, 250, 400, 630, 1000)
 
 
 def _public_groups() -> QuerySet[ProductGroup]:
@@ -56,6 +59,51 @@ def alternate_group_slugs(group: ProductGroup) -> set[str]:
     return {s for s in slugs if s}
 
 
+def stale_slug_variants(group: ProductGroup) -> set[str]:
+    """Legacy/wrong URL slugs (wrong А, missing -s) → redirect to canonical."""
+    slugs = alternate_group_slugs(group)
+    series = group.series_code
+    if not series or group.product_type not in ("KT", "KTP", "KTE"):
+        return slugs
+
+    ptype = group.product_type
+    executions = list(
+        group.variants.filter(is_active=True)
+        .exclude(execution="NONE")
+        .values_list("execution", flat=True)
+        .distinct()
+    )
+    exec_keys: list[str | None] = executions if executions else [None]
+    exec_keys.append(None)
+
+    for current in STANDARD_NOMINAL_CURRENTS:
+        for execution in exec_keys:
+            ex = execution if execution and execution != "NONE" else None
+            slugs.add(build_group_slug(ptype, series, current, ex))
+
+    return {s for s in slugs if s}
+
+
+def _find_by_series(
+    qs: QuerySet[ProductGroup],
+    *,
+    ptype: str,
+    series: str,
+    execution: str | None,
+) -> ProductGroup | None:
+    scoped = qs.filter(product_type=ptype).filter(
+        Q(series_code=series)
+        | Q(name__icontains=series)
+        | Q(variants__sku_code__icontains=series)
+    )
+    if execution:
+        scoped = scoped.filter(
+            variants__execution=execution,
+            variants__is_active=True,
+        )
+    return scoped.distinct().order_by("nominal_current_a").first()
+
+
 def find_group_by_catalog_segment(segment: str, queryset: QuerySet[ProductGroup] | None = None) -> ProductGroup | None:
     """Find product by URL slug or legacy alias (e.g. 6622 → card for 6612/6622)."""
     if not segment:
@@ -79,20 +127,12 @@ def find_group_by_catalog_segment(segment: str, queryset: QuerySet[ProductGroup]
         if hit:
             return hit
 
-        scoped = qs.filter(product_type=ptype)
-        if current is not None:
-            scoped = scoped.filter(nominal_current_a=current)
-        if execution:
-            scoped = scoped.filter(
-                variants__execution=execution,
-                variants__is_active=True,
-            ).distinct()
+        hit = _find_by_series(qs, ptype=ptype, series=series, execution=execution)
+        if hit:
+            return hit
 
-        hit = scoped.filter(
-            Q(series_code=series)
-            | Q(name__icontains=series)
-            | Q(variants__sku_code__icontains=series)
-        ).first()
+        # Wrong nominal current or missing execution suffix in URL (e.g. 6634-160a vs 6634-250a-s)
+        hit = _find_by_series(qs, ptype=ptype, series=series, execution=None)
         if hit:
             return hit
 
@@ -124,7 +164,7 @@ def collect_catalog_redirects() -> list[tuple[str, str]]:
         leaf = cat.slug if cat else ""
         parent_path = "/".join(a.slug for a in ancestors)
 
-        for alt in alternate_group_slugs(group):
+        for alt in stale_slug_variants(group):
             candidates = [
                 f"/catalog/{parent_path}/{alt}/",
                 f"/catalog/{leaf}/{alt}/",

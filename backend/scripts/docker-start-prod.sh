@@ -5,6 +5,9 @@ set -e
 echo "==> migrate"
 python manage.py migrate --noinput
 
+echo "==> align_contactor_catalog_urls"
+python manage.py align_contactor_catalog_urls || echo "WARNING: align_contactor_catalog_urls failed"
+
 echo "==> sync_product_catalog_redirects"
 python manage.py sync_product_catalog_redirects || echo "WARNING: sync_product_catalog_redirects failed"
 
