@@ -115,7 +115,7 @@ describe("product-images", () => {
         series_code: "6053",
         execution: "B",
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(
       shouldRotateProductImage({
         name: "КТП6014БС",
@@ -123,9 +123,9 @@ describe("product-images", () => {
         series_code: "6014",
         execution: "BS",
       }),
-    ).toBe(true);
+    ).toBe(false);
     expect(productImageRotateClass({ name: "КТ6043Б-У3", product_type: "KT", execution: "B" })).toBe(
-      "rotate-90",
+      "rotate-180",
     );
     expect(
       shouldRotateProductImage({

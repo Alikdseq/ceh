@@ -19,7 +19,7 @@ interface ProductIdentity {
   coil36v: boolean;
 }
 
-/** Product cards that need 90° clockwise rotation in the UI. */
+/** Product cards that need 180° rotation in the UI. */
 const ROTATED_PRODUCTS: ProductIdentity[] = [
   { product_type: "KT", series: "6014", execution: "B", coil36v: false },
   { product_type: "KT", series: "6014", execution: "BS", coil36v: false },
@@ -27,8 +27,6 @@ const ROTATED_PRODUCTS: ProductIdentity[] = [
   { product_type: "KT", series: "6032", execution: "BS", coil36v: false },
   { product_type: "KT", series: "6043", execution: "B", coil36v: false },
   { product_type: "KT", series: "6043", execution: "BS", coil36v: false },
-  { product_type: "KT", series: "6053", execution: "B", coil36v: false },
-  { product_type: "KT", series: "6053", execution: "BS", coil36v: false },
   { product_type: "KT", series: "6623", execution: "S", coil36v: false },
   { product_type: "KT", series: "6633", execution: "NONE", coil36v: false },
   { product_type: "KT", series: "6642", execution: "S", coil36v: false },
@@ -37,8 +35,6 @@ const ROTATED_PRODUCTS: ProductIdentity[] = [
   { product_type: "KTP", series: "6012", execution: "BS", coil36v: false },
   { product_type: "KTP", series: "6013", execution: "B", coil36v: false },
   { product_type: "KTP", series: "6013", execution: "BS", coil36v: false },
-  { product_type: "KTP", series: "6014", execution: "B", coil36v: false },
-  { product_type: "KTP", series: "6014", execution: "BS", coil36v: false },
   { product_type: "KTP", series: "6032", execution: "B", coil36v: false },
   { product_type: "KTP", series: "6032", execution: "BS", coil36v: false },
   { product_type: "KTP", series: "6043", execution: "B", coil36v: false },
@@ -375,7 +371,7 @@ export function shouldRotateProductImage(context?: ProductImageContext): boolean
   return ROTATED_PRODUCTS.some((rule) => identitiesMatch(rule, identity));
 }
 
-/** Tailwind class for 90° clockwise product photo rotation. */
+/** Tailwind class for 180° product photo rotation. */
 export function productImageRotateClass(context?: ProductImageContext): string {
-  return shouldRotateProductImage(context) ? "rotate-90" : "";
+  return shouldRotateProductImage(context) ? "rotate-180" : "";
 }
