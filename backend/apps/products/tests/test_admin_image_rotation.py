@@ -31,3 +31,28 @@ def test_admin_rotate_image_clockwise(client):
     client.get(f"{url}?dir=reset")
     group.refresh_from_db()
     assert group.image_rotation == 0
+
+
+@pytest.mark.django_db
+def test_admin_product_change_with_missing_image_file(client):
+    from apps.products.models import ProductImage
+
+    user = get_user_model().objects.create_superuser("admin2", "a2@test.local", "pass")
+    client.force_login(user)
+    cat = Category.objects.create(name="КТ", slug="kt-admin-6634")
+    group = ProductGroup.objects.create(
+        name="КТ6634",
+        slug="kt6634-admin-test",
+        category=cat,
+        product_type="KT",
+        series_code="6634",
+    )
+    ProductImage.objects.create(
+        group=group,
+        image="products/kt6634_missing.png",
+        is_primary=True,
+    )
+
+    change_url = reverse("admin:products_productgroup_change", args=[group.pk])
+    response = client.get(change_url)
+    assert response.status_code == 200

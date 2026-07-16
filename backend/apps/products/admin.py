@@ -10,6 +10,7 @@ from unfold.admin import ModelAdmin, StackedInline, TabularInline
 from unfold.decorators import display
 
 from .admin_forms import ProductGroupAdminForm, ProductSpecAdminForm, ProductVariantAdminForm
+from .admin_helpers import safe_file_url
 from .models import Category, ProductGroup, ProductImage, ProductSpec, ProductVariant
 from .utils import invalidate_catalog_cache
 
@@ -225,10 +226,11 @@ class ProductGroupAdmin(ModelAdmin):
     @display(description="Фото")
     def thumbnail(self, obj):
         image = obj.images.filter(is_primary=True).first() or obj.images.first()
-        if image and image.image:
+        url = safe_file_url(image.image) if image else None
+        if url:
             return format_html(
                 '<img src="{}" alt="" style="height:48px;width:auto;border-radius:6px;object-fit:contain;" />',
-                image.image.url,
+                url,
             )
         return "—"
 
@@ -261,16 +263,24 @@ class ProductGroupAdmin(ModelAdmin):
         images = list(obj.images.all()[:12])
         if not images:
             return format_html('<p class="text-sm opacity-70">Нет загруженных фото</p>')
-        parts = [
-            format_html(
-                '<figure style="display:inline-block;margin:4px;text-align:center;">'
-                '<img src="{}" alt="" style="height:72px;width:72px;object-fit:contain;border:1px solid #dce4ec;border-radius:8px;background:#fff;" />'
-                '<figcaption style="font-size:11px;max-width:72px;">{}</figcaption></figure>',
-                img.image.url,
-                "★" if img.is_primary else f"#{img.sort_order}",
+        parts = []
+        for img in images:
+            url = safe_file_url(img.image)
+            if not url:
+                continue
+            parts.append(
+                format_html(
+                    '<figure style="display:inline-block;margin:4px;text-align:center;">'
+                    '<img src="{}" alt="" style="height:72px;width:72px;object-fit:contain;border:1px solid #dce4ec;border-radius:8px;background:#fff;" />'
+                    '<figcaption style="font-size:11px;max-width:72px;">{}</figcaption></figure>',
+                    url,
+                    "★" if img.is_primary else f"#{img.sort_order}",
+                )
             )
-            for img in images
-        ]
+        if not parts:
+            return format_html(
+                '<p class="text-sm opacity-70">Нет доступных файлов фото (запись в БД есть, файлы на диске отсутствуют)</p>'
+            )
         return format_html(
             '<div><p class="text-sm mb-2">Всего: {} шт.</p><div>{}</div></div>',
             obj.images.count(),
@@ -358,9 +368,9 @@ class ProductGroupAdmin(ModelAdmin):
             raise PermissionDenied
         direction = request.GET.get("dir")
         if direction == "cw":
-            obj.image_rotation = (obj.image_rotation + 90) % 360
+            obj.image_rotation = (int(obj.image_rotation or 0) + 90) % 360
         elif direction == "ccw":
-            obj.image_rotation = (obj.image_rotation - 90) % 360
+            obj.image_rotation = (int(obj.image_rotation or 0) - 90) % 360
         elif direction == "reset":
             obj.image_rotation = 0
         else:
@@ -378,15 +388,17 @@ class ProductGroupAdmin(ModelAdmin):
                 '<p class="text-sm opacity-70">Сохраните карточку — появятся кнопки поворота для каталога и страницы товара.</p>'
             )
         rotate_url = reverse("admin:products_productgroup_rotate_image", args=[obj.pk])
+        rotation = int(getattr(obj, "image_rotation", 0) or 0)
         primary = obj.images.filter(is_primary=True).first() or obj.images.first()
-        preview_html = ""
-        if primary and primary.image:
-            preview_html = format_html(
+        preview_block = ""
+        primary_url = safe_file_url(primary.image) if primary else None
+        if primary_url:
+            preview_block = format_html(
                 '<img src="{}" alt="" style="height:120px;width:120px;object-fit:contain;'
                 'border:1px solid #dce4ec;border-radius:8px;background:#fff;'
                 'transform:rotate({}deg);margin-right:16px;" />',
-                primary.image.url,
-                obj.image_rotation,
+                primary_url,
+                rotation,
             )
         return format_html(
             '<div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;">'
@@ -399,8 +411,8 @@ class ProductGroupAdmin(ModelAdmin):
             '<a class="button" href="{}?dir=cw">↻ 90° по часовой</a>'
             '<a class="button" href="{}?dir=reset">Сброс (0°)</a>'
             "</div></div></div>",
-            preview_html,
-            obj.image_rotation,
+            preview_block,
+            rotation,
             rotate_url,
             rotate_url,
             rotate_url,
