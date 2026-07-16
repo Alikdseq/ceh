@@ -36,6 +36,12 @@
 18. [ ] `/sitemap.xml`, `/robots.txt`
 19. [ ] Top-20 старых URL → 301 на новые (см. `data/redirects.csv`)
 20. [ ] OG/Twitter на ключевых страницах
+21. [ ] JSON-LD: Organization (главная), Product+FAQ (PDP), CollectionPage (категория), Article (кейс)
+22. [ ] `/cases/`, `/delivery/` в sitemap; регионы с `is_indexable` только при уникальном тексте
+23. [ ] IndexNow: ключ в `public/` и `INDEXNOW_ENABLED=true` на prod
+24. [ ] GSC + Яндекс.Вебмастер: sitemap отправлен, нет массовых ошибок индексации
+25. [ ] Поиск: `?q=кт6023` → карточка товара (resolve)
+26. [ ] Фасеты каталога (`?current=`) — `noindex`, canonical на чистый URL категории
 
 ## Админка
 

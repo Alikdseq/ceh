@@ -17,6 +17,29 @@ export interface SearchSuggestResponse {
   suggestions: SearchSuggestion[];
 }
 
+export interface SearchResolveResponse {
+  query: string;
+  product: {
+    name: string;
+    slug: string;
+    category_path: string[];
+    path: string;
+  } | null;
+}
+
+export async function resolveSearchProduct(q: string): Promise<SearchResolveResponse> {
+  return fetchApi<SearchResolveResponse>("/search/resolve/", {
+    params: new URLSearchParams({ q }),
+    cache: "no-store",
+  });
+}
+
+export async function resolveSearchProductClient(q: string): Promise<SearchResolveResponse> {
+  return fetchApiClient<SearchResolveResponse>("/search/resolve/", {
+    params: new URLSearchParams({ q }),
+  });
+}
+
 export interface SearchPaginatedResponse extends PaginatedResponse<ProductGroup> {
   query: string;
 }

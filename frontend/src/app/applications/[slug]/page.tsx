@@ -4,10 +4,12 @@ import { notFound } from "next/navigation";
 
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { ProductCard } from "@/components/catalog/ProductCard";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { getPage } from "@/lib/api/content";
 import { getProducts } from "@/lib/api/products";
 import { getApplicationBySlug } from "@/lib/applications";
-import { buildPageMetadata } from "@/lib/seo";
+import { buildBreadcrumbListSchema } from "@/lib/schema";
+import { buildPageMetadata, getSiteUrl } from "@/lib/seo";
 
 interface ApplicationPageProps {
   params: Promise<{ slug: string }>;
@@ -32,14 +34,25 @@ export default async function ApplicationPage({ params }: ApplicationPageProps) 
   const pageSlug = `applications-${slug}`;
   const page = await getPage(pageSlug);
   const products = await getProducts({ category: app.categorySlug, page_size: 4 });
+  const siteUrl = getSiteUrl();
+  const pageUrl = `${siteUrl}${app.href}`;
+  const schemaBreadcrumbs = [
+    { name: "Главная", url: siteUrl },
+    { name: "Применение", url: `${siteUrl}/applications/` },
+    { name: app.title, url: pageUrl },
+  ];
+
+  const breadcrumbSchema = buildBreadcrumbListSchema(schemaBreadcrumbs);
 
   return (
+    <>
+      {breadcrumbSchema ? <JsonLd data={breadcrumbSchema} /> : null}
     <div className="section-py">
       <div className="container-page">
         <Breadcrumbs
           items={[
             { label: "Главная", href: "/" },
-            { label: "Применение", href: "/applications/crane" },
+            { label: "Применение", href: "/applications/" },
             { label: app.title },
           ]}
           className="mb-6"
@@ -67,5 +80,6 @@ export default async function ApplicationPage({ params }: ApplicationPageProps) 
         </section>
       </div>
     </div>
+    </>
   );
 }

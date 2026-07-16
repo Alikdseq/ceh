@@ -10,6 +10,8 @@ export {
 } from "./products";
 export {
   getSearchSuggestions,
+  resolveSearchProduct,
+  resolveSearchProductClient,
   searchProducts,
   type SearchPaginatedResponse,
   type SearchSuggestion,
@@ -31,6 +33,7 @@ export {
 export { submitQuote } from "./quotes";
 export type { QuoteSubmitPayload, QuoteSubmitResponse } from "./cart-types";
 export { getFAQ, getLatestNews, getNewsDetail, getNewsList, getPage, getSiteSettings } from "./content";
+export { getCaseStudies, getCaseStudy, getDeliveryCities, getDeliveryCity } from "./seo-content";
 export { getPriceList, getPriceListPdfUrl } from "./pricelist";
 export { getCorporateDocuments } from "./corporate-docs";
 export { submitContactLead, submitCallbackLead } from "./leads";

@@ -29,8 +29,8 @@ from .services.catalog_filter import (
     params_to_dict,
 )
 from .services.catalog_path_resolve import find_group_by_catalog_segment
-from .services.search import search_products, search_products_queryset
-from .utils import CATEGORIES_CACHE_KEY, PUBLIC_HIDDEN_SPEC_KEYS, category_path_slugs, get_public_category_ids
+from .services.search import search_products, search_products_queryset, resolve_search_to_product
+from .utils import CATEGORIES_CACHE_KEY, PUBLIC_HIDDEN_SPEC_KEYS, category_path_slugs, get_public_category_ids, product_catalog_path
 
 CATEGORIES_CACHE_TTL = getattr(settings, "CACHE_TTL_CATEGORIES", 3600)
 
@@ -100,6 +100,7 @@ class ProductGroupDetailView(generics.RetrieveAPIView):
                 "specs", "images",
                 "documents__document",
                 "related_groups",
+                "faqs",
             )
             .annotate(min_price=Min("variants__price", filter=Q(variants__is_active=True)))
         )
@@ -189,6 +190,31 @@ class CompareView(APIView):
             ).data,
             "spec_keys": spec_keys,
         })
+
+
+class SearchResolveView(APIView):
+    """GET /api/v1/search/resolve/?q= — single product card for model-style queries (кт6023)."""
+
+    def get(self, request):
+        q = request.query_params.get("q", "").strip()
+        if len(q) < 2:
+            return Response({"query": q, "product": None})
+
+        group = resolve_search_to_product(q)
+        if not group:
+            return Response({"query": q, "product": None})
+
+        return Response(
+            {
+                "query": q,
+                "product": {
+                    "name": group.name,
+                    "slug": group.slug,
+                    "category_path": category_path_slugs(group.category),
+                    "path": product_catalog_path(group),
+                },
+            }
+        )
 
 
 class SearchView(APIView):

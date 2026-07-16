@@ -1,6 +1,6 @@
 """Collect public frontend URLs for SEO refresh tasks."""
 
-from apps.content.models import NewsPost, Page
+from apps.content.models import CaseStudy, DeliveryCity, NewsPost, Page
 from apps.products.models import Category, ProductGroup
 from apps.products.utils import category_path_slugs, product_catalog_path
 
@@ -47,3 +47,16 @@ def urls_for_news(post: NewsPost) -> list[str]:
     if not post.is_published:
         return []
     return [f"/news/{post.slug}/"]
+
+
+def urls_for_case_study(study: CaseStudy) -> list[str]:
+    if not study.is_published:
+        return []
+    return [f"/cases/{study.slug}/"]
+
+
+def urls_for_delivery_city(city: DeliveryCity) -> list[str]:
+    paths = []
+    if city.is_indexable:
+        paths.append(f"/delivery/{city.slug}/")
+    return paths

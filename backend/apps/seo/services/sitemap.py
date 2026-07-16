@@ -3,28 +3,34 @@ from xml.etree.ElementTree import Element, SubElement, tostring
 from django.conf import settings
 from django.utils import timezone
 
-from apps.content.models import NewsPost, Page
+from apps.content.models import CaseStudy, CityCategoryLanding, DeliveryCity, NewsPost, Page
 from apps.products.models import Category, ProductGroup
 from apps.products.utils import category_path_slugs, get_public_category_ids, is_category_public, product_catalog_path
+from apps.seo.application_landings import APPLICATION_LANDING_SLUGS
 
 
 STATIC_PATHS = [
     ("/", "1.0", "weekly"),
     ("/catalog/", "0.8", "weekly"),
+    ("/pricelist/", "0.8", "weekly"),
     ("/about/", "0.7", "monthly"),
     ("/about/production/", "0.7", "monthly"),
     ("/about/certificates/", "0.7", "monthly"),
     ("/contacts/", "0.7", "monthly"),
     ("/support/", "0.7", "monthly"),
     ("/dealers/", "0.7", "monthly"),
+    ("/partners/", "0.6", "monthly"),
+    ("/shareholders/", "0.5", "monthly"),
     ("/news/", "0.6", "weekly"),
+    ("/cases/", "0.7", "monthly"),
+    ("/delivery/", "0.6", "monthly"),
     ("/privacy/", "0.3", "yearly"),
     ("/terms/", "0.3", "yearly"),
     ("/applications/", "0.7", "monthly"),
-    ("/applications/crane/", "0.7", "monthly"),
-    ("/applications/nku/", "0.7", "monthly"),
-    ("/applications/transport/", "0.7", "monthly"),
 ]
+
+for _slug in APPLICATION_LANDING_SLUGS:
+    STATIC_PATHS.append((f"/applications/{_slug}/", "0.7", "monthly"))
 
 
 def _base_url() -> str:
@@ -108,6 +114,30 @@ def collect_urls() -> list[dict]:
         urls.append({
             "loc": loc,
             "lastmod": _date_iso(page.updated_at),
+            "changefreq": "monthly",
+            "priority": "0.5",
+        })
+
+    for study in CaseStudy.objects.filter(is_published=True):
+        urls.append({
+            "loc": f"{base}/cases/{study.slug}/",
+            "lastmod": _date_iso(study.updated_at),
+            "changefreq": "monthly",
+            "priority": "0.6",
+        })
+
+    for city in DeliveryCity.objects.filter(is_indexable=True):
+        urls.append({
+            "loc": f"{base}/delivery/{city.slug}/",
+            "lastmod": _date_iso(city.updated_at),
+            "changefreq": "monthly",
+            "priority": "0.5",
+        })
+
+    for landing in CityCategoryLanding.objects.filter(is_indexable=True).select_related("city", "category"):
+        urls.append({
+            "loc": f"{base}/delivery/{landing.city.slug}/{landing.category.slug}/",
+            "lastmod": _date_iso(landing.updated_at),
             "changefreq": "monthly",
             "priority": "0.5",
         })

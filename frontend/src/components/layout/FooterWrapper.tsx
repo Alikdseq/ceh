@@ -1,10 +1,13 @@
-import { getSiteSettings } from "@/lib/api";
+import { getFeaturedProducts, getSiteSettings } from "@/lib/api";
 import { FACTORY_PHONE } from "@/lib/site-links";
 
 import { Footer as FooterClient } from "./Footer";
 
 export async function Footer() {
-  const settings = await getSiteSettings();
+  const [settings, popularProducts] = await Promise.all([
+    getSiteSettings(),
+    getFeaturedProducts(6),
+  ]);
 
   return (
     <FooterClient
@@ -13,6 +16,7 @@ export async function Footer() {
       email={settings?.email_main ?? "info@ekontaktor.ru"}
       phone={settings?.phone_main ?? FACTORY_PHONE}
       requisites={settings?.requisites}
+      popularProducts={popularProducts}
     />
   );
 }

@@ -12,9 +12,16 @@ from unfold.decorators import display
 
 from .admin_forms import ProductGroupAdminForm, ProductSpecAdminForm, ProductVariantAdminForm
 from .admin_helpers import ProductImageAdminForm, SafeClearableFileInput, safe_file_url
-from .models import Category, ProductGroup, ProductImage, ProductSpec, ProductVariant
+from .models import Category, ProductFAQ, ProductGroup, ProductImage, ProductSpec, ProductVariant
 from .product_media import prune_broken_images_for_group
 from .utils import invalidate_catalog_cache
+
+
+class ProductFAQInline(TabularInline):
+    model = ProductFAQ
+    extra = 0
+    fields = ("question", "answer", "sort_order")
+    ordering = ("sort_order",)
 
 
 class ProductImageInline(StackedInline):
@@ -150,7 +157,7 @@ class ProductGroupAdmin(ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     autocomplete_fields = ("category",)
     filter_horizontal = ("related_groups",)
-    inlines = [ProductImageInline, ProductVariantInline, ProductSpecInline]
+    inlines = [ProductImageInline, ProductVariantInline, ProductSpecInline, ProductFAQInline]
     readonly_fields = (
         "card_preview",
         "photos_preview",

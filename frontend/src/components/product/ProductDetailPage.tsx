@@ -10,7 +10,7 @@ import { getCategories, getFAQ } from "@/lib/api";
 import { buildCategoryBreadcrumbs, getCategoryPathSlugs } from "@/lib/categories";
 import { AntiCounterfeitBlock } from "@/components/content/AntiCounterfeitBlock";
 import { JsonLd } from "@/components/seo/JsonLd";
-import { buildProductSchema } from "@/lib/schema";
+import { buildProductPageSchema } from "@/lib/schema";
 import type { ProductGroupDetail } from "@/lib/types";
 
 interface ProductDetailPageProps {
@@ -48,10 +48,25 @@ export async function ProductDetailPage({ product }: ProductDetailPageProps) {
 
   const pathMap = (slug: string) => getCategoryPathSlugs(categories, slug);
 
+  const productFaqs =
+    product.faqs && product.faqs.length > 0
+      ? product.faqs
+      : faq.slice(0, 5);
+
   return (
     <>
       <JsonLd
-        data={buildProductSchema(product, defaultVariant ?? null, schemaBreadcrumbs, siteUrl)}
+        data={buildProductPageSchema(
+          {
+            ...product,
+            short_description: product.short_description || product.name,
+            specs: product.specs,
+          },
+          defaultVariant ?? null,
+          schemaBreadcrumbs,
+          productFaqs,
+          siteUrl,
+        )}
       />
       <div className="section-py pb-24 md:pb-16">
         <div className="container-page min-w-0">
@@ -84,7 +99,7 @@ export async function ProductDetailPage({ product }: ProductDetailPageProps) {
             related={product.related}
             categoryPathMap={pathMap}
           />
-          <ProductFAQ items={faq} />
+          <ProductFAQ items={productFaqs} />
           <AntiCounterfeitBlock className="mt-10" compact />
         </div>
       </div>

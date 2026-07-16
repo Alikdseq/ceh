@@ -6,8 +6,10 @@ import { CatalogFilters, CatalogFiltersMobile } from "@/components/catalog/Catal
 import { CatalogPagination, CatalogToolbar } from "@/components/catalog/CatalogToolbar";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { Button } from "@/components/ui/button";
 import { getCategories, getProducts } from "@/lib/api";
+import { catalogProductHref } from "@/lib/catalog-url";
 import {
   buildCategoryBreadcrumbs,
   findCategoryByPath,
@@ -20,6 +22,7 @@ import {
 } from "@/lib/catalog-params";
 import { hasCatalogFilters } from "@/lib/catalog-filter-config";
 import { buildCategoryMetadata } from "@/lib/seo";
+import { buildBreadcrumbListSchema, buildCollectionPageSchema } from "@/lib/schema";
 import type { PaginatedResponse, ProductGroup } from "@/lib/types";
 
 interface CategoryListingProps {
@@ -61,8 +64,35 @@ export async function CategoryListing({ slugPath, searchParams }: CategoryListin
 
   const breadcrumbs = buildCategoryBreadcrumbs(categories, slugPath);
   const showFilters = hasCatalogFilters(slugPath);
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, "");
+  const categoryUrl = `${siteUrl}${basePath}/`;
+  const schemaBreadcrumbs = [
+    { name: "Главная", url: siteUrl },
+    ...breadcrumbs.map((b) => ({
+      name: b.label,
+      url: b.href ? `${siteUrl}${b.href}` : categoryUrl,
+    })),
+  ];
+  const listItems = products.results.slice(0, 12).map((p) => ({
+    name: p.name,
+    url: `${siteUrl}${catalogProductHref(p)}`,
+  }));
+
+  const jsonLdBlocks: Record<string, unknown>[] = [];
+  const crumbs = buildBreadcrumbListSchema(schemaBreadcrumbs);
+  if (crumbs) jsonLdBlocks.push(crumbs);
+  jsonLdBlocks.push(
+    buildCollectionPageSchema({
+      name: category.h1 || category.name,
+      description: category.description,
+      url: categoryUrl,
+      items: listItems,
+    }),
+  );
 
   return (
+    <>
+      <JsonLd data={jsonLdBlocks} />
     <div className="section-py">
       <div className="container-page">
         <Breadcrumbs items={breadcrumbs} className="mb-6" />
@@ -137,5 +167,6 @@ export async function CategoryListing({ slugPath, searchParams }: CategoryListin
         </div>
       </div>
     </div>
+    </>
   );
 }

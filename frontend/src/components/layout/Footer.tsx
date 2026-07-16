@@ -6,15 +6,19 @@ import { BrandLogo } from "@/components/layout/BrandLogo";
 import { SubscribeForm } from "@/components/home/SubscribeForm";
 import { requestOpenCookieSettings } from "@/components/privacy/CookieConsentProvider";
 
+import type { ProductGroup } from "@/lib/types";
+import { catalogProductHref } from "@/lib/catalog-url";
+
 interface FooterProps {
   companyName: string;
   address: string;
   email: string;
   phone: string;
   requisites?: string;
+  popularProducts?: ProductGroup[];
 }
 
-export function Footer({ companyName, address, email, phone, requisites }: FooterProps) {
+export function Footer({ companyName, address, email, phone, requisites, popularProducts }: FooterProps) {
   return (
     <footer className="mt-auto border-t border-[var(--color-border)] bg-[var(--color-brand-blue-dark)] text-white">
       <div className="container-page grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-4">
@@ -65,6 +69,16 @@ export function Footer({ companyName, address, email, phone, requisites }: Foote
               </Link>
             </li>
             <li>
+              <Link href="/cases/" className="hover:text-white">
+                Кейсы и объекты
+              </Link>
+            </li>
+            <li>
+              <Link href="/delivery/" className="hover:text-white">
+                Доставка по России
+              </Link>
+            </li>
+            <li>
               <Link href="/privacy" className="hover:text-white">
                 Политика конфиденциальности
               </Link>
@@ -89,6 +103,20 @@ export function Footer({ companyName, address, email, phone, requisites }: Foote
               </button>
             </li>
           </ul>
+          {popularProducts && popularProducts.length > 0 && (
+            <>
+              <p className="mt-6 font-semibold">Популярные модели</p>
+              <ul className="mt-3 space-y-2 text-white/70">
+                {popularProducts.map((p) => (
+                  <li key={p.id}>
+                    <Link href={catalogProductHref(p)} className="hover:text-white">
+                      {p.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </div>
 
         <div>

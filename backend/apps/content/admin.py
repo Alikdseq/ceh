@@ -3,7 +3,7 @@ from django.utils import timezone
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
 
-from .models import FAQItem, NewsPost, Page, PriceListItem, PriceListSection, SiteSettings
+from .models import CaseStudy, DeliveryCity, FAQItem, NewsPost, Page, PriceListItem, PriceListSection, SiteSettings
 
 
 @admin.register(SiteSettings)
@@ -19,6 +19,23 @@ class SiteSettingsAdmin(admin.ModelAdmin):
 class PageAdmin(admin.ModelAdmin):
     list_display = ("title", "slug", "is_published", "sort_order")
     prepopulated_fields = {"slug": ("title",)}
+
+
+@admin.register(CaseStudy)
+class CaseStudyAdmin(ModelAdmin):
+    list_display = ("title", "industry", "is_published", "published_at")
+    list_filter = ("is_published", "industry")
+    prepopulated_fields = {"slug": ("title",)}
+    filter_horizontal = ("products",)
+    search_fields = ("title", "slug")
+
+
+@admin.register(DeliveryCity)
+class DeliveryCityAdmin(ModelAdmin):
+    list_display = ("name", "slug", "region_name", "is_indexable", "priority")
+    list_filter = ("is_indexable",)
+    search_fields = ("name", "slug", "region_name")
+    prepopulated_fields = {"slug": ("name",)}
 
 
 @admin.register(NewsPost)

@@ -5,6 +5,9 @@ set -e
 echo "==> migrate"
 python manage.py migrate --noinput
 
+echo "==> rebuild_search_index"
+python manage.py rebuild_search_index || echo "WARNING: rebuild_search_index failed"
+
 echo "==> align_contactor_catalog_urls"
 python manage.py align_contactor_catalog_urls || echo "WARNING: align_contactor_catalog_urls failed"
 

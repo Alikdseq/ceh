@@ -8,8 +8,13 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import FAQItem, NewsPost, Page, SiteSettings
+from .models import CaseStudy, CityCategoryLanding, DeliveryCity, FAQItem, NewsPost, Page, SiteSettings
 from .serializers import (
+    CaseStudyDetailSerializer,
+    CaseStudyListSerializer,
+    CityCategoryLandingSerializer,
+    DeliveryCityDetailSerializer,
+    DeliveryCityListSerializer,
     FAQItemSerializer,
     NewsPostDetailSerializer,
     NewsPostListSerializer,
@@ -179,3 +184,51 @@ class NewsRSSView(APIView):
             ]
         lines += ["</channel>", "</rss>"]
         return HttpResponse("\n".join(lines), content_type="application/rss+xml; charset=utf-8")
+
+
+class CaseStudyListView(generics.ListAPIView):
+    serializer_class = CaseStudyListSerializer
+
+    def get_queryset(self):
+        return CaseStudy.objects.filter(is_published=True)
+
+
+class CaseStudyDetailView(generics.RetrieveAPIView):
+    serializer_class = CaseStudyDetailSerializer
+    lookup_field = "slug"
+
+    def get_queryset(self):
+        return CaseStudy.objects.filter(is_published=True).prefetch_related("products")
+
+
+class DeliveryCityListView(generics.ListAPIView):
+    serializer_class = DeliveryCityListSerializer
+
+    def get_queryset(self):
+        return DeliveryCity.objects.all().order_by("priority", "name")
+
+
+class DeliveryCityDetailView(generics.RetrieveAPIView):
+    serializer_class = DeliveryCityDetailSerializer
+    lookup_field = "slug"
+
+    def get_queryset(self):
+        return DeliveryCity.objects.all()
+
+
+class CityCategoryLandingView(APIView):
+    """GET /api/v1/delivery/{city_slug}/{category_slug}/"""
+
+    def get(self, request, city_slug: str, category_slug: str):
+        landing = (
+            CityCategoryLanding.objects.filter(
+                city__slug=city_slug,
+                category__slug=category_slug,
+                is_indexable=True,
+            )
+            .select_related("city", "category")
+            .first()
+        )
+        if not landing:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(CityCategoryLandingSerializer(landing).data)

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { CatalogFilters, CatalogFiltersMobile } from "@/components/catalog/CatalogFilters";
 import { CatalogPagination, CatalogToolbar } from "@/components/catalog/CatalogToolbar";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { SearchAutocomplete } from "@/components/layout/SearchAutocomplete";
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
-import { getCategories, searchProducts } from "@/lib/api";
+import { getCategories, resolveSearchProduct, searchProducts } from "@/lib/api";
 import { getCategoryPathSlugs } from "@/lib/categories";
 import { parseCatalogParams, toSearchApiParams } from "@/lib/catalog-params";
 import { buildSearchMetadata } from "@/lib/seo";
@@ -28,6 +29,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = parseCatalogParams(raw);
   const basePath = "/search";
   const resetPath = q ? `${basePath}?q=${encodeURIComponent(q)}` : basePath;
+
+  if (q.length >= 2) {
+    try {
+      const resolved = await resolveSearchProduct(q);
+      if (resolved.product?.path) {
+        redirect(resolved.product.path.endsWith("/") ? resolved.product.path : `${resolved.product.path}/`);
+      }
+    } catch {
+      /* fall through to listing */
+    }
+  }
 
   let products: PaginatedResponse<ProductGroup> = {
     count: 0,

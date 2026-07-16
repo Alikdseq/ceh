@@ -1,0 +1,141 @@
+# Semantic core for ekontaktor.ru — map queries to page types and URL patterns.
+# Used by: map_semantic_to_pages management command, content priorities.
+version: 1
+site: https://www.ekontaktor.ru
+
+clusters:
+  brand:
+    intent: navigational
+    priority: P0
+    queries:
+      - query: электроконтактор
+        target_url: /
+        page_type: home
+      - query: завод электроконтактор
+        target_url: /about/
+        page_type: cms
+      - query: владикавказский завод контакторов
+        target_url: /about/
+        page_type: cms
+      - query: честный знак контактор
+        target_url: /
+        page_type: home
+      - query: ekontaktor
+        target_url: /
+        page_type: home
+
+  commercial_contactor:
+    intent: commercial
+    priority: P0
+    title_template: "{name} — купить от производителя, цена с НДС | Электроконтактор"
+    description_template: "{name}: характеристики, документация, цена от {price} ₽. Прямые поставки с завода."
+    queries:
+      - query: контактор кт 6023 купить
+        target_url_pattern: /catalog/**/kontaktor-kt-6023*/
+        page_type: product
+        series: "6023"
+      - query: кт6023 цена
+        target_url_pattern: /catalog/**/kontaktor-kt-6023*/
+        page_type: product
+        series: "6023"
+      - query: контактор кт 6043 400а купить
+        target_url_pattern: /catalog/**/kontaktor-kt-6043*/
+        page_type: product
+        series: "6043"
+      - query: ктп 6623 купить
+        target_url_pattern: /catalog/**/kontaktor-ktp-6623*/
+        page_type: product
+        series: "6623"
+      - query: контактор ктэ купить
+        target_url_pattern: /catalog/kontaktory-kte/
+        page_type: category
+      - query: прайс лист контакторов
+        target_url: /pricelist/
+        page_type: static
+      - query: электромагнитный пускатель цена
+        target_url: /catalog/
+        page_type: catalog_root
+
+  technical:
+    intent: informational
+    priority: P0
+    queries:
+      - query: габаритные размеры кт 6043
+        target_url_pattern: /catalog/**/kontaktor-kt-6043*/
+        page_type: product
+      - query: технические характеристики контактора кт
+        target_url: /catalog/kontaktory-kt/
+        page_type: category
+      - query: схема подключения контактора
+        target_url: /support/
+        page_type: cms
+      - query: условное обозначение кт
+        target_url_pattern: /catalog/**/
+        page_type: product
+
+  partner:
+    intent: commercial
+    priority: P1
+    queries:
+      - query: стать дилером электроконтактор
+        target_url: /dealers/
+        page_type: cms
+      - query: производитель контакторов оптом
+        target_url: /dealers/
+        page_type: cms
+      - query: условия сотрудничества электротехника производитель
+        target_url: /partners/
+        page_type: static
+
+  informational:
+    intent: informational
+    priority: P1
+    queries:
+      - query: как выбрать контактор
+        target_url: /news/kak-vybrat-kontaktor/
+        page_type: news
+      - query: чем отличается кт от ктп
+        target_url: /news/kt-i-ktp-razlichiya/
+        page_type: news
+      - query: пакетный переключатель неисправности
+        target_url: /news/
+        page_type: news_list
+
+  applications:
+    intent: commercial
+    priority: P1
+    queries:
+      - query: контакторы для кранового оборудования
+        target_url: /applications/crane/
+        page_type: landing
+      - query: контакторы для нку
+        target_url: /applications/nku/
+        page_type: landing
+      - query: контакторы для троллейбуса
+        target_url: /applications/transport/
+        page_type: landing
+      - query: контакторы для энергетики
+        target_url: /applications/energy/
+        page_type: landing
+
+  regional:
+    intent: commercial
+    priority: P2
+    title_template: "Контакторы с доставкой в {city} — завод Электроконтактор"
+    description_template: "Прямые поставки контакторов КТ, КТП, КТЭ в {city}. Цены производителя, документация, заявка онлайн."
+    target_url_pattern: /delivery/{city_slug}/
+    page_type: delivery_city
+    sample_queries:
+      - контакторы купить москва
+      - контакторы доставка екатеринбург
+      - электроконтактор новосибирск
+
+featured_series_p0:
+  - "6013"
+  - "6023"
+  - "6032"
+  - "6043"
+  - "6053"
+  - "6622"
+  - "6623"
+  - "6634"

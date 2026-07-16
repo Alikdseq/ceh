@@ -11,6 +11,8 @@ from django.utils.html import strip_tags
 from apps.products.models import ProductGroup, ProductVariant
 from apps.products.utils import get_public_category_ids
 
+from .catalog_query_parse import parse_product_query
+
 # Short catalog tokens → product_type (exact match for 2–3 char queries like «КТ»).
 PRODUCT_TYPE_QUERY_ALIASES: dict[str, str] = {
     "кт": ProductGroup.ProductType.KT,
@@ -55,10 +57,23 @@ def build_group_search_text(group: ProductGroup) -> str:
         parts.append(f"{group.nominal_current_a}a")
         parts.append(f"{group.nominal_current_a}а")
     for series in set(re.findall(r"\d{4}", group.name or "")) | ({group.series_code} if group.series_code else set()):
-        if series:
-            parts.append(f"кт{series}")
-            parts.append(f"kt{series}")
-            parts.append(series)
+        if not series:
+            continue
+        for prefix in ("kt", "кт", "ktp", "ктп"):
+            parts.extend(
+                [
+                    f"{prefix}{series}",
+                    f"{prefix} {series}",
+                    f"{prefix}-{series}",
+                    f"{prefix}{series}b",
+                    f"{prefix}{series}bs",
+                    f"{prefix}{series}s",
+                ]
+            )
+        parts.append(series)
+    for variant in group.variants.filter(is_active=True).only("sku_code", "execution")[:12]:
+        parts.append(variant.sku_code)
+        parts.append(variant.sku_code.replace("-", ""))
     return " ".join(p for p in parts if p).lower()
 
 
@@ -110,8 +125,16 @@ def _build_direct_match_q(raw: str, normalized: str) -> Q:
             direct |= Q(variants__search_vector__icontains=term)
 
     digits = re.sub(r"\D", "", raw)
-    if digits:
-        direct |= Q(series_code__icontains=digits)
+    if digits and len(digits) >= 4:
+        direct |= Q(series_code=digits[-4:])
+        if len(digits) > 4:
+            direct |= Q(series_code__icontains=digits)
+
+    parsed = parse_product_query(raw)
+    if parsed:
+        direct |= Q(series_code=parsed.series_code)
+        if parsed.product_type:
+            direct |= Q(product_type=parsed.product_type)
 
     sku_query = raw.replace(" ", "").replace("-", "")
     if sku_query:
@@ -130,6 +153,21 @@ def _annotate_relevance(qs: QuerySet[ProductGroup], raw: str, normalized: str) -
         When(category__name__icontains=raw.strip(), then=Value(40)),
         When(search_vector__icontains=normalized, then=Value(30)),
     ]
+    parsed = parse_product_query(raw)
+    if parsed:
+        whens.insert(
+            0,
+            When(series_code=parsed.series_code, then=Value(90)),
+        )
+        if parsed.product_type:
+            whens.insert(
+                0,
+                When(
+                    series_code=parsed.series_code,
+                    product_type=parsed.product_type,
+                    then=Value(95),
+                ),
+            )
     product_type = PRODUCT_TYPE_QUERY_ALIASES.get(normalized)
     if product_type:
         whens.append(When(product_type=product_type, then=Value(20)))
@@ -179,3 +217,71 @@ def search_products_queryset(query: str) -> QuerySet[ProductGroup]:
 
 def search_products(query: str, limit: int = 24) -> QuerySet[ProductGroup]:
     return search_products_queryset(query)[:limit]
+
+
+def resolve_search_to_product(query: str) -> ProductGroup | None:
+    """
+    Best single product for a short catalog query (кт6023, KT 6023, …).
+    Returns None when ambiguous (e.g. КТ и КТП с одной серией без уточнения).
+    """
+    raw = query.strip()
+    if len(raw) < 2:
+        return None
+
+    base = ProductGroup.objects.filter(
+        is_active=True,
+        category_id__in=get_public_category_ids(),
+    )
+
+    parsed = parse_product_query(raw)
+    if parsed:
+        qs = base.filter(series_code=parsed.series_code)
+        if parsed.product_type:
+            qs = qs.filter(product_type=parsed.product_type)
+        if parsed.execution:
+            qs = qs.filter(
+                variants__execution=parsed.execution,
+                variants__is_active=True,
+            )
+        matches = list(qs.distinct().order_by("sort_order", "name")[:6])
+        if len(matches) == 1:
+            return matches[0]
+        if len(matches) > 1 and parsed.execution:
+            return matches[0]
+
+        from apps.products.services.catalog_parser import build_group_slug
+        from apps.products.services.catalog_path_resolve import find_group_by_catalog_segment
+
+        ptype = parsed.product_type or ProductGroup.ProductType.KT
+        for execution in (parsed.execution, "B", "BS", "S", None):
+            for current in (None, 160, 250, 100, 125, 80, 400, 630, 1000):
+                slug = build_group_slug(
+                    ptype,
+                    parsed.series_code,
+                    current,
+                    execution if execution not in (None, "NONE") else None,
+                )
+                hit = find_group_by_catalog_segment(slug, base)
+                if hit:
+                    return hit
+
+    results = list(search_products_queryset(raw)[:4])
+    if not results:
+        return None
+    if len(results) == 1:
+        return results[0]
+
+    rel = [getattr(g, "relevance", 0) or 0 for g in results]
+    if rel[0] >= 85 and rel[0] - rel[1] >= 25:
+        return results[0]
+
+    if parsed:
+        same_series = [g for g in results if g.series_code == parsed.series_code]
+        if len(same_series) == 1:
+            return same_series[0]
+        if parsed.product_type:
+            typed = [g for g in same_series if g.product_type == parsed.product_type]
+            if len(typed) == 1:
+                return typed[0]
+
+    return None

@@ -146,3 +146,90 @@ class FAQItem(models.Model):
 
     def __str__(self):
         return self.question[:80]
+
+
+class CaseStudy(models.Model):
+    title = models.CharField("Заголовок", max_length=255)
+    slug = models.SlugField(unique=True)
+    excerpt = models.TextField("Анонс", blank=True)
+    body = models.TextField("Текст (HTML)")
+    industry = models.CharField("Отрасль", max_length=120, blank=True)
+    meta_title = models.CharField(max_length=255, blank=True)
+    meta_description = models.TextField(blank=True)
+    image = models.ImageField(upload_to="cases/", blank=True, null=True)
+    is_published = models.BooleanField(default=True)
+    published_at = models.DateTimeField()
+    products = models.ManyToManyField(
+        "products.ProductGroup",
+        blank=True,
+        related_name="case_studies",
+        verbose_name="Продукция",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Кейс / объект"
+        verbose_name_plural = "Кейсы и объекты"
+        ordering = ["-published_at"]
+
+    def __str__(self):
+        return self.title
+
+
+class DeliveryCity(models.Model):
+    slug = models.SlugField("URL", unique=True, max_length=80)
+    name = models.CharField("Город", max_length=120)
+    region_name = models.CharField("Регион", max_length=120, blank=True)
+    priority = models.PositiveIntegerField("Приоритет", default=100, db_index=True)
+    is_indexable = models.BooleanField(
+        "Индексировать",
+        default=False,
+        help_text="True только при уникальном intro ≥ 400 символов",
+    )
+    intro_html = models.TextField("Уникальный текст", blank=True)
+    meta_title = models.CharField(max_length=255, blank=True)
+    meta_description = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Город доставки"
+        verbose_name_plural = "Города доставки"
+        ordering = ["priority", "name"]
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def has_unique_intro(self) -> bool:
+        from django.utils.html import strip_tags
+
+        return len(strip_tags(self.intro_html or "").strip()) >= 400
+
+
+class CityCategoryLanding(models.Model):
+    city = models.ForeignKey(
+        DeliveryCity,
+        on_delete=models.CASCADE,
+        related_name="category_landings",
+    )
+    category = models.ForeignKey(
+        "products.Category",
+        on_delete=models.CASCADE,
+        related_name="city_landings",
+    )
+    intro_html = models.TextField("Уникальный текст", blank=True)
+    is_indexable = models.BooleanField(default=False)
+    meta_title = models.CharField(max_length=255, blank=True)
+    meta_description = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Регион × категория"
+        verbose_name_plural = "Региональные посадочные"
+        constraints = [
+            models.UniqueConstraint(fields=["city", "category"], name="uniq_city_category_landing"),
+        ]
+
+    def __str__(self):
+        return f"{self.city.name} — {self.category.name}"

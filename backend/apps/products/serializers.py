@@ -5,7 +5,7 @@ from apps.docs.models import Document, ProductDocument
 
 from apps.core.media_urls import public_media_url
 
-from .models import Category, ProductGroup, ProductImage, ProductSpec, ProductVariant
+from .models import Category, ProductFAQ, ProductGroup, ProductImage, ProductSpec, ProductVariant
 from .utils import category_path_slugs, get_public_category_ids, is_category_public, PUBLIC_HIDDEN_SPEC_KEYS
 
 
@@ -92,6 +92,12 @@ class ProductDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductDocument
         fields = ("id", "document", "sort_order")
+
+
+class ProductFAQSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductFAQ
+        fields = ("id", "question", "answer", "sort_order")
 
 
 class ProductVariantListSerializer(serializers.ModelSerializer):
@@ -209,12 +215,13 @@ class ProductGroupDetailSerializer(ProductGroupListSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     documents = ProductDocumentSerializer(many=True, read_only=True)
     related = serializers.SerializerMethodField()
+    faqs = ProductFAQSerializer(many=True, read_only=True)
 
     class Meta(ProductGroupListSerializer.Meta):
         fields = ProductGroupListSerializer.Meta.fields + (
             "full_description", "designation_structure",
             "meta_title", "meta_description", "h1",
-            "variants", "specs", "images", "documents", "related",
+            "variants", "specs", "images", "documents", "related", "faqs",
         )
 
     def get_specs(self, obj):
@@ -222,8 +229,28 @@ class ProductGroupDetailSerializer(ProductGroupListSerializer):
         return ProductSpecSerializer(specs, many=True).data
 
     def get_related(self, obj):
-        related = obj.related_groups.filter(is_active=True)[:6]
-        return ProductGroupListSerializer(related, many=True, context=self.context).data
+        related = list(obj.related_groups.filter(is_active=True)[:6])
+        seen = {obj.pk, *(g.pk for g in related)}
+        if len(related) < 6 and obj.series_code:
+            extra = (
+                ProductGroup.objects.filter(
+                    is_active=True,
+                    category=obj.category,
+                    series_code=obj.series_code,
+                )
+                .exclude(pk__in=seen)
+                .order_by("sort_order", "name")[: 6 - len(related)]
+            )
+            related.extend(extra)
+            seen.update(g.pk for g in extra)
+        if len(related) < 6:
+            extra = (
+                ProductGroup.objects.filter(is_active=True, category=obj.category)
+                .exclude(pk__in=seen)
+                .order_by("sort_order", "name")[: 6 - len(related)]
+            )
+            related.extend(extra)
+        return ProductGroupListSerializer(related[:6], many=True, context=self.context).data
 
 
 class CompareVariantSerializer(ProductVariantDetailSerializer):

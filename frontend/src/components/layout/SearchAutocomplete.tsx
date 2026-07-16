@@ -7,7 +7,7 @@ import { Loader2, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getSearchSuggestions, type SearchSuggestion } from "@/lib/api/search";
+import { getSearchSuggestions, resolveSearchProductClient, type SearchSuggestion } from "@/lib/api/search";
 import { catalogProductHref } from "@/lib/catalog-url";
 import { highlightMatch } from "@/lib/search-highlight";
 import { cn } from "@/lib/utils";
@@ -81,10 +81,19 @@ export function SearchAutocomplete({
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, []);
 
-  function goToSearch(q: string) {
+  async function goToSearch(q: string) {
     const trimmed = q.trim();
     if (!trimmed) return;
     setOpen(false);
+    try {
+      const resolved = await resolveSearchProductClient(trimmed);
+      if (resolved.product?.path) {
+        router.push(resolved.product.path);
+        return;
+      }
+    } catch {
+      /* listing fallback */
+    }
     router.push(`/search?q=${encodeURIComponent(trimmed)}`);
   }
 

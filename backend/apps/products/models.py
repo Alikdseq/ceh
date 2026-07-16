@@ -102,6 +102,26 @@ class ProductGroup(models.Model):
         return self.variants.filter(is_active=True).order_by("price").values_list("price", flat=True).first()
 
 
+class ProductFAQ(models.Model):
+    group = models.ForeignKey(
+        ProductGroup,
+        on_delete=models.CASCADE,
+        related_name="faqs",
+        verbose_name="Карточка товара",
+    )
+    question = models.CharField("Вопрос", max_length=500)
+    answer = models.TextField("Ответ")
+    sort_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = "FAQ товара"
+        verbose_name_plural = "FAQ товаров"
+        ordering = ["sort_order", "pk"]
+
+    def __str__(self):
+        return self.question[:80]
+
+
 class ProductVariant(models.Model):
     class Execution(models.TextChoices):
         B = "B", "Б"

@@ -48,6 +48,73 @@ export function buildWebSiteSchema(settings?: { company_name?: string }) {
   };
 }
 
+export function buildBreadcrumbListSchema(
+  breadcrumbs: { name: string; url: string }[],
+) {
+  if (!breadcrumbs.length) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: breadcrumbs.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}
+
+export function buildCollectionPageSchema(input: {
+  name: string;
+  description?: string;
+  url: string;
+  items: { name: string; url: string }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: input.name,
+    description: input.description,
+    url: input.url,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: input.items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: item.name,
+        url: item.url,
+      })),
+    },
+  };
+}
+
+export function buildCaseStudySchema(study: {
+  title: string;
+  excerpt?: string;
+  slug: string;
+  published_at: string;
+}) {
+  const base = siteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: study.title,
+    description: study.excerpt,
+    datePublished: study.published_at,
+    url: `${base}/cases/${study.slug}/`,
+    author: {
+      "@type": "Organization",
+      name: 'АО «Электроконтактор»',
+      url: base,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: 'АО «Электроконтактор»',
+      url: base,
+    },
+  };
+}
+
 export function buildProductSchema(
   product: {
     name: string;
@@ -59,6 +126,7 @@ export function buildProductSchema(
     price_from: string | null;
     series_code: string;
     product_type?: string;
+    specs?: { spec_key: string; spec_value: string; spec_unit?: string }[];
   },
   variant: {
     sku_code: string;
@@ -80,11 +148,28 @@ export function buildProductSchema(
     url: resolvedBase,
   };
 
+  const series = product.series_code;
+  const alternateName: string[] = [];
+  if (series) {
+    for (const prefix of ["КТ", "KT", "КТП", "KTP"]) {
+      alternateName.push(`${prefix}${series}`, `${prefix} ${series}`, `${prefix}-${series}`);
+    }
+    alternateName.push(series);
+  }
+
+  const additionalProperty =
+    product.specs?.slice(0, 12).map((spec) => ({
+      "@type": "PropertyValue" as const,
+      name: spec.spec_key,
+      value: `${spec.spec_value}${spec.spec_unit ? ` ${spec.spec_unit}` : ""}`,
+    })) ?? undefined;
+
   return [
     {
       "@context": "https://schema.org",
       "@type": "Product",
       name: product.name,
+      alternateName: alternateName.length ? alternateName : undefined,
       description: product.short_description,
       sku: variant?.sku_code ?? product.series_code,
       image: productImageSrc(product.primary_image?.url, {
@@ -98,6 +183,7 @@ export function buildProductSchema(
         name: "Электроконтактор",
       },
       manufacturer,
+      additionalProperty,
       offers: price
         ? {
             "@type": "Offer",
@@ -120,6 +206,20 @@ export function buildProductSchema(
       })),
     },
   ];
+}
+
+/** Product + breadcrumbs + optional FAQ for JSON-LD on PDP. */
+export function buildProductPageSchema(
+  product: Parameters<typeof buildProductSchema>[0],
+  variant: Parameters<typeof buildProductSchema>[1],
+  breadcrumbs: { name: string; url: string }[],
+  faq: Pick<FAQItem, "question" | "answer">[],
+  baseUrl?: string,
+): Record<string, unknown>[] {
+  const blocks: Record<string, unknown>[] = [...buildProductSchema(product, variant, breadcrumbs, baseUrl)];
+  const faqSchema = buildFAQPageSchema(faq);
+  if (faqSchema) blocks.push(faqSchema);
+  return blocks;
 }
 
 export function buildFAQPageSchema(items: Pick<FAQItem, "question" | "answer">[]) {

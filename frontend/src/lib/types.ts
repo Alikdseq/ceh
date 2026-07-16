@@ -142,6 +142,32 @@ export interface ProductGroupDetail extends ProductGroup {
   images: ProductImageDetail[];
   documents: ProductDocumentLink[];
   related: ProductGroup[];
+  faqs?: FAQItem[];
+}
+
+export interface CaseStudyListItem {
+  title: string;
+  slug: string;
+  excerpt: string;
+  industry: string;
+  published_at: string;
+}
+
+export interface CaseStudyDetail extends CaseStudyListItem {
+  body: string;
+  meta_title: string;
+  meta_description: string;
+  products: ProductGroup[];
+}
+
+export interface DeliveryCity {
+  slug: string;
+  name: string;
+  region_name: string;
+  is_indexable?: boolean;
+  intro_html?: string;
+  meta_title?: string;
+  meta_description?: string;
 }
 
 export interface FAQItem {
