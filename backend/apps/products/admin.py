@@ -3,7 +3,8 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Min
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import path, reverse
-from django.utils.html import escape, format_html, format_html_join
+from django.utils.html import escape, format_html
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from mptt.admin import DraggableMPTTAdmin
 from unfold.admin import ModelAdmin, StackedInline, TabularInline
@@ -299,10 +300,11 @@ class ProductGroupAdmin(ModelAdmin):
             return format_html(
                 '<p class="text-sm opacity-70">Нет доступных файлов фото (запись в БД есть, файлы на диске отсутствуют)</p>'
             )
+        gallery = mark_safe("".join(str(fragment) for fragment in parts))
         return format_html(
             '<div><p class="text-sm mb-2">Всего: {} шт.</p><div>{}</div></div>',
             obj.images.count(),
-            format_html_join("", parts),
+            gallery,
         )
 
     @display(description="Сводка")
