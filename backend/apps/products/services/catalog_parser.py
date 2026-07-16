@@ -284,8 +284,59 @@ def strip_climate_suffix(label: str) -> str:
     return re.sub(r"-У\d+$", "", label.strip(), flags=re.IGNORECASE)
 
 
+def build_pvp_display_name(group) -> str | None:
+    """Human-readable names for ПВП 17-29 / 17-31 switch cards."""
+    if group.product_type != "SWITCH":
+        return None
+
+    slug = (group.slug or "").lower()
+    raw = group.name or ""
+    raw_lower = raw.lower()
+
+    if re.fullmatch(r"17-29\d+", slug):
+        return "ПВП1729"
+    if re.fullmatch(r"17-31\d+", slug):
+        return "ПВП1731"
+
+    if re.match(r"17-29-63-\d+", slug):
+        return "ПВП1729 63А"
+    if re.match(r"17-31-100-\d+", slug):
+        return "ПВП1731 100А"
+
+    if "пакетн" in raw_lower:
+        if "17-29" in raw or "1729" in raw.replace(" ", ""):
+            return "ПВП1729"
+        if "17-31" in raw or "1731" in raw.replace(" ", ""):
+            return "ПВП1731"
+
+    variant = group.variants.filter(is_active=True).order_by("-is_default", "sku_code").first()
+    sku = (variant.sku_code if variant else "").replace(" ", "").upper()
+
+    if "ПАКЕТН" in sku or re.search(r"\dПАКЕТ", sku):
+        if "1729" in sku or "17-29" in raw:
+            return "ПВП1729"
+        if "1731" in sku or "1731100" in sku:
+            return "ПВП1731"
+
+    if "172963" in sku or (group.nominal_current_a == 63 and "29" in slug):
+        return "ПВП1729 63А"
+    if "1731100" in sku or (group.nominal_current_a == 100 and "31" in slug):
+        return "ПВП1731 100А"
+
+    if "17-29" in raw and re.search(r"\d+\s*А", raw):
+        return "ПВП1729 63А"
+    if "17-31" in raw and re.search(r"\d+\s*А", raw):
+        return "ПВП1731 100А"
+
+    return None
+
+
 def build_catalog_display_name(group) -> str:
     """Имя карточки — каталожное обозначение без суффикса климатического исполнения."""
+    pvp_name = build_pvp_display_name(group)
+    if pvp_name:
+        return pvp_name
+
     variant = (
         group.variants.filter(is_active=True)
         .order_by("-is_default", "price", "sku_code")
@@ -321,11 +372,13 @@ def build_catalog_display_name(group) -> str:
     raw = (group.name or "").strip()
 
     if group.product_type in ("CAM", "SWITCH", "ACCESSORY", "OTHER"):
+        pvp = build_pvp_display_name(group)
+        if pvp:
+            return pvp
+        if raw and not raw.lower().startswith("контактор"):
+            return raw
         if variant and variant.sku_code:
-            return re.sub(r"\s+", "", variant.sku_code)
-        compact = re.sub(r"\s+", "", raw)
-        if compact:
-            return compact
+            return variant.sku_code.strip()
 
     if raw and not raw.lower().startswith("контактор"):
         return re.sub(r"\s+", "", raw)
@@ -425,7 +478,17 @@ def normalize_pricelist_name(name: str) -> dict:
         sku_code = sku_base[:50] if sku_base else slugify(name, allow_unicode=False)[:50].upper()
 
     display_name = name.strip()
-    if product_type not in ("KT", "KTP", "KTE"):
+    if product_type == "SWITCH" and "ПВП" in name:
+        if re.search(r"пакетн", name, re.IGNORECASE):
+            if "17-29" in name:
+                display_name = "ПВП1729"
+            elif "17-31" in name:
+                display_name = "ПВП1731"
+        elif "17-29" in name and current:
+            display_name = f"ПВП1729 {current}А"
+        elif "17-31" in name and current:
+            display_name = f"ПВП1731 {current}А"
+    elif product_type not in ("KT", "KTP", "KTE"):
         display_name = re.sub(r"\s+", "", display_name)
 
     return {
