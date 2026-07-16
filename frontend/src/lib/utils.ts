@@ -42,6 +42,21 @@ export function publicAssetSrc(path: string): string {
   }
 }
 
+/** Rewrite SSR-leaked internal media hosts (backend:8000) to same-origin paths. */
+export function normalizeMediaUrl(url: string): string {
+  if (!url || url.startsWith("/")) return publicAssetSrc(url);
+  try {
+    const parsed = new URL(url);
+    const internal = parsed.hostname === "backend" || parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1";
+    if (internal && parsed.pathname.startsWith("/media/")) {
+      return publicAssetSrc(`${parsed.pathname}${parsed.search}`);
+    }
+  } catch {
+    return url;
+  }
+  return url;
+}
+
 export function productImageSrc(
   url: string | undefined | null,
   context?: ProductImageContext,
@@ -51,7 +66,7 @@ export function productImageSrc(
     if (staticUrl) return staticUrl;
   }
   if (!url || url.includes("placeholder-product")) return PLACEHOLDER_PRODUCT_SRC;
-  return url;
+  return normalizeMediaUrl(url);
 }
 
 /** next/image: skip optimizer for local static assets (SVG, /tovar/, photos) */

@@ -3,6 +3,8 @@ from rest_framework import serializers
 
 from apps.docs.models import Document, ProductDocument
 
+from apps.core.media_urls import public_media_url
+
 from .models import Category, ProductGroup, ProductImage, ProductSpec, ProductVariant
 from .utils import category_path_slugs, get_public_category_ids, is_category_public, PUBLIC_HIDDEN_SPEC_KEYS
 
@@ -11,9 +13,7 @@ def _absolute_media_url(obj, request):
     if not obj:
         return None
     url = obj.url if hasattr(obj, "url") else str(obj)
-    if request and url.startswith("/"):
-        return request.build_absolute_uri(url)
-    return url
+    return public_media_url(url, request)
 
 
 class CategoryTreeSerializer(serializers.ModelSerializer):
@@ -78,9 +78,9 @@ class DocumentBriefSerializer(serializers.ModelSerializer):
 
     def get_file_url(self, obj):
         request = self.context.get("request")
-        if obj.file and request:
-            return request.build_absolute_uri(obj.file.url)
-        return obj.file.url if obj.file else None
+        if obj.file:
+            return public_media_url(obj.file.url, request)
+        return None
 
 
 class ProductDocumentSerializer(serializers.ModelSerializer):
@@ -152,11 +152,8 @@ class ProductGroupListSerializer(serializers.ModelSerializer):
 
     def get_primary_image(self, obj):
         img = obj.images.filter(is_primary=True).first() or obj.images.first()
-        request = self.context.get("request")
         if img and img.image:
-            url = img.image.url
-            if request:
-                url = request.build_absolute_uri(url)
+            url = public_media_url(img.image.url, self.context.get("request"))
             return {"url": url, "alt": img.alt or obj.name}
         return {"url": "/placeholder-product.svg", "alt": obj.name, "is_placeholder": True}
 

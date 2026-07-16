@@ -2,6 +2,8 @@ import secrets
 from datetime import timedelta
 from decimal import Decimal
 
+from apps.core.media_urls import public_media_url
+
 from apps.core.pricing import price_without_vat_display
 from django.core.cache import cache
 from django.db import transaction
@@ -84,7 +86,7 @@ def serialize_cart(cart: QuoteCart, request) -> dict:
         image = group.images.filter(is_primary=True).first() or group.images.first()
         image_url = None
         if image and image.image:
-            image_url = request.build_absolute_uri(image.image.url)
+            image_url = public_media_url(image.image.url, request)
         items.append({
             "id": item.pk,
             "variant_id": variant.pk,
