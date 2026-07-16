@@ -331,7 +331,7 @@ ORDER_EMAILS=info@ekontaktor.ru
 | Симптом | Решение |
 |---|---|
 | Сайт не открывается | `docker compose ps`, проверьте DNS и firewall (80/443) |
-| 502 Bad Gateway | `docker compose logs backend frontend`, перезапуск: `docker compose restart` |
+| 502 Bad Gateway | После `--build` frontend/backend перезапустите nginx: `docker compose ... restart nginx`. Логи: `logs backend frontend nginx`. В конфиге — Docker DNS (см. `nginx.prod.conf`) |
 | Нет места на диске | `docker system prune -a`, удалите старые бэкапы |
 | OOM / сервер зависает | Увеличьте swap или тариф RAM до 2 ГБ |
 | SSL не работает | Повторите шаг 7.2, проверьте DNS |
