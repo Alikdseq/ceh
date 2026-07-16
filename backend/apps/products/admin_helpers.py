@@ -10,8 +10,8 @@ def file_field_has_storage(file_field) -> bool:
     return image_file_exists(file_field)
 
 
-def safe_file_url(file_field) -> str | None:
-    return safe_image_url(file_field)
+def safe_file_url(file_field, request=None) -> str | None:
+    return safe_image_url(file_field, request)
 
 
 class SafeClearableFileInput(ClearableFileInput):
@@ -46,5 +46,13 @@ class ProductImageAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.pk and self.instance.image and not image_file_exists(self.instance.image):
-            self.initial["image"] = None
+        if self.instance.pk and self.instance.image:
+            from apps.products.product_media import image_file_exists
+
+            if not image_file_exists(self.instance.image):
+                from apps.products.catalog_static_photos import catalog_tovar_file
+                from pathlib import Path
+
+                if catalog_tovar_file(Path(self.instance.image.name).name):
+                    return
+                self.initial["image"] = None

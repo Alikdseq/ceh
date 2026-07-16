@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 from apps.products.management.commands.recreate_product_group import recreate_product_group
 from apps.products.models import ProductGroup
-from apps.products.product_media import image_file_exists, product_group_ids_with_broken_images
+from apps.products.product_media import product_group_ids_with_broken_images
 from apps.products.utils import invalidate_catalog_cache
 
 
@@ -45,10 +45,10 @@ class Command(BaseCommand):
             ProductGroup.objects.filter(pk__in=pks).select_related("category").order_by("pk")
         )
         self.stdout.write(f"Found {len(groups)} product group(s) with broken image record(s):")
+        from apps.products.product_media import _orphan_product_image
+
         for g in groups:
-            broken = sum(
-                1 for img in g.images.all() if img.image.name and not image_file_exists(img.image)
-            )
+            broken = sum(1 for img in g.images.all() if _orphan_product_image(img.image))
             self.stdout.write(
                 f"  pk={g.pk} slug={g.slug} name={g.name!r} broken_images≈{broken}"
             )

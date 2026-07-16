@@ -5,6 +5,9 @@ set -e
 echo "==> migrate"
 python manage.py migrate --noinput
 
+echo "==> sync_catalog_photos_to_media"
+python manage.py sync_catalog_photos_to_media || echo "WARNING: sync_catalog_photos_to_media failed"
+
 echo "==> prune_broken_product_images"
 python manage.py prune_broken_product_images || echo "WARNING: prune_broken_product_images failed"
 

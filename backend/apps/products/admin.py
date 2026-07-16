@@ -13,7 +13,7 @@ from unfold.decorators import display
 from .admin_forms import ProductGroupAdminForm, ProductSpecAdminForm, ProductVariantAdminForm
 from .admin_helpers import ProductImageAdminForm, SafeClearableFileInput, safe_file_url
 from .models import Category, ProductGroup, ProductImage, ProductSpec, ProductVariant
-from .product_media import image_file_exists, prune_broken_images_for_group
+from .product_media import prune_broken_images_for_group
 from .utils import invalidate_catalog_cache
 
 
@@ -29,11 +29,9 @@ class ProductImageInline(StackedInline):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        broken_ids = [
-            img.pk
-            for img in qs
-            if img.image.name and not image_file_exists(img.image)
-        ]
+        from apps.products.product_media import _orphan_product_image
+
+        broken_ids = [img.pk for img in qs if _orphan_product_image(img.image)]
         if broken_ids:
             ProductImage.objects.filter(pk__in=broken_ids).delete()
             return super().get_queryset(request)

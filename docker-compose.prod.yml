@@ -48,6 +48,7 @@ services:
     environment:
       RUNNING_IN_DOCKER: "1"
       DJANGO_SETTINGS_MODULE: config.settings.prod
+      CATALOG_TOVAR_DIR: /app/catalog-tovar
       DATABASE_URL: postgres://${POSTGRES_USER:-ekontaktor}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ekontaktor}
       REDIS_URL: redis://redis:6379/0
       CORPORATE_DOCS_ROOT: /docs
@@ -75,6 +76,7 @@ services:
     environment:
       RUNNING_IN_DOCKER: "1"
       DJANGO_SETTINGS_MODULE: config.settings.prod
+      CATALOG_TOVAR_DIR: /app/catalog-tovar
       DATABASE_URL: postgres://${POSTGRES_USER:-ekontaktor}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ekontaktor}
       REDIS_URL: redis://redis:6379/0
       CORPORATE_DOCS_ROOT: /docs
@@ -99,6 +101,7 @@ services:
     environment:
       RUNNING_IN_DOCKER: "1"
       DJANGO_SETTINGS_MODULE: config.settings.prod
+      CATALOG_TOVAR_DIR: /app/catalog-tovar
       DATABASE_URL: postgres://${POSTGRES_USER:-ekontaktor}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ekontaktor}
       REDIS_URL: redis://redis:6379/0
     depends_on:

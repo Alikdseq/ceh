@@ -143,6 +143,10 @@ STORAGES = {
 }
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+# Static catalog photos shipped with the site (frontend/public/tovar); synced into MEDIA_ROOT on deploy.
+CATALOG_TOVAR_DIR = Path(
+    env("CATALOG_TOVAR_DIR", default=str(BASE_DIR.parent / "frontend" / "public" / "tovar")),
+)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
