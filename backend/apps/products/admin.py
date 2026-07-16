@@ -3,20 +3,21 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Min
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import path, reverse
-from django.utils.html import format_html, format_html_join
+from django.utils.html import escape, format_html, format_html_join
 from django.utils.text import slugify
 from mptt.admin import DraggableMPTTAdmin
 from unfold.admin import ModelAdmin, StackedInline, TabularInline
 from unfold.decorators import display
 
 from .admin_forms import ProductGroupAdminForm, ProductSpecAdminForm, ProductVariantAdminForm
-from .admin_helpers import safe_file_url
+from .admin_helpers import ProductImageAdminForm, safe_file_url
 from .models import Category, ProductGroup, ProductImage, ProductSpec, ProductVariant
 from .utils import invalidate_catalog_cache
 
 
 class ProductImageInline(StackedInline):
     model = ProductImage
+    form = ProductImageAdminForm
     extra = 1
     verbose_name = "Фото"
     verbose_name_plural = "Фотографии товара"
@@ -254,7 +255,9 @@ class ProductGroupAdmin(ModelAdmin):
         if not obj.pk:
             return "—"
         spec = obj.specs.filter(spec_key="overall_dimensions").first()
-        return spec.spec_value if spec else "—"
+        if not spec:
+            return "—"
+        return format_html("{}", spec.spec_value)
 
     @display(description="Фотографии")
     def photos_preview(self, obj):
@@ -304,28 +307,27 @@ class ProductGroupAdmin(ModelAdmin):
             <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-sm">
               <div class="rounded-default border border-base-200 dark:border-base-700 p-3">
                 <div class="font-semibold mb-1">Статус</div>
-                <div>{status}{featured}</div>
+                <div>{}</div>
               </div>
               <div class="rounded-default border border-base-200 dark:border-base-700 p-3">
                 <div class="font-semibold mb-1">Варианты и цены</div>
-                <div>{variants} шт. · от {price}</div>
+                <div>{} шт. · от {}</div>
               </div>
               <div class="rounded-default border border-base-200 dark:border-base-700 p-3">
                 <div class="font-semibold mb-1">Фото</div>
-                <div>{photos} шт.</div>
+                <div>{} шт.</div>
               </div>
               <div class="rounded-default border border-base-200 dark:border-base-700 p-3">
                 <div class="font-semibold mb-1">Характеристики</div>
-                <div>{specs} шт.</div>
+                <div>{} шт.</div>
               </div>
             </div>
             """,
-            status=status,
-            featured=featured,
-            variants=variants,
-            price=price,
-            photos=photos,
-            specs=specs,
+            escape(f"{status}{featured}"),
+            variants,
+            escape(price),
+            photos,
+            specs,
         )
 
     def save_model(self, request, obj, form, change):
