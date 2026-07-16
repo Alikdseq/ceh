@@ -1,3 +1,4 @@
+import type { FAQItem } from "@/lib/types";
 import { productImageSrc } from "@/lib/utils";
 
 const DEFAULT_SITE_URL = "https://ekontaktor.ru";
