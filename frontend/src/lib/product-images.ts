@@ -19,7 +19,10 @@ interface ProductIdentity {
   coil36v: boolean;
 }
 
-/** Product cards that need 180° rotation in the UI. */
+/** Default rotation for the agreed KT/KTP catalog photo list. */
+export const LISTED_PRODUCT_IMAGE_ROTATION = 270;
+
+/** Product groups that use LISTED_PRODUCT_IMAGE_ROTATION when CMS angle is 0. */
 const ROTATED_PRODUCTS: ProductIdentity[] = [
   { product_type: "KT", series: "6014", execution: "B", coil36v: false },
   { product_type: "KT", series: "6014", execution: "BS", coil36v: false },
@@ -378,7 +381,7 @@ export function productImageRotationDegrees(
 ): number {
   const normalized = ((adminRotation ?? 0) % 360 + 360) % 360;
   if (normalized !== 0) return normalized;
-  return shouldRotateProductImage(context) ? 180 : 0;
+  return shouldRotateProductImage(context) ? LISTED_PRODUCT_IMAGE_ROTATION : 0;
 }
 
 /** Tailwind class for product photo rotation (admin override + legacy defaults). */
