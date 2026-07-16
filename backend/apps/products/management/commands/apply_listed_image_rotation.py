@@ -34,7 +34,7 @@ class Command(BaseCommand):
         matched = 0
 
         qs = ProductGroup.objects.filter(is_active=True).prefetch_related("variants")
-        for group in qs.iterator():
+        for group in qs.iterator(chunk_size=100):
             if not should_rotate_product_group(group):
                 continue
             matched += 1
