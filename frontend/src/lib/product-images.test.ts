@@ -110,6 +110,25 @@ describe("product-images", () => {
     ).toBe(false);
     expect(
       shouldRotateProductImage({
+        name: "КТ6053Б-У3",
+        product_type: "KT",
+        series_code: "6053",
+        execution: "B",
+      }),
+    ).toBe(true);
+    expect(
+      shouldRotateProductImage({
+        name: "КТП6014БС",
+        product_type: "KTP",
+        series_code: "6014",
+        execution: "BS",
+      }),
+    ).toBe(true);
+    expect(productImageRotateClass({ name: "КТ6043Б-У3", product_type: "KT", execution: "B" })).toBe(
+      "rotate-90",
+    );
+    expect(
+      shouldRotateProductImage({
         name: "КТП6633С",
         product_type: "KTP",
         series_code: "6633",

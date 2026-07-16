@@ -22,6 +22,6 @@ export function formatCoilSpecValue(raw: string): string {
   const voltages = [...text.matchAll(/(\d+)\s*В/g)].map((m) => Number(m[1]));
   if (voltages.length <= 1) return text;
 
-  const sorted = sortCoilVoltages(voltages);
+  const sorted = [...new Set(voltages)].sort((a, b) => a - b);
   return sorted.map((v) => `${v} В`).join(", ");
 }
