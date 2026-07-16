@@ -11,3 +11,5 @@ echo "Run: docker compose -f docker-compose.prod.yml -f docker-compose.prod.bege
 echo "     docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml up -d backend"
 echo "     docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml exec backend python manage.py migrate"
 echo "     docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml exec backend python manage.py prune_broken_product_images"
+echo "     docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml exec backend python manage.py recreate_all_broken_product_groups --dry-run"
+echo "     docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml exec backend python manage.py recreate_all_broken_product_groups"

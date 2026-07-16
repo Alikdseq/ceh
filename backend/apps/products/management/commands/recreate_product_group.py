@@ -75,11 +75,18 @@ def _snapshot_specs(group: ProductGroup) -> list[dict]:
     ]
 
 
-def recreate_product_group(group: ProductGroup, *, copy_valid_images: bool = False) -> ProductGroup:
+def recreate_product_group(
+    group: ProductGroup,
+    *,
+    copy_valid_images: bool = False,
+    skip_related: bool = False,
+) -> ProductGroup:
     data = _snapshot_group(group)
     variants = _snapshot_variants(group)
     specs = _snapshot_specs(group)
-    related_ids = list(group.related_groups.values_list("pk", flat=True))
+    related_ids = (
+        [] if skip_related else list(group.related_groups.values_list("pk", flat=True))
+    )
 
     valid_images = []
     if copy_valid_images:

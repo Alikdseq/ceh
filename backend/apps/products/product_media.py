@@ -44,3 +44,12 @@ def prune_all_broken_product_images() -> int:
             img.delete()
             removed += 1
     return removed
+
+
+def product_group_ids_with_broken_images() -> list[int]:
+    """Product groups that still have at least one missing media file on disk."""
+    ids: set[int] = set()
+    for img in ProductImage.objects.only("group_id", "image").iterator():
+        if img.image.name and not image_file_exists(img.image):
+            ids.add(img.group_id)
+    return sorted(ids)
