@@ -298,7 +298,8 @@ class ProductGroupAdmin(ModelAdmin):
             )
         if not parts:
             return format_html(
-                '<p class="text-sm opacity-70">Нет доступных файлов фото (запись в БД есть, файлы на диске отсутствуют)</p>'
+                "<p class=\"text-sm opacity-70\">{}</p>",
+                "Нет доступных файлов фото (запись в БД есть, файлы на диске отсутствуют)",
             )
         gallery = mark_safe("".join(str(fragment) for fragment in parts))
         return format_html(
