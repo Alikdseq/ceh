@@ -52,6 +52,40 @@ describe("product-images", () => {
     expect(decodeURIComponent(url ?? "")).toMatch(/6052/i);
   });
 
+  it("maps PVP 17-29 packet switches to shared photo", () => {
+    const url = resolveStaticProductImage({
+      name: "ПВП 17-29 (63А) 3-пакетный",
+      slug: "17-29-63-3",
+    });
+    expect(decodeURIComponent(url ?? "")).toContain("ПВП17.png");
+  });
+
+  it("maps PVP 17-31 packet switches to shared photo", () => {
+    const url = resolveStaticProductImage({
+      name: "ПВП 17-31 (100А) 5-пакетный",
+      slug: "17-31-100-5",
+    });
+    expect(decodeURIComponent(url ?? "")).toContain("ПВП1731.png");
+  });
+
+  it("maps KTE 01-25 to static photo", () => {
+    const url = resolveStaticProductImage({
+      product_type: "KTE",
+      name: "КТЭ 01-25 (без бвк)",
+      slug: "kontaktor-kte-0125",
+    });
+    expect(decodeURIComponent(url ?? "")).toContain("КТЭ0125.png");
+  });
+
+  it("maps KTE 02-250 to static photo", () => {
+    const url = resolveStaticProductImage({
+      product_type: "KTE",
+      name: "КТЭ 02-250 (1 бвк)",
+      slug: "kontaktor-kte-02250-250a",
+    });
+    expect(decodeURIComponent(url ?? "")).toContain("КТЭ02250.png");
+  });
+
   it("returns null for unknown series", () => {
     const url = resolveStaticProductImage({
       series_code: "9999",

@@ -107,6 +107,26 @@ const TOVAR_FILES = [
 /** Explicit name/sku → photo mapping for non-series products. */
 const NAMED_IMAGES: Array<{ pattern: RegExp; url: string; gallery?: string[] }> = [
   {
+    pattern: /пвп\s*17[-\s]*31|pvp\s*1731|17-31\s*\(100/i,
+    url: "/tovar/ПВП1731.png",
+  },
+  {
+    pattern: /пвп\s*17[-\s]*29|pvp\s*1729|17-29\s*\(63/i,
+    url: "/tovar/ПВП17.png",
+  },
+  {
+    pattern: /ктэ\s*01[-\s]*25|kte\s*0125|01-25/i,
+    url: "/tovar/КТЭ0125.png",
+  },
+  {
+    pattern: /ктэ\s*02[-\s]*160|kte\s*02160|02-160/i,
+    url: "/tovar/КТЭ02250.png",
+  },
+  {
+    pattern: /ктэ\s*02[-\s]*250|kte\s*02250|02-250/i,
+    url: "/tovar/КТЭ02250.png",
+  },
+  {
     pattern: /блок\s*контакт/i,
     url: "/tovar/блокконтактов.jpeg",
   },
