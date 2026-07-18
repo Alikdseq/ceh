@@ -25,7 +25,12 @@ def category_path_slugs(category) -> list[str]:
 def product_catalog_path(group) -> str:
     """Return frontend catalog path for a product group, e.g. /catalog/a/b/product-slug/."""
     slugs = category_path_slugs(group.category)
-    return f"/catalog/{'/'.join([*slugs, group.slug])}/"
+    product_slug = (group.slug or "").strip()
+    if not product_slug:
+        from django.utils.text import slugify
+
+        product_slug = slugify(group.name or f"group-{group.pk}", allow_unicode=True)[:255]
+    return f"/catalog/{'/'.join([*slugs, product_slug])}/"
 
 
 def is_category_public(category) -> bool:

@@ -26,6 +26,8 @@ class Command(BaseCommand):
                 new_path = row.get("new_path", row.get("new_url", "")).strip()
                 if not old_path or not new_path:
                     continue
+                if old_path.rstrip("/") == new_path.rstrip("/"):
+                    continue
                 if not old_path.startswith("/"):
                     old_path = f"/{old_path}"
                 obj, was_created = Redirect.objects.update_or_create(

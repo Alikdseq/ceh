@@ -8,14 +8,13 @@ old_path,new_path
 /news.php,/news/
 /price/,/news/pricelist-2026/
 /price_list.pdf,/catalog/
-/kontaktor-kt6043/,/catalog/kontaktory-kt/kt-6000b/
 /kontaktor-ktp/,/catalog/kontaktory-ktp/
 /kontaktor-kte/,/catalog/kontaktory-kte/
-/pricelist/,/catalog/
 /sitemap.html,/sitemap.xml
-/certificates/,/about/certificates/
+/certificates/,/about/
 /production/,/about/production/
 /dealers.php,/dealers/
 /support.php,/support/
 /privacy.php,/privacy/
 /faq/,/support/
+/kontaktor-kt6043/,/catalog/kontaktory-kt/kt-6000b/kontaktor-kt-6043/

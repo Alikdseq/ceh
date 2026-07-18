@@ -1,7 +1,7 @@
 """Create 301 redirects for legacy catalog product URLs."""
 from django.core.management.base import BaseCommand
 
-from apps.products.services.catalog_path_resolve import collect_catalog_redirects
+from apps.products.services.catalog_path_resolve import collect_all_catalog_redirects
 from apps.seo.models import Redirect
 
 
@@ -12,7 +12,7 @@ class Command(BaseCommand):
         parser.add_argument("--dry-run", action="store_true")
 
     def handle(self, *args, **options):
-        pairs = collect_catalog_redirects()
+        pairs = collect_all_catalog_redirects()
         created = updated = 0
         for old_path, new_path in pairs:
             if options["dry_run"]:

@@ -1,4 +1,4 @@
-import type { CaseStudyDetail, CaseStudyListItem, DeliveryCity, PaginatedResponse } from "@/lib/types";
+import type { CaseStudyDetail, CaseStudyListItem, CityCategoryLanding, DeliveryCity, PaginatedResponse } from "@/lib/types";
 
 import { fetchApi } from "./client";
 
@@ -37,6 +37,20 @@ export async function getDeliveryCities(): Promise<DeliveryCity[]> {
 export async function getDeliveryCity(slug: string): Promise<DeliveryCity | null> {
   try {
     return await fetchApi<DeliveryCity>(`/delivery/${slug}/`, { revalidate: 3600 });
+  } catch {
+    return null;
+  }
+}
+
+export async function getCityCategoryLanding(
+  citySlug: string,
+  categorySlug: string,
+): Promise<CityCategoryLanding | null> {
+  try {
+    return await fetchApi<CityCategoryLanding>(
+      `/delivery/${citySlug}/${categorySlug}/`,
+      { revalidate: 3600 },
+    );
   } catch {
     return null;
   }

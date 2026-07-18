@@ -13,7 +13,7 @@ export function CategoryGrid({ categories, className }: CategoryGridProps) {
   return (
     <div className={cn("grid gap-5 sm:grid-cols-2 lg:grid-cols-3", className)}>
       {categories.map((category) => (
-        <CategoryCard key={category.id} category={category} />
+        <CategoryCard key={category.id} category={category} categories={categories} />
       ))}
     </div>
   );

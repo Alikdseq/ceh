@@ -170,6 +170,16 @@ export interface DeliveryCity {
   meta_description?: string;
 }
 
+export interface CityCategoryLanding {
+  city_slug: string;
+  category_slug: string;
+  category_name: string;
+  intro_html?: string;
+  is_indexable?: boolean;
+  meta_title?: string;
+  meta_description?: string;
+}
+
 export interface FAQItem {
   id: number;
   category: string;

@@ -42,6 +42,8 @@ class RedirectResolveView(APIView):
         redirect = Redirect.objects.filter(old_path=path, is_active=True).first()
         if not redirect:
             redirect = Redirect.objects.filter(old_path=path.rstrip("/"), is_active=True).first()
+        if not redirect and not path.endswith("/"):
+            redirect = Redirect.objects.filter(old_path=f"{path}/", is_active=True).first()
         if redirect:
             return Response({"new_path": redirect.new_path, "status": 301})
         return Response({"new_path": None})

@@ -6,9 +6,9 @@ import re
 
 from django.db.models import Q, QuerySet
 
-from apps.products.models import ProductGroup
+from apps.products.models import Category, ProductGroup
 from apps.products.services.catalog_parser import build_group_slug
-from apps.products.utils import get_public_category_ids, product_catalog_path
+from apps.products.utils import category_path_slugs, get_public_category_ids, is_category_public, product_catalog_path
 
 CATALOG_SEGMENT_RE = re.compile(
     r"^kontaktor-(?P<ptype>kt|ktp|kte)-(?P<series>\d{4})(?:-(?P<current>\d+)a)?(?:-(?P<exec>b|bs|s))?$",
@@ -181,3 +181,39 @@ def collect_catalog_redirects() -> list[tuple[str, str]]:
                 pairs.append((old, canonical))
 
     return pairs
+
+
+def collect_category_redirects() -> list[tuple[str, str]]:
+    """Short or partial category paths → full MPTT catalog path."""
+    pairs: list[tuple[str, str]] = []
+    seen: set[str] = set()
+
+    for cat in Category.objects.filter(is_active=True):
+        if not is_category_public(cat):
+            continue
+        ancestors = category_path_slugs(cat)
+        canonical = f"/catalog/{'/'.join(ancestors)}/"
+        candidates = [
+            f"/catalog/{cat.slug}/",
+        ]
+        if len(ancestors) >= 2:
+            candidates.append(f"/catalog/{ancestors[0]}/{ancestors[-1]}/")
+            candidates.append(f"/catalog/{'/'.join(ancestors[-2:])}/")
+
+        for old in candidates:
+            if old == canonical or old in seen:
+                continue
+            seen.add(old)
+            pairs.append((old, canonical))
+
+    return pairs
+
+
+def collect_all_catalog_redirects() -> list[tuple[str, str]]:
+    """Product slug aliases + category path fixes."""
+    merged: dict[str, str] = {}
+    for old, new in collect_catalog_redirects():
+        merged[old.rstrip("/")] = new.rstrip("/") + "/"
+    for old, new in collect_category_redirects():
+        merged[old.rstrip("/")] = new.rstrip("/") + "/"
+    return sorted(merged.items(), key=lambda item: item[0])

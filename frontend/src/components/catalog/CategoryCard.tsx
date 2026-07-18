@@ -7,20 +7,28 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Category } from "@/lib/types";
 import { getCategoryMeta } from "@/lib/catalog-meta";
+import { getCategoryPathSlugs } from "@/lib/categories";
 import { cn, publicAssetSrc } from "@/lib/utils";
 
 interface CategoryCardProps {
   category: Category;
+  /** Full category tree for building MPTT paths (nested categories). */
+  categories?: Category[];
 }
 
-export function CategoryCard({ category }: CategoryCardProps) {
+export function CategoryCard({ category, categories }: CategoryCardProps) {
   const meta = getCategoryMeta(category.slug);
   const Icon = meta.icon as LucideIcon;
   const rotateCategoryImage =
     category.slug === "kontaktory-kt" || category.slug === "kontaktory-ktp";
+  const pathSlugs =
+    categories?.length
+      ? getCategoryPathSlugs(categories, category.slug)
+      : [category.slug];
+  const href = `/catalog/${pathSlugs.join("/")}`;
 
   return (
-    <Link href={`/catalog/${category.slug}`}>
+    <Link href={href}>
       <Card className="group h-full overflow-hidden transition hover:border-primary hover:shadow-md">
         <CardContent className="flex h-full flex-col p-7 md:p-8">
           <div

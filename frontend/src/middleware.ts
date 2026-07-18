@@ -13,9 +13,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  const lookupPath = pathname.endsWith("/") ? pathname : `${pathname}/`;
+
   try {
     const res = await fetch(
-      `${API_BASE}/redirects/resolve/?path=${encodeURIComponent(pathname)}`,
+      `${API_BASE}/redirects/resolve/?path=${encodeURIComponent(lookupPath)}`,
       { next: { revalidate: 300 } },
     );
     if (res.ok) {

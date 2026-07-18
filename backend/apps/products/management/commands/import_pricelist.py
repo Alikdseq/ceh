@@ -158,6 +158,10 @@ class Command(BaseCommand):
         else:
             name = parsed["name"]
             slug = slugify(name, allow_unicode=False)[:255]
+            if not slug:
+                slug = slugify(name, allow_unicode=True)[:255]
+            if not slug:
+                slug = slugify(parsed["sku_code"], allow_unicode=True)[:255]
 
         existing = ProductGroup.objects.filter(slug=slug).first()
         if existing:
