@@ -1,0 +1,67 @@
+# Legacy URL map for the old ekontaktor.ru CMS (2003–2025).
+
+exact_paths:
+  /company: /about/
+  /company/: /about/
+  /company/about: /about/
+  /company/about/: /about/
+  /company/news: /news/
+  /company/news/: /news/
+  /company/contact: /contacts/
+  /company/contact/: /contacts/
+  /company/dilers: /partners/
+  /company/dilers/: /partners/
+  /company/dealers: /dealers/
+  /company/dealers/: /dealers/
+  /company/partners: /partners/
+  /company/partners/: /partners/
+  /company/shareholders: /shareholders/
+  /company/shareholders/: /shareholders/
+  /company/gallery: /about/
+  /company/gallery/: /about/
+  /company/photo: /about/
+  /company/photo/: /about/
+  /company/photos: /about/
+  /company/photos/: /about/
+  /company/production: /about/production/
+  /company/production/: /about/production/
+  /company/certificates: /about/
+  /company/certificates/: /about/
+  /company/support: /support/
+  /company/support/: /support/
+  /company/privacy: /privacy/
+  /company/privacy/: /privacy/
+  /company/map: /contacts/
+  /company/map/: /contacts/
+  /company/sitemap: /sitemap.xml
+  /company/sitemap/: /sitemap.xml
+  /news: /news/
+  /partners: /partners/
+  /dealers: /dealers/
+  /contacts: /contacts/
+  /about: /about/
+  /catalog: /catalog/
+  /pricelist: /pricelist/
+  /support: /support/
+  /privacy: /privacy/
+  /terms: /terms/
+
+prefix_paths:
+  /company/news: /news/
+  /files/: /catalog/
+  /files/cat/: /catalog/
+  /files/doc/: /catalog/
+  /files/docs/: /catalog/
+
+catalog_sections:
+  contactor: /catalog/kontaktory-kt/
+  switch: /catalog/vyklyuchateli/
+  packet: /catalog/paketnye-pereklyuchateli/
+  cam: /catalog/kulachkovye-elementy/
+  starter: /catalog/
+  kte: /catalog/kontaktory-kte/
+  accessory: /catalog/aksessuary-kontaktorov/
+
+catalog_ids:
+  "19": /catalog/kontaktory-kt/kt-6000b/
+  "50": /catalog/vyklyuchateli/vyklyuchateli-putevye/vpk-3110/

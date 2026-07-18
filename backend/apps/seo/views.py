@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Redirect
+from .services.legacy_paths import resolve_legacy_path
 from .services.sitemap import build_robots_txt, build_sitemap_xml, write_sitemap_file
 
 
@@ -37,8 +38,14 @@ class RedirectResolveView(APIView):
 
     def get(self, request):
         path = request.query_params.get("path", "").strip()
+        query = request.query_params.get("query", "").strip()
         if not path.startswith("/"):
             path = f"/{path}"
+
+        legacy_target = resolve_legacy_path(path, query)
+        if legacy_target:
+            return Response({"new_path": legacy_target, "status": 301})
+
         redirect = Redirect.objects.filter(old_path=path, is_active=True).first()
         if not redirect:
             redirect = Redirect.objects.filter(old_path=path.rstrip("/"), is_active=True).first()

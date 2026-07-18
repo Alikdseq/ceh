@@ -248,6 +248,7 @@ docker compose exec backend python manage.py rebuild_search_index
 
 # Редиректы со старого сайта + короткие URL каталога
 docker compose exec backend python manage.py import_redirects /data/redirects.csv
+docker compose exec backend python manage.py sync_legacy_site_redirects
 docker compose exec backend python manage.py sync_product_catalog_redirects
 docker compose exec backend python manage.py audit_site_urls --fail-on-error
 ```

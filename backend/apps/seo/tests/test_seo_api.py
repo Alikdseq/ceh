@@ -113,6 +113,26 @@ def test_redirect_resolve_missing(api_client):
 
 
 @pytest.mark.django_db
+def test_redirect_resolve_legacy_company_news(api_client):
+    response = api_client.get(
+        "/api/v1/redirects/resolve/",
+        {"path": "/company/news/", "query": "id=98"},
+    )
+    assert response.status_code == 200
+    assert response.data["new_path"] == "/news/"
+
+
+@pytest.mark.django_db
+def test_redirect_resolve_legacy_files_doc(api_client):
+    response = api_client.get(
+        "/api/v1/redirects/resolve/",
+        {"path": "/files/cat/_________________-4.doc"},
+    )
+    assert response.status_code == 200
+    assert response.data["new_path"] == "/catalog/"
+
+
+@pytest.mark.django_db
 def test_import_redirects_command(tmp_path, db):
     csv_file = tmp_path / "redirects.csv"
     csv_file.write_text("old_path,new_path\n/test-old/,/catalog/\n", encoding="utf-8")
