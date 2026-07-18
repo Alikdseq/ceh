@@ -2,18 +2,42 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const API_BASE = (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/v1").replace(/\/$/, "");
 
-/** Old CMS paths and dotted legacy file URLs must still hit redirect resolver. */
-function shouldResolveRedirect(pathname: string): boolean {
-  if (pathname.startsWith("/company/") || pathname.startsWith("/files/")) {
+const OLD_CATALOG_SECTIONS = new Set([
+  "contactor",
+  "switch",
+  "packet",
+  "cam",
+  "starter",
+  "kte",
+  "accessory",
+]);
+
+function normalizePath(path: string): string {
+  if (path !== "/" && !path.endsWith("/")) {
+    return `${path}/`;
+  }
+  return path;
+}
+
+/** Only legacy CMS URL shapes hit redirect resolver (avoids loops on /news/, /partners/, etc.). */
+function shouldResolveRedirect(pathname: string, query: string): boolean {
+  if (pathname.startsWith("/company/") || pathname === "/company") {
     return true;
   }
-  if (pathname.startsWith("/catalog/") && !pathname.includes(".")) {
+  if (pathname.startsWith("/files/") || pathname === "/files") {
     return true;
   }
-  if (pathname.includes(".")) {
-    return false;
+  const catalogMatch = pathname.match(/^\/catalog\/([^/]+)\/?$/i);
+  if (catalogMatch) {
+    const section = catalogMatch[1].toLowerCase();
+    if (OLD_CATALOG_SECTIONS.has(section)) {
+      return true;
+    }
+    if (query.includes("id=")) {
+      return true;
+    }
   }
-  return true;
+  return false;
 }
 
 export async function middleware(request: NextRequest) {
@@ -23,14 +47,17 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/photos/") ||
-    pathname.startsWith("/tovar/") ||
-    !shouldResolveRedirect(pathname)
+    pathname.startsWith("/tovar/")
   ) {
     return NextResponse.next();
   }
 
-  const lookupPath = pathname.endsWith("/") ? pathname : `${pathname}/`;
   const query = search.startsWith("?") ? search.slice(1) : search;
+  if (!shouldResolveRedirect(pathname, query)) {
+    return NextResponse.next();
+  }
+
+  const lookupPath = normalizePath(pathname);
 
   try {
     const params = new URLSearchParams({ path: lookupPath });
@@ -42,7 +69,7 @@ export async function middleware(request: NextRequest) {
     });
     if (res.ok) {
       const data = (await res.json()) as { new_path?: string | null };
-      if (data.new_path) {
+      if (data.new_path && !pathsEquivalent(pathname, data.new_path)) {
         return NextResponse.redirect(new URL(data.new_path, request.url), 301);
       }
     }
@@ -51,6 +78,10 @@ export async function middleware(request: NextRequest) {
   }
 
   return NextResponse.next();
+}
+
+function pathsEquivalent(source: string, target: string): boolean {
+  return normalizePath(source).replace(/\/+$/, "") === normalizePath(target).replace(/\/+$/, "");
 }
 
 export const config = {

@@ -3,8 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Redirect
-from .services.legacy_paths import resolve_legacy_path
+from .services.redirect_resolve import resolve_redirect
 from .services.sitemap import build_robots_txt, build_sitemap_xml, write_sitemap_file
 
 
@@ -42,15 +41,7 @@ class RedirectResolveView(APIView):
         if not path.startswith("/"):
             path = f"/{path}"
 
-        legacy_target = resolve_legacy_path(path, query)
-        if legacy_target:
-            return Response({"new_path": legacy_target, "status": 301})
-
-        redirect = Redirect.objects.filter(old_path=path, is_active=True).first()
-        if not redirect:
-            redirect = Redirect.objects.filter(old_path=path.rstrip("/"), is_active=True).first()
-        if not redirect and not path.endswith("/"):
-            redirect = Redirect.objects.filter(old_path=f"{path}/", is_active=True).first()
-        if redirect:
-            return Response({"new_path": redirect.new_path, "status": 301})
+        target = resolve_redirect(path, query)
+        if target:
+            return Response({"new_path": target, "status": 301})
         return Response({"new_path": None})

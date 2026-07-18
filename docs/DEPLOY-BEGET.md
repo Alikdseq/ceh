@@ -248,8 +248,11 @@ docker compose exec backend python manage.py rebuild_search_index
 
 # Редиректы со старого сайта + короткие URL каталога
 docker compose exec backend python manage.py import_redirects /data/redirects.csv
+docker compose exec backend python manage.py purge_redirect_loops
 docker compose exec backend python manage.py sync_legacy_site_redirects
 docker compose exec backend python manage.py sync_product_catalog_redirects
+docker compose exec backend python manage.py audit_redirect_loops --fail-on-error
+docker compose exec backend python manage.py audit_internal_links --fail-on-error
 docker compose exec backend python manage.py audit_site_urls --fail-on-error
 ```
 
@@ -263,12 +266,35 @@ docker compose exec backend python manage.py audit_site_urls --fail-on-error
 |---|---|
 | Главная | https://www.ekontaktor.ru/ |
 | Каталог | https://www.ekontaktor.ru/catalog/ |
-| Прайс | https://www.ekontaktor.ru/pricelist |
+| Новости | https://www.ekontaktor.ru/news/ |
+| Партнёры | https://www.ekontaktor.ru/partners/ |
+| Прайс | https://www.ekontaktor.ru/pricelist/ |
 | API | https://www.ekontaktor.ru/api/v1/categories/ |
 | Админка | https://www.ekontaktor.ru/manage/ |
 | Sitemap | https://www.ekontaktor.ru/sitemap.xml |
 | Редirect www | https://ekontaktor.ru/ → www |
 | SSL | https://www.ssllabs.com/ssltest/ |
+
+**Legacy URL (должны отдавать 301, не loop):**
+
+```bash
+curl -sI "https://www.ekontaktor.ru/company/news/?id=98" | grep -i location
+curl -sI "https://www.ekontaktor.ru/company/dilers/" | grep -i location
+curl -sI "https://www.ekontaktor.ru/files/cat/test.doc" | grep -i location
+curl -sI "https://www.ekontaktor.ru/catalog/contactor/?id=19" | grep -i location
+```
+
+Ожидаемые `Location`: `/news/`, `/partners/`, `/catalog/`, `/catalog/kontaktory-kt/kt-6000b/`.
+
+**Аудит на сервере:**
+
+```bash
+docker compose exec backend python manage.py purge_redirect_loops
+docker compose exec backend python manage.py audit_redirect_loops --fail-on-error
+docker compose exec backend python manage.py audit_site_urls --fail-on-error
+```
+
+Подробнее: `docs/URL-LINKS-TZ.md`.
 
 Статус контейнеров:
 

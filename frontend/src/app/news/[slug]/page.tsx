@@ -49,7 +49,7 @@ export default async function NewsArticlePage({ params }: NewsArticleProps) {
           className="prose prose-slate mt-8 max-w-none"
           dangerouslySetInnerHTML={{ __html: post.body }}
         />
-        <Link href="/news" className="mt-10 inline-block text-primary hover:underline">
+        <Link href="/news/" className="mt-10 inline-block text-primary hover:underline">
           ← Все новости
         </Link>
       </div>

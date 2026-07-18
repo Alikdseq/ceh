@@ -41,7 +41,7 @@ export function HeroSection() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button asChild size="lg" variant="accent">
-                <Link href="/catalog">Подобрать контактор</Link>
+                <Link href="/catalog/">Подобрать контактор</Link>
               </Button>
               <Button
                 asChild
@@ -49,7 +49,7 @@ export function HeroSection() {
                 variant="outline"
                 className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white"
               >
-                <Link href="/about">О заводе</Link>
+                <Link href="/about/">О заводе</Link>
               </Button>
             </div>
           </div>
@@ -152,7 +152,7 @@ export function PartnersSection() {
             </p>
           </div>
           <Button asChild variant="outline" className="hidden sm:inline-flex">
-            <Link href="/partners">Все партнёры</Link>
+            <Link href="/partners/">Все партнёры</Link>
           </Button>
         </div>
         <div className="mt-8">

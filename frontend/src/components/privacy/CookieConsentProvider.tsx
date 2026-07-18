@@ -107,11 +107,11 @@ export function CookieConsentProvider({
               <p className="mt-1 text-muted-foreground">
                 Мы используем cookie для работы сайта, а также для аналитики и улучшения сервиса. Вы можете принять все cookie
                 или настроить выбор. Подробнее — в{" "}
-                <Link href="/cookies" className="text-primary underline underline-offset-2">
+                <Link href="/cookies/" className="text-primary underline underline-offset-2">
                   Политике cookie
                 </Link>{" "}
                 и{" "}
-                <Link href="/privacy" className="text-primary underline underline-offset-2">
+                <Link href="/privacy/" className="text-primary underline underline-offset-2">
                   Политике обработки персональных данных
                 </Link>
                 .

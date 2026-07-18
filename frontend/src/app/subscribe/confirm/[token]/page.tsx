@@ -25,7 +25,7 @@ export default function ConfirmSubscribePage() {
         <>
           <h1 className="font-display text-2xl font-bold">Подписка подтверждена</h1>
           <p className="mt-3 text-muted-foreground">Спасибо! Вы будете получать новости завода.</p>
-          <Link href="/news" className="mt-6 inline-block text-primary hover:underline">
+          <Link href="/news/" className="mt-6 inline-block text-primary hover:underline">
             Перейти к новостям
           </Link>
         </>

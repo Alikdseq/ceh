@@ -104,7 +104,7 @@ export function SubscribeForm({ variant = "inline", className }: SubscribeFormPr
         />
         <span className="leading-snug">
           Даю согласие на получение новостей и{" "}
-          <Link href="/privacy" className={cn("underline underline-offset-2", variant === "footer" ? "text-white" : "text-primary")}>
+          <Link href="/privacy/" className={cn("underline underline-offset-2", variant === "footer" ? "text-white" : "text-primary")}>
             обработку персональных данных
           </Link>
           .

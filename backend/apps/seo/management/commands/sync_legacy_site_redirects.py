@@ -3,7 +3,7 @@
 from django.core.management.base import BaseCommand
 
 from apps.seo.models import Redirect
-from apps.seo.services.legacy_paths import collect_legacy_redirect_pairs
+from apps.seo.services.legacy_paths import collect_legacy_redirect_pairs, paths_equivalent
 
 
 class Command(BaseCommand):
@@ -16,6 +16,8 @@ class Command(BaseCommand):
         pairs = collect_legacy_redirect_pairs()
         created = updated = 0
         for old_path, new_path in pairs:
+            if paths_equivalent(old_path, new_path):
+                continue
             if options["dry_run"]:
                 self.stdout.write(f"  {old_path} → {new_path}")
                 continue

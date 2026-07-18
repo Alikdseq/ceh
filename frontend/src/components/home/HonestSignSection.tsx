@@ -60,7 +60,7 @@ export function HonestSignSection({ className }: { className?: string }) {
 
           <div className="mt-6 flex flex-wrap gap-3">
             <Button asChild variant="default">
-              <Link href="/catalog">Каталог с маркировкой</Link>
+              <Link href="/catalog/">Каталог с маркировкой</Link>
             </Button>
             <Button asChild variant="outline">
               <Link href="https://честныйзнак.рф/" target="_blank" rel="noopener noreferrer">

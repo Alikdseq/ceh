@@ -53,6 +53,11 @@ def normalize_legacy_path(path: str) -> str:
     return path
 
 
+def paths_equivalent(source: str, target: str) -> bool:
+    """True when redirect would point to the same URL (prevents loops)."""
+    return normalize_legacy_path(source).rstrip("/") == normalize_legacy_path(target).rstrip("/")
+
+
 def resolve_legacy_path(path: str, query: str = "") -> str | None:
     """
     Map old CMS paths to new site URLs.
@@ -67,16 +72,21 @@ def resolve_legacy_path(path: str, query: str = "") -> str | None:
     config = _load_legacy_config()
     exact: dict[str, str] = config["exact_paths"]
 
+    def _return(target: str | None) -> str | None:
+        if target and paths_equivalent(path, target):
+            return None
+        return target
+
     if normalized in exact:
-        return exact[normalized]
+        return _return(exact[normalized])
     no_slash = normalized.rstrip("/")
     if no_slash in exact:
-        return exact[no_slash]
+        return _return(exact[no_slash])
 
     for prefix, target in sorted(config["prefix_paths"].items(), key=lambda item: -len(item[0])):
         prefix_norm = normalize_legacy_path(prefix)
         if normalized.startswith(prefix_norm) or no_slash.startswith(prefix.rstrip("/")):
-            return target
+            return _return(target)
 
     match = _LEGACY_PATH_RE.match(normalized) or _LEGACY_PATH_RE.match(f"{no_slash}/")
     if match:
@@ -84,11 +94,11 @@ def resolve_legacy_path(path: str, query: str = "") -> str | None:
         params = parse_qs(query or "")
         legacy_id = (params.get("id") or [None])[0]
         if legacy_id and legacy_id in config["catalog_ids"]:
-            return config["catalog_ids"][legacy_id]
+            return _return(config["catalog_ids"][legacy_id])
         section_target = config["catalog_sections"].get(section)
         if section_target:
-            return section_target
-        return "/catalog/"
+            return _return(section_target)
+        return _return("/catalog/")
 
     return None
 
@@ -101,23 +111,26 @@ def collect_legacy_redirect_pairs() -> list[tuple[str, str]]:
 
     for old, new in config["exact_paths"].items():
         old_norm = normalize_legacy_path(old).rstrip("/")
-        if old_norm in seen:
+        new_norm = normalize_legacy_path(new)
+        if old_norm in seen or paths_equivalent(old_norm, new_norm):
             continue
         seen.add(old_norm)
-        pairs.append((old_norm, normalize_legacy_path(new)))
+        pairs.append((old_norm, new_norm))
 
     for prefix, new in config["prefix_paths"].items():
         old_norm = normalize_legacy_path(prefix).rstrip("/")
-        if old_norm in seen:
+        new_norm = normalize_legacy_path(new)
+        if old_norm in seen or paths_equivalent(old_norm, new_norm):
             continue
         seen.add(old_norm)
-        pairs.append((old_norm, normalize_legacy_path(new)))
+        pairs.append((old_norm, new_norm))
 
     for section, new in config["catalog_sections"].items():
         old_norm = f"/catalog/{section}"
-        if old_norm in seen:
+        new_norm = normalize_legacy_path(new)
+        if old_norm in seen or paths_equivalent(old_norm, new_norm):
             continue
         seen.add(old_norm)
-        pairs.append((old_norm, normalize_legacy_path(new)))
+        pairs.append((old_norm, new_norm))
 
     return sorted(pairs, key=lambda item: item[0])

@@ -54,7 +54,7 @@ export function MobileNav({ phone, telHref }: MobileNavProps) {
             </Link>
           ))}
           <Link
-            href="/compare"
+            href="/compare/"
             className="flex items-center gap-2 rounded-md px-3 py-2.5 text-base font-medium hover:bg-muted"
           >
             <GitCompare className="h-4 w-4" />
@@ -64,7 +64,7 @@ export function MobileNav({ phone, telHref }: MobileNavProps) {
             <HeaderLeadActions mobile />
           </div>
           <Link
-            href="/cart"
+            href="/cart/"
             className="mt-2 flex items-center gap-2 rounded-md bg-primary px-3 py-2.5 text-sm font-medium text-primary-foreground"
           >
             <ShoppingCart className="h-4 w-4" />

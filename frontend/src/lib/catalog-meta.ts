@@ -63,34 +63,34 @@ export function getCategoryMeta(slug: string): CategoryMeta {
 }
 
 export const NAV_LINKS = [
-  { href: "/catalog", label: "Каталог" },
-  { href: "/pricelist", label: "Прайс-лист" },
-  { href: "/about", label: "О заводе" },
-  { href: "/partners", label: "Партнёры" },
-  { href: "/shareholders", label: "Акционерам" },
-  { href: "/news", label: "Новости" },
-  { href: "/contacts", label: "Контакты" },
+  { href: "/catalog/", label: "Каталог" },
+  { href: "/pricelist/", label: "Прайс-лист" },
+  { href: "/about/", label: "О заводе" },
+  { href: "/partners/", label: "Партнёры" },
+  { href: "/shareholders/", label: "Акционерам" },
+  { href: "/news/", label: "Новости" },
+  { href: "/contacts/", label: "Контакты" },
 ] as const;
 
 export const SERIES_BLOCKS = [
   {
     title: "КТ 6000",
     description: "80–630 А, исполнения Б и БС",
-    href: "/catalog/kontaktory-kt/kt-6000b",
+    href: "/catalog/kontaktory-kt/kt-6000b/",
   },
   {
     title: "КТ 6600",
     description: "100–1000 А, исполнение С",
-    href: "/catalog/kontaktory-kt/kt-6600s",
+    href: "/catalog/kontaktory-kt/kt-6600s/",
   },
   {
     title: "КТП",
     description: "Контакторы постоянного тока",
-    href: "/catalog/kontaktory-ktp",
+    href: "/catalog/kontaktory-ktp/",
   },
   {
     title: "КТЭ",
     description: "Электротранспорт",
-    href: "/catalog/kontaktory-kte",
+    href: "/catalog/kontaktory-kte/",
   },
 ] as const;

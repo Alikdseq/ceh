@@ -145,7 +145,7 @@ export function ContactLeadDialog({ trigger, mobile }: LeadDialogOptions) {
               />
               <Label htmlFor="contact-privacy" className="text-sm leading-snug font-normal">
                 Даю согласие на{" "}
-                <Link href="/privacy" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                <Link href="/privacy/" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
                   обработку персональных данных
                 </Link>{" "}
                 *

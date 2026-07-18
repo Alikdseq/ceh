@@ -54,17 +54,17 @@ export function Footer({ companyName, address, email, phone, requisites, popular
           <p className="font-semibold">Разделы</p>
           <ul className="mt-3 space-y-2 text-white/70">
             <li>
-              <Link href="/catalog" className="hover:text-white">
+              <Link href="/catalog/" className="hover:text-white">
                 Каталог продукции
               </Link>
             </li>
             <li>
-              <Link href="/about" className="hover:text-white">
+              <Link href="/about/" className="hover:text-white">
                 О заводе
               </Link>
             </li>
             <li>
-              <Link href="/news" className="hover:text-white">
+              <Link href="/news/" className="hover:text-white">
                 Новости
               </Link>
             </li>
@@ -79,17 +79,17 @@ export function Footer({ companyName, address, email, phone, requisites, popular
               </Link>
             </li>
             <li>
-              <Link href="/privacy" className="hover:text-white">
+              <Link href="/privacy/" className="hover:text-white">
                 Политика конфиденциальности
               </Link>
             </li>
             <li>
-              <Link href="/terms" className="hover:text-white">
+              <Link href="/terms/" className="hover:text-white">
                 Пользовательское соглашение
               </Link>
             </li>
             <li>
-              <Link href="/cookies" className="hover:text-white">
+              <Link href="/cookies/" className="hover:text-white">
                 Политика cookie
               </Link>
             </li>

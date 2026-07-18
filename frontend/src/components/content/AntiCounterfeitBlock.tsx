@@ -42,7 +42,7 @@ export function AntiCounterfeitBlock({ className, compact }: AntiCounterfeitBloc
             </p>
             {!compact && (
               <Button asChild variant="outline" size="sm" className="mt-3">
-                <Link href="/contacts">Связаться с производителем</Link>
+                <Link href="/contacts/">Связаться с производителем</Link>
               </Button>
             )}
           </div>

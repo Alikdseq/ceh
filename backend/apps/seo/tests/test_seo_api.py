@@ -133,6 +133,22 @@ def test_redirect_resolve_legacy_files_doc(api_client):
 
 
 @pytest.mark.django_db
+def test_redirect_resolve_no_self_loop(api_client):
+    Redirect.objects.create(old_path="/news/", new_path="/news/", is_active=True)
+    response = api_client.get("/api/v1/redirects/resolve/", {"path": "/news/"})
+    assert response.status_code == 200
+    assert response.data["new_path"] is None
+
+
+@pytest.mark.django_db
+def test_redirect_resolve_canonical_pages_no_redirect(api_client):
+    for path in ("/news/", "/partners/", "/catalog/", "/about/"):
+        response = api_client.get("/api/v1/redirects/resolve/", {"path": path})
+        assert response.status_code == 200
+        assert response.data["new_path"] is None, path
+
+
+@pytest.mark.django_db
 def test_import_redirects_command(tmp_path, db):
     csv_file = tmp_path / "redirects.csv"
     csv_file.write_text("old_path,new_path\n/test-old/,/catalog/\n", encoding="utf-8")

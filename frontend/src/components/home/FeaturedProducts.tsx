@@ -23,7 +23,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
             <p className="mt-2 text-muted-foreground">Популярные позиции с завода-производителя</p>
           </div>
           <Button asChild variant="outline" className="hidden sm:inline-flex">
-            <Link href="/catalog">
+            <Link href="/catalog/">
               Весь каталог
               <ArrowRight className="h-4 w-4" />
             </Link>

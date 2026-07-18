@@ -228,7 +228,7 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
       <div className="flex flex-wrap gap-2">
         <CompareButton variantId={selected?.id} />
         <Button asChild variant="outline" size="sm">
-          <Link href="/compare">К сравнению</Link>
+          <Link href="/compare/">К сравнению</Link>
         </Button>
         {passport?.document.file_url && (
           <Button asChild variant="outline" size="sm">

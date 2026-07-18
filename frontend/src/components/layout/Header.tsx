@@ -42,7 +42,7 @@ export async function Header() {
               size="sm"
               className="h-9 shrink-0 px-2 text-white hover:bg-white/10 hover:text-white lg:px-3"
             >
-              <Link href="/compare" title="Сравнение" className="inline-flex items-center gap-1.5">
+              <Link href="/compare/" title="Сравнение" className="inline-flex items-center gap-1.5">
                 <GitCompare className="h-4 w-4 shrink-0" />
                 <span className="hidden lg:inline">Сравнение</span>
                 <CompareBadge />
@@ -55,7 +55,7 @@ export async function Header() {
               size="sm"
               className="h-9 shrink-0 px-2 text-white hover:bg-white/10 hover:text-white lg:px-3"
             >
-              <Link href="/cart" title="Корзина-заявка" className="inline-flex items-center gap-1.5">
+              <Link href="/cart/" title="Корзина-заявка" className="inline-flex items-center gap-1.5">
                 <ShoppingCart className="h-4 w-4 shrink-0" />
                 <span className="hidden lg:inline">Заявка</span>
                 <CartBadge />

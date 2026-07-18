@@ -21,7 +21,7 @@ export function NewsSection({ posts }: NewsSectionProps) {
             Новости завода
           </h2>
           <Button asChild variant="ghost">
-            <Link href="/news">
+            <Link href="/news/">
               Все новости
               <ArrowRight className="h-4 w-4" />
             </Link>

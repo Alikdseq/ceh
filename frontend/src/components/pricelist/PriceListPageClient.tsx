@@ -105,7 +105,7 @@ export function PriceListPageShell({ children }: { children: React.ReactNode }) 
         <div className="mt-10">{children}</div>
         <p className="mt-8 text-sm text-muted-foreground">
           Для уточнения условий поставки и скидок обращайтесь в{" "}
-          <Link href="/contacts" className="text-primary hover:underline">
+          <Link href="/contacts/" className="text-primary hover:underline">
             отдел сбыта
           </Link>
           .

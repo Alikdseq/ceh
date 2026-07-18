@@ -1,11 +1,16 @@
 import pytest
 
-from apps.seo.services.legacy_paths import normalize_legacy_path, resolve_legacy_path
+from apps.seo.services.legacy_paths import normalize_legacy_path, paths_equivalent, resolve_legacy_path
 
 
 def test_normalize_legacy_path_adds_trailing_slash():
     assert normalize_legacy_path("/news") == "/news/"
     assert normalize_legacy_path("/company/news?id=98") == "/company/news/"
+
+
+def test_paths_equivalent():
+    assert paths_equivalent("/news", "/news/")
+    assert not paths_equivalent("/news/", "/partners/")
 
 
 def test_company_news_with_id_redirects_to_news():
@@ -35,6 +40,7 @@ def test_catalog_switch_id_50():
     )
 
 
-def test_short_paths_without_trailing_slash():
-    assert resolve_legacy_path("/news") == "/news/"
-    assert resolve_legacy_path("/partners") == "/partners/"
+def test_canonical_paths_do_not_self_redirect():
+    assert resolve_legacy_path("/news/") is None
+    assert resolve_legacy_path("/partners/") is None
+    assert resolve_legacy_path("/catalog/") is None

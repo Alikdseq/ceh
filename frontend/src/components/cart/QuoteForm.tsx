@@ -161,7 +161,7 @@ export function QuoteForm({ disabled }: QuoteFormProps) {
         />
         <Label htmlFor="privacy" className="text-sm leading-snug font-normal">
           Даю согласие на{" "}
-          <Link href="/privacy" className="text-primary hover:underline">
+          <Link href="/privacy/" className="text-primary hover:underline">
             обработку персональных данных
           </Link>{" "}
           *
