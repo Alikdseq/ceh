@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CONTACTOR_DIMENSIONS_PDF } from "@/lib/product-dimensions";
+import { CONTACTOR_DIMENSIONS_IMAGE } from "@/lib/product-dimensions";
 
 interface DimensionsPdfDialogProps {
   label?: string;
@@ -26,15 +27,20 @@ export function DimensionsPdfDialog({ label = "Смотреть" }: DimensionsPd
           {label}
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[95vh] w-[min(96vw,900px)] max-w-[900px] gap-0 overflow-hidden p-0 sm:rounded-lg">
+      <DialogContent className="max-h-[95vh] w-[min(96vw,920px)] max-w-[920px] gap-0 overflow-hidden p-0 sm:rounded-lg">
         <DialogHeader className="border-b px-4 py-3 pr-12">
           <DialogTitle className="text-base">Габаритные и установочные размеры</DialogTitle>
         </DialogHeader>
-        <iframe
-          title="Габаритные размеры контакторов КТ 6013–6053"
-          src={CONTACTOR_DIMENSIONS_PDF}
-          className="h-[min(80vh,720px)] w-full border-0 bg-muted"
-        />
+        <div className="max-h-[min(85vh,800px)] overflow-auto bg-white p-2">
+          <Image
+            src={CONTACTOR_DIMENSIONS_IMAGE}
+            alt="Габаритные размеры контакторов КТ и КТП"
+            width={900}
+            height={1200}
+            className="h-auto w-full"
+            unoptimized
+          />
+        </div>
       </DialogContent>
     </Dialog>
   );

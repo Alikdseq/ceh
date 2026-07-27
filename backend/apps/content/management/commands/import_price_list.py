@@ -7,6 +7,7 @@ from django.db import transaction
 
 from apps.core.paths import resolve_data_file
 from apps.content.models import PriceListItem, PriceListSection
+from apps.content.services.pricelist import merge_duplicate_pricelist_sections
 
 
 class Command(BaseCommand):
@@ -39,16 +40,29 @@ class Command(BaseCommand):
         sections_cache: dict[str, PriceListSection] = {}
         created_items = updated_items = 0
 
+        merged = merge_duplicate_pricelist_sections()
+        if merged:
+            self.stdout.write(f"Merged {merged} duplicate pricelist section(s)")
+
         with path.open(encoding="utf-8") as handle:
             reader = csv.DictReader(handle)
             for index, row in enumerate(reader):
                 section_name = (row.get("category") or "Прочее").strip()
                 section = sections_cache.get(section_name)
                 if not section:
-                    section, _ = PriceListSection.objects.update_or_create(
-                        name=section_name,
-                        defaults={"sort_order": len(sections_cache), "is_active": True},
+                    existing = (
+                        PriceListSection.objects.filter(name=section_name, is_active=True)
+                        .order_by("sort_order", "pk")
+                        .first()
                     )
+                    if existing:
+                        section = existing
+                    else:
+                        section = PriceListSection.objects.create(
+                            name=section_name,
+                            sort_order=len(sections_cache),
+                            is_active=True,
+                        )
                     sections_cache[section_name] = section
 
                 price_raw = (row.get("price_rub") or "0").replace(" ", "").replace(",", ".")
@@ -76,6 +90,10 @@ class Command(BaseCommand):
         deactivated = 0
         if options["replace"]:
             deactivated = PriceListItem.objects.exclude(pk__in=seen_ids).update(is_active=False)
+
+        merged_after = merge_duplicate_pricelist_sections()
+        if merged_after:
+            self.stdout.write(f"Merged {merged_after} duplicate pricelist section(s) after import")
 
         self.stdout.write(
             self.style.SUCCESS(

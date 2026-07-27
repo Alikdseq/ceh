@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Q
 
 from apps.content.models import PriceListSection
+from apps.content.services.pricelist import merge_duplicate_pricelist_sections
 from apps.products.models import Category
 from apps.products.utils import invalidate_catalog_cache
 
@@ -33,6 +34,10 @@ class Command(BaseCommand):
                 section.name = "Комплектующие"
                 section.save(update_fields=["name"])
                 self.stdout.write(f"Price list section: {old_name} → Комплектующие")
+
+        merged = merge_duplicate_pricelist_sections()
+        if merged:
+            self.stdout.write(f"Merged {merged} duplicate «Комплектующие» section(s)")
 
         invalidate_catalog_cache()
         self.stdout.write(self.style.SUCCESS("Accessories renamed to Комплектующие"))

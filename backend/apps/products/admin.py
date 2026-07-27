@@ -92,7 +92,7 @@ class ProductSpecInline(TabularInline):
         formset = super().get_formset(request, obj, **kwargs)
         formset.form.base_fields["spec_key"].help_text = (
             "Номинальный ток — в блоке «Параметры для фильтров». "
-            "Габариты: на сайте есть кнопка «Смотреть» к чертежу серии 6013–6053."
+            "Габариты: на сайте есть кнопка «Смотреть» к схеме gabariti.png."
         )
         return formset
 
@@ -288,15 +288,15 @@ class ProductGroupAdmin(ModelAdmin):
         if not obj.pk:
             return "—"
         spec = obj.specs.filter(spec_key="overall_dimensions").first()
-        pdf_url = "/docs/gabarity-kontaktory-6013-6053.pdf"
+        pdf_url = "/docs/gabariti.png"
         if not spec:
             return format_html(
                 '<span class="opacity-70">—</span> · '
-                '<a href="{}" target="_blank" rel="noopener">Чертёж серии (PDF)</a>',
+                '<a href="{}" target="_blank" rel="noopener">Схема габаритов (PNG)</a>',
                 pdf_url,
             )
         return format_html(
-            '{} · <a href="{}" target="_blank" rel="noopener">Смотреть чертёж (PDF)</a>',
+            '{} · <a href="{}" target="_blank" rel="noopener">Смотреть схему (PNG)</a>',
             spec.spec_value,
             pdf_url,
         )

@@ -1,5 +1,5 @@
-/** PDF with overall dimensions for KT contactors (series 6013–6053). */
-export const CONTACTOR_DIMENSIONS_PDF = "/docs/gabarity-kontaktory-6013-6053.pdf";
+/** Drawing with overall dimensions for KT/KTP contactors. */
+export const CONTACTOR_DIMENSIONS_IMAGE = "/docs/gabariti.png";
 
 export function isDimensionsSpecKey(key: string): boolean {
   const normalized = key.toLowerCase();
