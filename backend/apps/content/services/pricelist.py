@@ -28,7 +28,7 @@ def get_price_list_sections():
 def merge_duplicate_pricelist_sections() -> int:
     """Merge sections with the same name (e.g. after Аксессуары → Комплектующие rename)."""
     merged = 0
-    sections = list(PriceListSection.objects.filter(is_active=True).order_by("sort_order", "pk"))
+    sections = list(PriceListSection.objects.all().order_by("sort_order", "pk"))
     by_name: dict[str, list[PriceListSection]] = {}
     for section in sections:
         by_name.setdefault(section.name.strip(), []).append(section)
