@@ -205,6 +205,16 @@ class Command(BaseCommand):
             )
         )
 
+        if not dry_run:
+            from apps.products.services.pricing import sync_all_variant_prices
+
+            stats = sync_all_variant_prices()
+            if stats["within_group"] or stats["by_sku_prefix"]:
+                self.stdout.write(
+                    f"  Variant prices synced: {stats['within_group']} within group, "
+                    f"{stats['by_sku_prefix']} by SKU prefix"
+                )
+
     def _parse_int_spec(self, value: str | None) -> int | None:
         if not value:
             return None

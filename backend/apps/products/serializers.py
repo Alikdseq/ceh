@@ -176,7 +176,11 @@ class ProductGroupListSerializer(serializers.ModelSerializer):
         return {"url": "/placeholder-product.svg", "alt": obj.name, "is_placeholder": True}
 
     def get_default_variant(self, obj):
-        variant = obj.variants.filter(is_active=True, is_default=True).first()
+        variant = obj.variants.filter(is_active=True, is_default=True, price__gt=0).first()
+        if not variant:
+            variant = obj.variants.filter(is_active=True, is_default=True).first()
+        if not variant:
+            variant = obj.variants.filter(is_active=True, price__gt=0).order_by("price").first()
         if not variant:
             variant = obj.variants.filter(is_active=True).order_by("price").first()
         if variant:
@@ -188,7 +192,7 @@ class ProductGroupListSerializer(serializers.ModelSerializer):
         picked: list[ProductVariant] = []
         seen: set[tuple] = set()
         for variant in obj.variants.filter(is_active=True).order_by(
-            "coil_voltage_v", "aux_contacts", "price",
+            "coil_voltage_v", "aux_contacts", "-price",
         ):
             key = (variant.coil_voltage_v, variant.aux_contacts or "")
             if key in seen:

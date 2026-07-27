@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.cache import cache
-from django.db.models import Min, Prefetch, Q
+from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics, status
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -29,6 +29,7 @@ from .services.catalog_filter import (
     params_to_dict,
 )
 from .services.catalog_path_resolve import find_group_by_catalog_segment
+from .services.pricing import annotate_min_price
 from .services.search import search_products, search_products_queryset, resolve_search_to_product
 from .utils import CATEGORIES_CACHE_KEY, PUBLIC_HIDDEN_SPEC_KEYS, category_path_slugs, get_public_category_ids, product_catalog_path
 
@@ -36,14 +37,13 @@ CATEGORIES_CACHE_TTL = getattr(settings, "CACHE_TTL_CATEGORIES", 3600)
 
 
 def get_product_queryset():
-    return (
+    return annotate_min_price(
         ProductGroup.objects.filter(is_active=True, category_id__in=get_public_category_ids())
         .select_related("category")
         .prefetch_related(
             Prefetch("variants", queryset=ProductVariant.objects.filter(is_active=True)),
             "images",
         )
-        .annotate(min_price=Min("variants__price", filter=Q(variants__is_active=True)))
     )
 
 
@@ -92,7 +92,7 @@ class ProductGroupDetailView(generics.RetrieveAPIView):
     lookup_field = "slug"
 
     def get_queryset(self):
-        return (
+        return annotate_min_price(
             ProductGroup.objects.filter(is_active=True, category_id__in=get_public_category_ids())
             .select_related("category")
             .prefetch_related(
@@ -102,7 +102,6 @@ class ProductGroupDetailView(generics.RetrieveAPIView):
                 "related_groups",
                 "faqs",
             )
-            .annotate(min_price=Min("variants__price", filter=Q(variants__is_active=True)))
         )
 
     def get_object(self):
@@ -232,9 +231,7 @@ class SearchView(APIView):
         if not q:
             return Response({"detail": "Parameter q is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        qs = search_products_queryset(q).annotate(
-            min_price=Min("variants__price", filter=Q(variants__is_active=True)),
-        )
+        qs = annotate_min_price(search_products_queryset(q))
         filterset = ProductGroupFilter(request.GET, queryset=qs)
         qs = filterset.qs
 
@@ -322,13 +319,12 @@ class CatalogFilterView(APIView):
         start = (params.page - 1) * params.page_size
         page_qs = filtered[start : start + params.page_size]
 
-        page_qs = (
+        page_qs = annotate_min_price(
             page_qs.select_related("category")
             .prefetch_related(
                 Prefetch("variants", queryset=ProductVariant.objects.filter(is_active=True)),
                 "images",
             )
-            .annotate(min_price=Min("variants__price", filter=Q(variants__is_active=True)))
         )
 
         products = ProductGroupListSerializer(

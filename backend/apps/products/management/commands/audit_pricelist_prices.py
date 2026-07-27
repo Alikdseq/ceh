@@ -11,6 +11,7 @@ from django.core.management.base import BaseCommand, CommandError
 from apps.core.paths import resolve_data_file
 from apps.products.models import ProductGroup, ProductVariant
 from apps.products.services.catalog_parser import normalize_pricelist_name
+from apps.products.services.pricing import sync_all_variant_prices
 
 
 class Command(BaseCommand):
@@ -36,8 +37,15 @@ class Command(BaseCommand):
             call_command("update_catalog_product_names")
             call_command("import_price_list", str(path), replace=True)
             call_command("rename_accessories_category")
+            stats = sync_all_variant_prices()
             self._clear_kte_honest_sign()
-            self.stdout.write(self.style.SUCCESS("Pricelist re-imported and names synced"))
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Pricelist re-imported and names synced "
+                    f"(price sync: {stats['within_group']} within group, "
+                    f"{stats['by_sku_prefix']} by prefix)"
+                )
+            )
             return
 
         issues: list[str] = []
@@ -73,8 +81,27 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.SUCCESS("All pricelist rows match catalog prices"))
 
-        if options["fail_on_error"] and issues:
-            raise CommandError(f"{len(issues)} price mismatch(es)")
+        unpriced_groups = (
+            ProductGroup.objects.filter(is_active=True)
+            .exclude(variants__is_active=True, variants__price__gt=0)
+            .order_by("name")
+        )
+        if unpriced_groups.exists():
+            self.stdout.write(
+                self.style.WARNING(
+                    f"{unpriced_groups.count()} active product group(s) without any priced variant:"
+                )
+            )
+            for group in unpriced_groups[:20]:
+                self.stdout.write(f"  - {group.name} ({group.slug})")
+            if unpriced_groups.count() > 20:
+                self.stdout.write(f"  … and {unpriced_groups.count() - 20} more")
+
+        if options["fail_on_error"] and (issues or unpriced_groups.exists()):
+            raise CommandError(
+                f"{len(issues)} price mismatch(es), "
+                f"{unpriced_groups.count()} group(s) without price"
+            )
 
     def _clear_kte_honest_sign(self) -> None:
         updated = ProductGroup.objects.filter(product_type="KTE", honest_sign=True).update(

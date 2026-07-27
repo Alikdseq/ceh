@@ -47,7 +47,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/api") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/photos/") ||
-    pathname.startsWith("/tovar/")
+    pathname.startsWith("/tovar/") ||
+    pathname.startsWith("/docs/")
   ) {
     return NextResponse.next();
   }
@@ -86,6 +87,6 @@ function pathsEquivalent(source: string, target: string): boolean {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|_next/webpack-hmr|favicon.ico|manifest.webmanifest|placeholder-product.svg|.*\\.(?:svg|png|jpg|jpeg|webp|ico|woff2?|css|js)$).*)",
+    "/((?!_next/static|_next/image|_next/webpack-hmr|favicon.ico|manifest.webmanifest|placeholder-product.svg|.*\\.(?:svg|png|jpg|jpeg|webp|ico|woff2?|css|js|pdf|html)$).*)",
   ],
 };

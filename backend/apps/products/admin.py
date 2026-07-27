@@ -288,7 +288,7 @@ class ProductGroupAdmin(ModelAdmin):
         if not obj.pk:
             return "—"
         spec = obj.specs.filter(spec_key="overall_dimensions").first()
-        pdf_url = "/docs/gabariti.png"
+        pdf_url = "/photos/gabariti-kontaktory.png"
         if not spec:
             return format_html(
                 '<span class="opacity-70">—</span> · '

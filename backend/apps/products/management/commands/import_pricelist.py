@@ -19,6 +19,7 @@ from apps.products.services.catalog_parser import (
     pricelist_category_slug,
     sku_to_slug,
 )
+from apps.products.services.pricing import apply_group_price, sync_all_variant_prices
 
 
 class Command(BaseCommand):
@@ -77,42 +78,23 @@ class Command(BaseCommand):
                 else:
                     updated_prices += 1
 
+                apply_group_price(group, price, today)
+
+        stats = sync_all_variant_prices()
         zero_price = ProductVariant.objects.filter(price=0, is_active=True).count()
         total = ProductVariant.objects.filter(is_active=True).count()
         self.stdout.write(self.style.SUCCESS(
             f"Pricelist: +{created_groups} groups, +{created_variants} variants, "
             f"{updated_prices} prices updated, {total} total variants, {zero_price} without price"
         ))
-
-        # Copy price within group for sibling executions (Б/БС from same pricelist row)
-        propagated = 0
-        for group in ProductGroup.objects.filter(variants__price=0).distinct():
-            ref = group.variants.filter(price__gt=0).order_by("is_default").first()
-            if ref:
-                propagated += group.variants.filter(price=0).update(
-                    price=ref.price, price_valid_from=ref.price_valid_from,
-                )
-        if propagated:
-            self.stdout.write(f"  Propagated price to {propagated} sibling variants")
-
-        coil_propagated = self._propagate_prices_to_coil_variants()
-        if coil_propagated:
-            self.stdout.write(f"  Propagated price to {coil_propagated} coil variants")
+        if stats["within_group"] or stats["by_sku_prefix"]:
+            self.stdout.write(
+                f"  Price sync: {stats['within_group']} within group, "
+                f"{stats['by_sku_prefix']} by SKU prefix"
+            )
 
         call_command("import_price_list", str(path))
         self.stdout.write(self.style.SUCCESS("  Public /pricelist table synced"))
-
-    def _propagate_prices_to_coil_variants(self) -> int:
-        """Apply base SKU price to variants like КТ6012Б-У3-36V."""
-        updated = 0
-        for variant in ProductVariant.objects.filter(is_active=True, price__gt=0).iterator():
-            count = ProductVariant.objects.filter(
-                is_active=True,
-                sku_code__startswith=f"{variant.sku_code}-",
-                price=0,
-            ).update(price=variant.price, price_valid_from=variant.price_valid_from)
-            updated += count
-        return updated
 
     def _coil_type(self, product_type: str) -> str:
         if product_type == "KTP":

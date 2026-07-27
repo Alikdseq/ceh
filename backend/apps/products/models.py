@@ -99,7 +99,12 @@ class ProductGroup(models.Model):
 
     @property
     def price_from(self):
-        return self.variants.filter(is_active=True).order_by("price").values_list("price", flat=True).first()
+        return (
+            self.variants.filter(is_active=True, price__gt=0)
+            .order_by("price")
+            .values_list("price", flat=True)
+            .first()
+        )
 
 
 class ProductFAQ(models.Model):
