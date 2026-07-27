@@ -6,7 +6,8 @@ from rest_framework.test import APIClient
 from apps.content.models import NewsPost, Page
 from apps.products.models import Category, ProductGroup, ProductVariant
 from apps.seo.models import Redirect
-from apps.seo.services.sitemap import build_robots_txt, build_sitemap_xml, collect_urls
+from apps.seo.services.robots_txt import build_robots_txt
+from apps.seo.services.sitemap import build_sitemap_xml, collect_urls
 
 
 @pytest.fixture
@@ -80,6 +81,10 @@ def test_robots_txt_disallows_manage():
     text = build_robots_txt()
     assert "Disallow: /manage/" in text
     assert "Disallow: /api/" in text
+    assert "Disallow: /search" in text
+    assert "Disallow: /*?variant=" in text
+    assert "Host: " in text
+    assert "Clean-param:" in text
     assert "Sitemap:" in text
 
 

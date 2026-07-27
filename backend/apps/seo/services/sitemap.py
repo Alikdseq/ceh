@@ -156,23 +156,6 @@ def build_sitemap_xml() -> bytes:
     return tostring(urlset, encoding="utf-8", xml_declaration=True)
 
 
-def build_robots_txt() -> str:
-    base = _base_url()
-    return (
-        "User-agent: *\n"
-        "Allow: /\n"
-        "Disallow: /manage/\n"
-        "Disallow: /api/\n"
-        "Disallow: /cart\n"
-        "Disallow: /compare\n"
-        "Disallow: /order/\n"
-        "Disallow: /search\n"
-        "Disallow: /subscribe/confirm/\n"
-        "Disallow: /unsubscribe/\n"
-        f"Sitemap: {base}/sitemap.xml\n"
-    )
-
-
 def write_sitemap_file() -> str:
     path = settings.MEDIA_ROOT / "sitemap.xml"
     path.parent.mkdir(parents=True, exist_ok=True)

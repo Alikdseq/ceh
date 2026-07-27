@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .services.redirect_resolve import resolve_redirect
-from .services.sitemap import build_robots_txt, build_sitemap_xml, write_sitemap_file
+from .services.robots_txt import build_robots_txt
+from .services.sitemap import build_sitemap_xml, write_sitemap_file
 
 
 class SitemapView(APIView):
