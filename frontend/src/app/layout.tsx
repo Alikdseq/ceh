@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   description:
     "АО «Владикавказский завод «Электроконтактор» — производитель контакторов КТ, КТП, КТЭ. Прямые поставки с завода.",
   manifest: "/manifest.webmanifest",
+  verification: {
+    yandex: "f73a5526574ecb04",
+  },
   icons: {
     icon: [
       { url: "/photos/logonobag.png", type: "image/png", sizes: "512x512" },
