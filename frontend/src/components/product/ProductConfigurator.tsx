@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import { CompareButton } from "@/components/product/CompareButton";
+import { ExecutionContactsHint } from "@/components/product/ExecutionContactsHint";
 import { HonestSignMark } from "@/components/content/HonestSignMark";
 
 import { Button } from "@/components/ui/button";
@@ -110,6 +111,11 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
         {product.nominal_current_a && (
           <p className="mt-2 text-muted-foreground">Номинальный ток: {product.nominal_current_a} А</p>
         )}
+        <ExecutionContactsHint
+          productType={product.product_type}
+          executions={variants.map((v) => v.execution)}
+          className="mt-2"
+        />
       </div>
 
       {coils.length > 0 && (

@@ -42,7 +42,7 @@ class ProductGroup(models.Model):
         KT = "KT", "КТ (переменный ток)"
         KTP = "KTP", "КТП (постоянный ток)"
         KTE = "KTE", "КТЭ (электротранспорт)"
-        ACCESSORY = "ACCESSORY", "Аксессуар"
+        ACCESSORY = "ACCESSORY", "Комплектующее"
         SWITCH = "SWITCH", "Выключатель"
         CAM = "CAM", "Кулачковый элемент"
         OTHER = "OTHER", "Прочее"

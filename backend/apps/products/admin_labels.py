@@ -3,8 +3,8 @@
 from django.utils.text import slugify
 
 # slug в БД → подпись в форме
+# nominal_current — только через поле «Номинальный ток, А» у карточки, не дублировать в характеристиках
 SPEC_KEY_CHOICES: list[tuple[str, str]] = [
-    ("nominal_current", "Номинальный ток"),
     ("nominal_voltage", "Номинальное напряжение"),
     ("frequency", "Номинальная частота"),
     ("poles", "Число полюсов"),

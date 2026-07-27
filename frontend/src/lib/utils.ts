@@ -90,7 +90,7 @@ export function productTypeLabel(code: string): string {
       KT: "КТ (переменный ток)",
       KTP: "КТП (постоянный ток)",
       KTE: "КТЭ (электротранспорт)",
-      ACCESSORY: "Аксессуар",
+      ACCESSORY: "Комплектующее",
       SWITCH: "Выключатель",
       CAM: "Кулачковый элемент",
       OTHER: "Прочее",

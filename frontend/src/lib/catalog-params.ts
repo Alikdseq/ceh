@@ -234,7 +234,7 @@ export const PRODUCT_TYPE_OPTIONS = [
   { value: "KT", label: "КТ (переменный ток)" },
   { value: "KTP", label: "КТП (постоянный ток)" },
   { value: "KTE", label: "КТЭ (электротранспорт)" },
-  { value: "ACCESSORY", label: "Аксессуары" },
+  { value: "ACCESSORY", label: "Комплектующие" },
   { value: "SWITCH", label: "Выключатели" },
   { value: "CAM", label: "Кулачковые элементы" },
   { value: "OTHER", label: "Прочее" },

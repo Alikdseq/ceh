@@ -270,12 +270,8 @@ def build_group_name(
     if product_type in ("KT", "KTP") and series and execution not in (None, "", "NONE"):
         exec_char = {"B": "Б", "BS": "БС", "S": "С"}.get(execution, "")
         return f"{prefix}{series}{exec_char}"
-    if product_type == "KTE" and series:
-        if "-" in series:
-            return f"КТЭ{series}-У3"
-        if len(series) >= 4:
-            return f"КТЭ{series[:2]}-{series[2:]}-У3"
-        return f"КТЭ{series}-У3"
+    if product_type == "KTE":
+        return ""
     return ""
 
 
@@ -333,6 +329,21 @@ def build_pvp_display_name(group) -> str | None:
 
 def build_catalog_display_name(group) -> str:
     """Имя карточки — каталожное обозначение без суффикса климатического исполнения."""
+    if group.product_type == "KTE":
+        kte = format_kte_display_name(group.name or "")
+        if kte and not kte.lower().startswith("контактор"):
+            return kte
+
+    if group.product_type == "CAM":
+        variant = (
+            group.variants.filter(is_active=True)
+            .order_by("-is_default", "price", "sku_code")
+            .first()
+        )
+        cam = format_cam_display_name(group.name or "", variant.sku_code if variant else "")
+        if cam:
+            return cam
+
     pvp_name = build_pvp_display_name(group)
     if pvp_name:
         return pvp_name
@@ -430,6 +441,44 @@ def sku_to_slug(sku: str) -> str:
     return slug[:150] if slug else slugify(sku, allow_unicode=True)[:150]
 
 
+def format_kte_display_name(name: str) -> str:
+    """КТЭ 01-25 (без бвк) → КТЭ 01-25 БЕЗБВК."""
+    name = name.strip()
+    if re.match(r"^КТЭ\s+\d{2}-\d+\s+[A-ZА-Я0-9]+$", name, re.IGNORECASE):
+        parts = name.split()
+        return f"КТЭ {parts[1]} {parts[2].upper()}"
+
+    match = re.match(r"^КТЭ\s*(\d{2}-\d+)\s*\(([^)]+)\)", name, re.IGNORECASE)
+    if not match:
+        return name
+
+    series = match.group(1)
+    note = match.group(2).strip().lower()
+    if "без" in note:
+        suffix = "БЕЗБВК"
+    elif note.startswith("с "):
+        suffix = "СБВК"
+    elif note.startswith("1"):
+        suffix = "1БВК"
+    elif note.startswith("2"):
+        suffix = "2БВК"
+    else:
+        suffix = re.sub(r"\s+", "", note).upper()
+    return f"КТЭ {series} {suffix}"
+
+
+def format_cam_display_name(raw: str, sku: str = "") -> str | None:
+    """КЭ-42, ЭУ-1 — каноническое обозначение кулачковых элементов."""
+    for source in (raw, sku):
+        if not source:
+            continue
+        match = re.search(r"([Кк][Ээ]|[Ээ][Уу])-(\d+)", source)
+        if match:
+            prefix = "КЭ" if match.group(1).upper().startswith("К") else "ЭУ"
+            return f"{prefix}-{match.group(2)}"
+    return None
+
+
 def normalize_pricelist_name(name: str) -> dict:
     """Parse pricelist row name into structured data."""
     name = name.strip()
@@ -462,7 +511,7 @@ def normalize_pricelist_name(name: str) -> dict:
     elif product_type == "KTE":
         m2 = re.search(r"(\d{2}-\d+)", name)
         if m2:
-            series = m2.group(1).replace("-", "")
+            series = m2.group(1)
 
     current = None
     m = re.search(r"(\d+)\s*А", name, re.IGNORECASE)
@@ -478,7 +527,9 @@ def normalize_pricelist_name(name: str) -> dict:
         sku_code = sku_base[:50] if sku_base else slugify(name, allow_unicode=False)[:50].upper()
 
     display_name = name.strip()
-    if product_type == "SWITCH" and "ПВП" in name:
+    if product_type == "KTE":
+        display_name = format_kte_display_name(name)
+    elif product_type == "SWITCH" and "ПВП" in name:
         if re.search(r"пакетн", name, re.IGNORECASE):
             if "17-29" in name:
                 display_name = "ПВП1729"
@@ -488,6 +539,9 @@ def normalize_pricelist_name(name: str) -> dict:
             display_name = f"ПВП1729 {current}А"
         elif "17-31" in name and current:
             display_name = f"ПВП1731 {current}А"
+    elif product_type == "CAM":
+        cam = format_cam_display_name(name)
+        display_name = cam if cam else re.sub(r"\s+", "", display_name)
     elif product_type not in ("KT", "KTP", "KTE"):
         display_name = re.sub(r"\s+", "", display_name)
 

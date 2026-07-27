@@ -21,7 +21,7 @@ export default async function CatalogPage() {
         <Breadcrumbs items={[{ label: "Каталог" }]} className="mb-6" />
         <h1 className="font-display text-3xl font-bold md:text-4xl">Каталог продукции</h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">
-          Полный ассортимент завода: контакторы, выключатели, кулачковые элементы и аксессуары.
+          Полный ассортимент завода: контакторы, выключатели, кулачковые элементы и комплектующие.
           Публичные цены, прямые поставки с производства.
         </p>
 

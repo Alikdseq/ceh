@@ -37,7 +37,7 @@ export default async function HomePage() {
             Каталог продукции
           </h2>
           <p className="mt-3 max-w-2xl text-muted-foreground">
-            Контакторы, выключатели, кулачковые элементы и аксессуары — прямо с завода.
+            Контакторы, выключатели, кулачковые элементы и комплектующие — прямо с завода.
           </p>
           <CategoryGrid categories={categories} className="mt-8" />
         </div>

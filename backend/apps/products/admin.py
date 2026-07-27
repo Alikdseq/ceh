@@ -88,6 +88,14 @@ class ProductSpecInline(TabularInline):
     fields = ("spec_key", "spec_value", "spec_unit", "filterable", "sort_order")
     ordering = ("sort_order", "spec_key")
 
+    def get_formset(self, request, obj=None, **kwargs):
+        formset = super().get_formset(request, obj, **kwargs)
+        formset.form.base_fields["spec_key"].help_text = (
+            "Номинальный ток — в блоке «Параметры для фильтров». "
+            "Габариты: на сайте есть кнопка «Смотреть» к чертежу серии 6013–6053."
+        )
+        return formset
+
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
         return formfield
@@ -208,7 +216,11 @@ class ProductGroupAdmin(ModelAdmin):
                     "application_category",
                     "honest_sign",
                 ),
-                "description": "Используются в каталоге и карточке. Тип и серия помогают группировать товары.",
+                "description": (
+                    "Используются в каталоге и карточке. Тип и серия помогают группировать товары. "
+                    "Номинальный ток — только здесь (не дублируйте в характеристиках). "
+                    "«Честный знак» — только КТ/КТП, не КТЭ."
+                ),
             },
         ),
         (
@@ -276,9 +288,18 @@ class ProductGroupAdmin(ModelAdmin):
         if not obj.pk:
             return "—"
         spec = obj.specs.filter(spec_key="overall_dimensions").first()
+        pdf_url = "/docs/gabarity-kontaktory-6013-6053.pdf"
         if not spec:
-            return "—"
-        return format_html("{}", spec.spec_value)
+            return format_html(
+                '<span class="opacity-70">—</span> · '
+                '<a href="{}" target="_blank" rel="noopener">Чертёж серии (PDF)</a>',
+                pdf_url,
+            )
+        return format_html(
+            '{} · <a href="{}" target="_blank" rel="noopener">Смотреть чертёж (PDF)</a>',
+            spec.spec_value,
+            pdf_url,
+        )
 
     @display(description="Фотографии")
     def photos_preview(self, obj):
@@ -361,6 +382,9 @@ class ProductGroupAdmin(ModelAdmin):
 
     def save_formset(self, request, form, formset, change):
         super().save_formset(request, form, formset, change)
+        group = form.instance
+        if formset.model == ProductSpec and group.pk and group.nominal_current_a:
+            group.specs.filter(spec_key__in=("nominal_current", "current")).delete()
         if formset.model in (ProductSpec, ProductVariant, ProductImage):
             invalidate_catalog_cache()
 

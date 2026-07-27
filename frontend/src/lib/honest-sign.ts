@@ -3,7 +3,7 @@ export const HONEST_SIGN_LOGO_COMPACT = "/photos/01.png";
 export const HONEST_SIGN_LOGO_HORIZONTAL = "/photos/04.png";
 export const HONEST_SIGN_LOGO_PARTNER = "/photos/07.png";
 
-const MARKED_PRODUCT_TYPES = new Set(["KT", "KTP", "KTE"]);
+const MARKED_PRODUCT_TYPES = new Set(["KT", "KTP"]);
 
 /** Показывать маркировку на карточке (поле БД или тип контактора). */
 export function showHonestSignMarking(product: {

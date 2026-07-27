@@ -2,6 +2,7 @@ import csv
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
+import re
 
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
@@ -13,6 +14,7 @@ from apps.products.models import Category, ProductGroup, ProductVariant
 from apps.products.services.catalog_parser import (
     build_group_name,
     build_group_slug,
+    format_cam_display_name,
     normalize_pricelist_name,
     pricelist_category_slug,
     sku_to_slug,
@@ -126,7 +128,7 @@ class Command(BaseCommand):
         )
         ptype = parsed["product_type"]
 
-        if ptype in ("KT", "KTP", "KTE") and series:
+        if ptype in ("KT", "KTP") and series:
             execution = parsed.get("execution")
             exec_key = execution if execution and execution != "NONE" else None
             slug = build_group_slug(ptype, series, current, exec_key)
@@ -150,7 +152,7 @@ class Command(BaseCommand):
             if not category:
                 raise CommandError("No categories in DB. Run import_categories first.")
 
-        if ptype in ("KT", "KTP", "KTE") and series:
+        if ptype in ("KT", "KTP") and series:
             execution = parsed.get("execution")
             exec_key = execution if execution and execution != "NONE" else None
             name = build_group_name(ptype, series, current, exec_key)
@@ -164,7 +166,29 @@ class Command(BaseCommand):
                 slug = slugify(parsed["sku_code"], allow_unicode=True)[:255]
 
         existing = ProductGroup.objects.filter(slug=slug).first()
+        if not existing and ptype == "KTE":
+            series_m = re.search(r"(\d{2}-\d+)", name)
+            suffix = name.split()[-1].upper() if name.split() else ""
+            if series_m and suffix:
+                existing = (
+                    ProductGroup.objects.filter(product_type="KTE", name__icontains=series_m.group(1))
+                    .filter(name__icontains=suffix[:4])
+                    .first()
+                )
+        if not existing and ptype == "CAM":
+            cam_label = format_cam_display_name(name, parsed.get("sku_code", ""))
+            if cam_label:
+                existing = ProductGroup.objects.filter(
+                    product_type="CAM",
+                    name__icontains=cam_label,
+                ).first()
+
         if existing:
+            if existing.name != name:
+                existing.name = name
+                if not existing.h1 or existing.h1 == existing.name:
+                    existing.h1 = name
+                existing.save(update_fields=["name", "h1"])
             return existing, False
 
         group = ProductGroup.objects.create(

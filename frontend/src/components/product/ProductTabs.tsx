@@ -7,9 +7,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DimensionsPdfDialog } from "@/components/product/DimensionsPdfDialog";
 import type { ProductGroupDetail } from "@/lib/types";
 import { formatCoilSpecValue } from "@/lib/coil-voltages";
+import { isDimensionsSpecKey } from "@/lib/product-dimensions";
 import { specKeyLabel, isVisibleSpecKey } from "@/lib/utils";
+
+/** Nominal current is shown once from product.nominal_current_a, not from specs. */
+const NOMINAL_CURRENT_SPEC_KEYS = new Set(["nominal_current", "current"]);
 
 interface ProductTabsProps {
   product: ProductGroupDetail;
@@ -19,6 +24,10 @@ export function ProductTabs({ product }: ProductTabsProps) {
   const publicDocs = product.documents.filter((d) => d.document.is_public && d.document.file_url);
   const visibleSpecs = product.specs
     .filter((spec) => isVisibleSpecKey(spec.spec_key))
+    .filter(
+      (spec) =>
+        !NOMINAL_CURRENT_SPEC_KEYS.has(spec.spec_key) || !product.nominal_current_a,
+    )
     .sort((a, b) => a.sort_order - b.sort_order || a.spec_key.localeCompare(b.spec_key));
   const hasSpecs = visibleSpecs.length > 0 || Boolean(product.nominal_current_a);
 
@@ -47,11 +56,14 @@ export function ProductTabs({ product }: ProductTabsProps) {
                 <TableRow key={spec.spec_key}>
                   <TableCell className="font-medium">{specKeyLabel(spec.spec_key)}</TableCell>
                   <TableCell>
-                    {spec.spec_key.includes("coil_voltage")
-                      ? formatCoilSpecValue(
-                          `${spec.spec_value}${spec.spec_unit ? ` ${spec.spec_unit}` : ""}`,
-                        )
-                      : `${spec.spec_value}${spec.spec_unit ? ` ${spec.spec_unit}` : ""}`}
+                    <span className="inline-flex flex-wrap items-center gap-1">
+                      {spec.spec_key.includes("coil_voltage")
+                        ? formatCoilSpecValue(
+                            `${spec.spec_value}${spec.spec_unit ? ` ${spec.spec_unit}` : ""}`,
+                          )
+                        : `${spec.spec_value}${spec.spec_unit ? ` ${spec.spec_unit}` : ""}`}
+                      {isDimensionsSpecKey(spec.spec_key) && <DimensionsPdfDialog />}
+                    </span>
                   </TableCell>
                 </TableRow>
               ))}

@@ -89,3 +89,16 @@ categories:
       - name: "ПВП 17-31 (100А)"
         slug: pvp-17-31
         sort_order: 2
+
+  - name: "Комплектующие"
+    slug: aksessuary-kontaktorov
+    sort_order: 7
+    meta_title: "Комплектующие к контакторам | Электроконтактор"
+    meta_description: "Катушки управления, механические блокировки и другие комплектующие к контакторам КТ и КТП."
+    children:
+      - name: "Механические блокировки"
+        slug: meh-blokirovki
+        sort_order: 1
+      - name: "Катушки управления"
+        slug: katushki-upravleniya
+        sort_order: 2

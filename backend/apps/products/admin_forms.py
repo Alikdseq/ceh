@@ -13,7 +13,9 @@ class ProductGroupAdminForm(forms.ModelForm):
         widgets = {
             "short_description": UnfoldAdminTextareaWidget(attrs={"rows": 3}),
             "full_description": UnfoldAdminTextareaWidget(attrs={"rows": 8}),
-            "name": UnfoldAdminTextInputWidget(attrs={"placeholder": "Контактор КТ 6012 100А"}),
+            "name": UnfoldAdminTextInputWidget(
+                attrs={"placeholder": "КТ6043Б или КТЭ 01-25 БЕЗБВК или КЭ-42"},
+            ),
             "h1": UnfoldAdminTextInputWidget(
                 attrs={"placeholder": "Как показывать заголовок на странице товара"},
             ),
@@ -44,7 +46,9 @@ class ProductGroupAdminForm(forms.ModelForm):
             "nominal_voltage_v": "Напряжение силовой цепи, обычно 380 В.",
             "is_featured": "Показывать в блоке «Хиты продаж» на главной.",
             "is_active": "Снять галочку, чтобы скрыть товар с сайта без удаления.",
-            "honest_sign": "Отметьте, если товар участвует в маркировке «Честный знак».",
+            "honest_sign": (
+                "Только для контакторов КТ и КТП. Для КТЭ не используется — галочка снимается автоматически."
+            ),
             "meta_title": "Заголовок вкладки браузера и поисковиков (необязательно).",
             "meta_description": "Краткое описание для Google и Яндекса (необязательно).",
         }
@@ -54,11 +58,18 @@ class ProductGroupAdminForm(forms.ModelForm):
         if "slug" in self.fields and not self.instance.pk:
             self.fields["slug"].required = False
 
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("product_type") == ProductGroup.ProductType.KTE:
+            cleaned["honest_sign"] = False
+        return cleaned
+
 
 class ProductSpecAdminForm(forms.ModelForm):
     spec_key = forms.ChoiceField(
         label="Параметр",
         choices=[("", "— выберите —"), *SPEC_KEY_CHOICES],
+        help_text="Номинальный ток указывайте в блоке «Параметры для фильтров», не здесь.",
     )
 
     class Meta:
@@ -83,6 +94,16 @@ class ProductSpecAdminForm(forms.ModelForm):
             if key not in dict(choices):
                 choices.insert(0, (key, spec_label(key)))
         self.fields["spec_key"].choices = [("", "— выберите —"), *choices]
+
+    def clean(self):
+        cleaned = super().clean()
+        key = cleaned.get("spec_key")
+        if key in ("nominal_current", "current"):
+            raise forms.ValidationError(
+                "Номинальный ток задаётся полем «Номинальный ток, А» у карточки товара, "
+                "чтобы не дублировать строку на сайте."
+            )
+        return cleaned
 
 
 class ProductVariantAdminForm(forms.ModelForm):
@@ -111,6 +132,9 @@ class ProductVariantAdminForm(forms.ModelForm):
         help_texts = {
             "sku_code": "Из прайс-листа, например КТ6012Б-У3-220V",
             "aux_contacts": "2З+2Р или 3З+3Р",
+            "execution": (
+                "Б — силовые контакты из меди; БС — из серебряного сплава (повышенная стойкость к дуговой эрозии)."
+            ),
             "is_default": "Какой вариант открывается первым в карточке.",
         }
 

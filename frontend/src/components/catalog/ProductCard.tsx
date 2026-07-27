@@ -8,6 +8,7 @@ import { ShoppingCart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { HonestSignMark } from "@/components/content/HonestSignMark";
+import { ExecutionContactsHint } from "@/components/product/ExecutionContactsHint";
 import { addToCart } from "@/lib/cart";
 import { showHonestSignMarking } from "@/lib/honest-sign";
 import { highlightMatch } from "@/lib/search-highlight";
@@ -65,6 +66,11 @@ export function ProductCard({
     pickProductVariant(variants, null, coil, auxContacts) ??
     product.default_variant ??
     variants[0];
+
+  const executions = useMemo(
+    () => [...new Set(variants.map((v) => v.execution).filter(Boolean))],
+    [variants],
+  );
 
   const imageSrc = productImageSrc(product.primary_image?.url, product);
   const hasHonestSign = showHonestSignMarking(product);
@@ -193,6 +199,11 @@ export function ProductCard({
         {product.nominal_current_a && (
           <p className="mt-1 text-sm text-muted-foreground">{product.nominal_current_a} А</p>
         )}
+        <ExecutionContactsHint
+          productType={product.product_type}
+          executions={executions}
+          className="mt-2"
+        />
         <p className="mt-2 text-lg font-semibold text-foreground">
           от {formatPrice(selected?.price ?? product.price_from)}
           <span className="ml-1 text-xs font-normal text-muted-foreground">с НДС</span>
