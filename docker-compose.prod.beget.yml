@@ -16,7 +16,7 @@ services:
   backend:
     build:
       dockerfile: docker/backend/Dockerfile.prod
-    command: ["/app/scripts/docker-start-prod.sh"]
+    command: ["sh", "/app/scripts/docker-start-prod.sh"]
     environment:
       GUNICORN_WORKERS: "1"
       GUNICORN_THREADS: "4"

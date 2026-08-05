@@ -20,4 +20,4 @@ COPY frontend/public/tovar/ /app/catalog-tovar/
 
 RUN chmod +x /app/scripts/docker-start-prod.sh
 
-CMD ["/app/scripts/docker-start-prod.sh"]
+CMD ["sh", "/app/scripts/docker-start-prod.sh"]
