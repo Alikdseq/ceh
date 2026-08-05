@@ -17,19 +17,24 @@ interface ContactsInfoBlockProps {
 const DEFAULTS = {
   address: "362003, г. Владикавказ, ул. Кабардинская, 8",
   phone: FACTORY_PHONE,
+  emailCorporate: "ekontaktor@yandex.ru",
   email: "info@ekontaktor.ru",
   salesEmail: "elkonreal@yandex.ru",
+  phoneMarketing: "(8672) 53-52-15",
 };
 
 export function ContactsInfoBlock({ settings }: ContactsInfoBlockProps) {
   const address = settings?.address || DEFAULTS.address;
   const phone = settings?.phone_main || DEFAULTS.phone;
+  const emailCorporate = DEFAULTS.emailCorporate;
   const email = settings?.email_main || DEFAULTS.email;
   const salesEmail =
-    settings?.order_emails_list?.find((e) => e !== email) ??
+    settings?.order_emails_list?.find((e) => e !== email && e !== emailCorporate) ??
     settings?.order_emails_list?.[1] ??
     DEFAULTS.salesEmail;
+  const phoneMarketing = DEFAULTS.phoneMarketing;
   const telHref = phoneToTelHref(phone);
+  const marketingTelHref = phoneToTelHref(phoneMarketing);
 
   return (
     <address className="space-y-3 rounded-lg border p-4 not-italic lg:p-5">
@@ -65,6 +70,18 @@ export function ContactsInfoBlock({ settings }: ContactsInfoBlockProps) {
         <li className="flex gap-2.5">
           <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
           <span>
+            <span className="text-muted-foreground">Почта организации: </span>
+            <a
+              href={`mailto:${emailCorporate}`}
+              className="font-semibold text-primary underline-offset-2 hover:underline"
+            >
+              {emailCorporate}
+            </a>
+          </span>
+        </li>
+        <li className="flex gap-2.5">
+          <Mail className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+          <span>
             <span className="text-muted-foreground">Email: </span>
             <a
               href={`mailto:${email}`}
@@ -72,6 +89,22 @@ export function ContactsInfoBlock({ settings }: ContactsInfoBlockProps) {
             >
               {email}
             </a>
+          </span>
+        </li>
+        <li className="flex gap-2.5">
+          <Phone className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
+          <span>
+            <span className="text-muted-foreground">Отдел маркетинга: </span>
+            {marketingTelHref ? (
+              <a
+                href={marketingTelHref}
+                className="font-medium text-primary underline-offset-2 hover:underline"
+              >
+                {phoneMarketing}
+              </a>
+            ) : (
+              phoneMarketing
+            )}
           </span>
         </li>
         <li className="flex gap-2.5">
