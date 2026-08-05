@@ -70,6 +70,7 @@ export interface NewsPost {
   slug: string;
   excerpt: string;
   published_at: string;
+  image_url?: string | null;
 }
 
 export interface NewsPostDetail extends NewsPost {

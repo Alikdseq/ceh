@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { NewsPostThumbnail } from "@/components/news/NewsPostThumbnail";
 import type { NewsPost } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
 
@@ -30,7 +31,15 @@ export function NewsSection({ posts }: NewsSectionProps) {
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {posts.map((post) => (
             <Link key={post.id} href={`/news/${post.slug}`}>
-              <Card className="h-full transition hover:border-primary hover:shadow-sm">
+              <Card className="h-full overflow-hidden transition hover:border-primary hover:shadow-sm">
+                {post.image_url && (
+                  <NewsPostThumbnail
+                    src={post.image_url}
+                    alt={post.title}
+                    className="aspect-[16/10] w-full rounded-none rounded-t-lg"
+                    sizes="(max-width:768px) 100vw, 33vw"
+                  />
+                )}
                 <CardContent className="p-5">
                   <time className="text-xs text-muted-foreground" dateTime={post.published_at}>
                     {formatDate(post.published_at)}

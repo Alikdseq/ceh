@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from apps.core.media_urls import public_media_url
 from apps.core.pricing import price_without_vat_display
 
 from .models import (
@@ -40,20 +41,34 @@ class PageDetailSerializer(serializers.ModelSerializer):
 
 
 class NewsPostListSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = NewsPost
         fields = (
-            "id", "title", "slug", "excerpt", "published_at",
+            "id", "title", "slug", "excerpt", "published_at", "image_url",
         )
+
+    def get_image_url(self, obj):
+        if not obj.image:
+            return None
+        return public_media_url(obj.image.url, self.context.get("request"))
 
 
 class NewsPostDetailSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = NewsPost
         fields = (
             "title", "slug", "excerpt", "body", "meta_title",
-            "meta_description", "published_at",
+            "meta_description", "published_at", "image_url",
         )
+
+    def get_image_url(self, obj):
+        if not obj.image:
+            return None
+        return public_media_url(obj.image.url, self.context.get("request"))
 
 
 class FAQItemSerializer(serializers.ModelSerializer):

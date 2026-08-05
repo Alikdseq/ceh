@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
+import { NewsPostImageViewer } from "@/components/news/NewsPostImageViewer";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { getNewsDetail } from "@/lib/api/content";
 import { buildNewsArticleSchema } from "@/lib/schema";
@@ -45,6 +46,7 @@ export default async function NewsArticlePage({ params }: NewsArticleProps) {
           })}
         </time>
         <h1 className="mt-2 font-display text-3xl font-bold md:text-4xl">{post.title}</h1>
+        {post.image_url && <NewsPostImageViewer src={post.image_url} alt={post.title} />}
         <div
           className="prose prose-slate mt-8 max-w-none"
           dangerouslySetInnerHTML={{ __html: post.body }}

@@ -168,13 +168,24 @@ export function buildCmsPageMetadata(
 }
 
 export function buildNewsMetadata(
-  post: { meta_title?: string; meta_description?: string; title: string; excerpt?: string },
+  post: {
+    meta_title?: string;
+    meta_description?: string;
+    title: string;
+    excerpt?: string;
+    image_url?: string | null;
+  },
   slug: string,
 ): Metadata {
   const path = `/news/${slug}/`;
   const title = post.meta_title || post.title;
   const description = post.meta_description || post.excerpt || post.title;
-  return buildPageMetadata({ title, description, path });
+  const ogImage = post.image_url
+    ? post.image_url.startsWith("http")
+      ? post.image_url
+      : `${getSiteUrl()}${post.image_url.startsWith("/") ? post.image_url : `/${post.image_url}`}`
+    : undefined;
+  return buildPageMetadata({ title, description, path, ogImage });
 }
 
 export function buildSearchMetadata(query?: string): Metadata {

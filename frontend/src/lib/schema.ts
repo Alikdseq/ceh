@@ -244,6 +244,7 @@ export function buildNewsArticleSchema(post: {
   body?: string;
   published_at: string;
   slug: string;
+  image_url?: string | null;
 }) {
   const base = siteUrl();
   return {
@@ -254,6 +255,15 @@ export function buildNewsArticleSchema(post: {
     datePublished: post.published_at,
     dateModified: post.published_at,
     url: `${base}/news/${post.slug}/`,
+    ...(post.image_url
+      ? {
+          image: [
+            post.image_url.startsWith("http")
+              ? post.image_url
+              : `${base}${post.image_url.startsWith("/") ? post.image_url : `/${post.image_url}`}`,
+          ],
+        }
+      : {}),
     author: {
       "@type": "Organization",
       name: 'АО «Электроконтактор»',

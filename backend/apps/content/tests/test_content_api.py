@@ -46,6 +46,27 @@ def test_news_list(api_client):
 
 
 @pytest.mark.django_db
+def test_news_detail_includes_image_url(api_client, settings, tmp_path):
+    settings.MEDIA_ROOT = tmp_path
+    from django.core.files.uploadedfile import SimpleUploadedFile
+
+    image = SimpleUploadedFile("cover.jpg", b"fake-image", content_type="image/jpeg")
+    NewsPost.objects.create(
+        title="A",
+        slug="a",
+        excerpt="e",
+        body="body",
+        image=image,
+        is_published=True,
+        published_at=timezone.now(),
+    )
+    response = api_client.get("/api/v1/news/a/")
+    assert response.status_code == 200
+    assert response.data["image_url"]
+    assert "/media/news/" in response.data["image_url"]
+
+
+@pytest.mark.django_db
 def test_news_detail(api_client):
     NewsPost.objects.create(
         title="A", slug="a", excerpt="e", body="body",

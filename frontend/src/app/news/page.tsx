@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs";
 import { SubscribeForm } from "@/components/home/SubscribeForm";
+import { NewsPostThumbnail } from "@/components/news/NewsPostThumbnail";
 import { getNewsList } from "@/lib/api/content";
 
 export const metadata: Metadata = {
@@ -33,7 +34,16 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
             <ul className="mt-8 divide-y">
               {data.results.map((post) => (
                 <li key={post.id} className="py-6">
-                  <Link href={`/news/${post.slug}`} className="group block">
+                  <Link href={`/news/${post.slug}`} className="group flex gap-4 sm:gap-5">
+                    {post.image_url && (
+                      <NewsPostThumbnail
+                        src={post.image_url}
+                        alt={post.title}
+                        className="aspect-[4/3] h-24 w-32 shrink-0 sm:h-28 sm:w-40"
+                        sizes="160px"
+                      />
+                    )}
+                    <div className="min-w-0 flex-1">
                     <time className="text-sm text-muted-foreground">
                       {new Date(post.published_at).toLocaleDateString("ru-RU")}
                     </time>
@@ -41,6 +51,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                       {post.title}
                     </h2>
                     <p className="mt-2 text-muted-foreground">{post.excerpt}</p>
+                    </div>
                   </Link>
                 </li>
               ))}
