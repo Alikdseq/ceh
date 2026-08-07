@@ -38,7 +38,12 @@ class SecurityHeadersMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        if not getattr(settings, "DEBUG", True) and not _is_admin_request(request):
-            response["Content-Security-Policy"] = _build_csp(allow_unsafe_eval=False)
-            response["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+        if getattr(settings, "DEBUG", True):
+            return response
+        if _is_admin_request(request):
+            # Django admin / Unfold JS (inlines, filters) requires unsafe-eval.
+            response["Content-Security-Policy"] = _build_csp(allow_unsafe_eval=True)
+            return response
+        response["Content-Security-Policy"] = _build_csp(allow_unsafe_eval=False)
+        response["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
         return response

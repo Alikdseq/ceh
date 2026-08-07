@@ -97,6 +97,8 @@ class ProductSpecAdminForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
+        if cleaned.get("DELETE"):
+            return cleaned
         key = cleaned.get("spec_key")
         if key in ("nominal_current", "current"):
             raise forms.ValidationError(
@@ -119,6 +121,11 @@ class ProductVariantAdminForm(forms.ModelForm):
             "is_default",
             "is_active",
         )
+        widgets = {
+            "price": UnfoldAdminTextInputWidget(
+                attrs={"inputmode": "decimal", "autocomplete": "off"},
+            ),
+        }
         labels = {
             "sku_code": "Артикул",
             "execution": "Исполнение",
@@ -137,6 +144,16 @@ class ProductVariantAdminForm(forms.ModelForm):
             ),
             "is_default": "Какой вариант открывается первым в карточке.",
         }
+
+    def full_clean(self):
+        if hasattr(self.data, "copy"):
+            data = self.data.copy()
+            key = self.add_prefix("price")
+            raw = data.get(key)
+            if isinstance(raw, str) and raw.strip():
+                data[key] = raw.strip().replace("\u00a0", "").replace(" ", "").replace(",", ".")
+                self.data = data
+        super().full_clean()
 
     def save(self, commit=True):
         instance = super().save(commit=False)

@@ -27,7 +27,7 @@ def test_csp_header_in_production(middleware_response):
 
 
 @override_settings(DEBUG=False, ADMIN_URL="manage/")
-def test_csp_skipped_on_admin():
+def test_csp_allows_unsafe_eval_on_admin():
     factory = RequestFactory()
     request = factory.get("/manage/products/productgroup/1/change/")
 
@@ -36,7 +36,8 @@ def test_csp_skipped_on_admin():
         return HttpResponse("ok")
 
     response = SecurityHeadersMiddleware(get_response)(request)
-    assert "Content-Security-Policy" not in response
+    assert "Content-Security-Policy" in response
+    assert "unsafe-eval" in response["Content-Security-Policy"]
 
 
 @override_settings(DEBUG=True)

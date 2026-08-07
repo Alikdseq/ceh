@@ -27,7 +27,7 @@ class ProductFAQInline(TabularInline):
 class ProductImageInline(StackedInline):
     model = ProductImage
     form = ProductImageAdminForm
-    extra = 1
+    extra = 0
     verbose_name = "Фото"
     verbose_name_plural = "Фотографии товара"
     fields = ("image", "alt", "sort_order", "is_primary")
@@ -82,11 +82,15 @@ class ProductVariantInline(TabularInline):
 class ProductSpecInline(TabularInline):
     model = ProductSpec
     form = ProductSpecAdminForm
-    extra = 1
+    extra = 0
     verbose_name = "Характеристика"
     verbose_name_plural = "Технические характеристики"
     fields = ("spec_key", "spec_value", "spec_unit", "filterable", "sort_order")
     ordering = ("sort_order", "spec_key")
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.exclude(spec_key__in=("nominal_current", "current"))
 
     def get_formset(self, request, obj=None, **kwargs):
         formset = super().get_formset(request, obj, **kwargs)
@@ -175,7 +179,7 @@ class ProductGroupAdmin(ModelAdmin):
         "created_at",
     )
     list_per_page = 25
-    warn_unsaved_form = True
+    warn_unsaved_form = False
 
     fieldsets = (
         (
@@ -398,6 +402,10 @@ class ProductGroupAdmin(ModelAdmin):
             removed = prune_broken_images_for_group(group)
             if removed:
                 invalidate_catalog_cache()
+            if group.nominal_current_a:
+                deleted, _ = group.specs.filter(spec_key__in=("nominal_current", "current")).delete()
+                if deleted:
+                    invalidate_catalog_cache()
         except ProductGroup.DoesNotExist:
             pass
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
