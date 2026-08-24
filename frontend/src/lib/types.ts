@@ -10,6 +10,7 @@ export interface Category {
   canonical_override?: string;
   sort_order: number;
   product_count?: number;
+  image_url?: string | null;
   children?: Category[];
 }
 

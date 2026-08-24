@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { Category } from "@/lib/types";
 import { getCategoryMeta } from "@/lib/catalog-meta";
 import { getCategoryPathSlugs } from "@/lib/categories";
-import { cn, publicAssetSrc } from "@/lib/utils";
+import { cn, normalizeMediaUrl, publicAssetSrc } from "@/lib/utils";
 
 interface CategoryCardProps {
   category: Category;
@@ -21,6 +21,12 @@ export function CategoryCard({ category, categories }: CategoryCardProps) {
   const Icon = meta.icon as LucideIcon;
   const rotateCategoryImage =
     category.slug === "kontaktory-kt" || category.slug === "kontaktory-ktp";
+  const cardImage = category.image_url
+    ? normalizeMediaUrl(category.image_url)
+    : meta.image
+      ? publicAssetSrc(meta.image)
+      : null;
+  const cardDescription = category.description?.trim() || meta.description;
   const pathSlugs =
     categories?.length
       ? getCategoryPathSlugs(categories, category.slug)
@@ -32,11 +38,11 @@ export function CategoryCard({ category, categories }: CategoryCardProps) {
       <Card className="group h-full overflow-hidden transition hover:border-primary hover:shadow-md">
         <CardContent className="flex h-full flex-col p-7 md:p-8">
           <div
-            className={`mb-4 flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl md:h-28 md:w-28 ${meta.image ? "bg-white p-1.5" : meta.color}`}
+            className={`mb-4 flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl md:h-28 md:w-28 ${cardImage ? "bg-white p-1.5" : meta.color}`}
           >
-            {meta.image ? (
+            {cardImage ? (
               <Image
-                src={publicAssetSrc(meta.image)}
+                src={cardImage}
                 alt=""
                 width={112}
                 height={112}
@@ -51,7 +57,7 @@ export function CategoryCard({ category, categories }: CategoryCardProps) {
             {category.name}
           </h2>
           <p className="mt-2 flex-1 text-sm text-muted-foreground">
-            {category.description || meta.description}
+            {cardDescription}
           </p>
           <div className="mt-4 flex items-center justify-between">
             {category.product_count !== undefined && category.product_count > 0 && (

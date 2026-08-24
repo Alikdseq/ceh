@@ -236,3 +236,12 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"Image #{self.pk} — {self.group.name}"
+
+
+class QuickCatalogCategory(Category):
+    """Root categories shown on the homepage catalog grid — editable separately in admin."""
+
+    class Meta:
+        proxy = True
+        verbose_name = "Раздел быстрого каталога"
+        verbose_name_plural = "Быстрый каталог"

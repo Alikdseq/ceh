@@ -22,13 +22,18 @@ def _absolute_media_url(obj, request):
 class CategoryTreeSerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
     product_count = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
         fields = (
             "id", "name", "slug", "description", "meta_title", "meta_description",
             "h1", "noindex", "canonical_override", "sort_order", "children", "product_count",
+            "image_url",
         )
+
+    def get_image_url(self, obj):
+        return _absolute_media_url(obj.image, self.context.get("request"))
 
     def get_children(self, obj):
         children = obj.get_children().filter(is_active=True)

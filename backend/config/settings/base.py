@@ -292,6 +292,11 @@ UNFOLD = {
                         "link": "/manage/products/productgroup/",
                     },
                     {
+                        "title": "Быстрый каталог",
+                        "icon": "grid_view",
+                        "link": "/manage/products/quickcatalogcategory/",
+                    },
+                    {
                         "title": "Категории",
                         "icon": "category",
                         "link": "/manage/products/category/",

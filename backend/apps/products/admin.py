@@ -12,7 +12,7 @@ from unfold.decorators import display
 
 from .admin_forms import ProductGroupAdminForm, ProductSpecAdminForm, ProductVariantAdminForm
 from .admin_helpers import ProductImageAdminForm, SafeClearableFileInput, safe_file_url
-from .models import Category, ProductFAQ, ProductGroup, ProductImage, ProductSpec, ProductVariant
+from .models import Category, ProductFAQ, ProductGroup, ProductImage, ProductSpec, ProductVariant, QuickCatalogCategory
 from .product_media import prune_broken_images_for_group
 from .utils import invalidate_catalog_cache
 
@@ -28,21 +28,18 @@ class ProductImageInline(StackedInline):
     model = ProductImage
     form = ProductImageAdminForm
     extra = 0
+    min_num = 0
+    can_delete = True
     verbose_name = "Фото"
     verbose_name_plural = "Фотографии товара"
     fields = ("image", "alt", "sort_order", "is_primary")
     classes = []
     ordering = ("sort_order",)
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        from apps.products.product_media import _orphan_product_image
-
-        broken_ids = [img.pk for img in qs if _orphan_product_image(img.image)]
-        if broken_ids:
-            ProductImage.objects.filter(pk__in=broken_ids).delete()
-            return super().get_queryset(request)
-        return qs
+    def get_extra(self, request, obj=None, **kwargs):
+        if obj is None:
+            return 1
+        return 0 if obj.images.exists() else 1
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
@@ -125,7 +122,7 @@ class CategoryAdmin(DraggableMPTTAdmin, ModelAdmin):
             "Описание и картинка",
             {
                 "fields": ("description", "image"),
-                "classes": ("collapse",),
+                "description": "Картинка категории для быстрого каталога — удобнее редактировать в разделе «Быстрый каталог».",
             },
         ),
         (
@@ -141,7 +138,96 @@ class CategoryAdmin(DraggableMPTTAdmin, ModelAdmin):
     def product_count(self, obj):
         return obj.product_groups.filter(is_active=True).count()
 
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if db_field.name == "image":
+            formfield.widget = SafeClearableFileInput()
+        return formfield
+
     def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        invalidate_catalog_cache()
+
+    def delete_model(self, request, obj):
+        super().delete_model(request, obj)
+        invalidate_catalog_cache()
+
+
+@admin.register(QuickCatalogCategory)
+class QuickCatalogCategoryAdmin(ModelAdmin):
+    """Root catalog cards on the homepage — name, subtitle, and icon photo."""
+
+    list_display = ("name", "card_image_preview", "sort_order", "is_active", "product_count")
+    list_display_links = ("name",)
+    list_editable = ("sort_order", "is_active")
+    list_filter = ("is_active",)
+    search_fields = ("name", "slug", "description")
+    ordering = ("sort_order", "name")
+    readonly_fields = ("card_image_preview", "slug")
+    list_per_page = 25
+
+    fieldsets = (
+        (
+            "Карточка быстрого каталога",
+            {
+                "fields": (
+                    "card_image_preview",
+                    "name",
+                    "description",
+                    "image",
+                    "sort_order",
+                    "is_active",
+                ),
+                "description": (
+                    "Эти карточки показываются на главной странице и в начале раздела «Каталог». "
+                    "Загрузите квадратное фото (PNG/JPG) — оно заменит значок по умолчанию."
+                ),
+            },
+        ),
+        (
+            "SEO и адрес",
+            {
+                "fields": ("slug", "h1", "meta_title", "meta_description"),
+                "classes": ("collapse",),
+            },
+        ),
+    )
+
+    @display(description="Фото")
+    def card_image_preview(self, obj):
+        if not obj.pk:
+            return "—"
+        url = safe_file_url(obj.image)
+        if url:
+            return format_html(
+                '<img src="{}" alt="" style="height:96px;width:96px;object-fit:contain;'
+                'border:1px solid #dce4ec;border-radius:12px;background:#fff;padding:6px;" />',
+                url,
+            )
+        return format_html('<span class="opacity-70">Значок по умолчанию (загрузите фото ниже)</span>')
+
+    @display(description="Товаров")
+    def product_count(self, obj):
+        return obj.product_groups.filter(is_active=True).count()
+
+    def get_queryset(self, request):
+        return QuickCatalogCategory.objects.filter(parent__isnull=True)
+
+    def formfield_for_dbfield(self, db_field, request, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
+        if db_field.name == "image":
+            formfield.widget = SafeClearableFileInput()
+            formfield.label = "Фото карточки"
+            formfield.help_text = "Рекомендуется квадратное изображение на белом фоне, до 2 МБ."
+        if db_field.name == "description":
+            formfield.label = "Подзаголовок"
+            formfield.help_text = "Короткая строка под названием, например «КТ 6000, 6600, 7200»."
+        if db_field.name == "name":
+            formfield.label = "Название на карточке"
+        return formfield
+
+    def save_model(self, request, obj, form, change):
+        obj.parent = None
         super().save_model(request, obj, form, change)
         invalidate_catalog_cache()
 

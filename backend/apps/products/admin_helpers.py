@@ -1,8 +1,11 @@
 """Safe file URL for Django admin previews (missing uploads must not 500)."""
 
+from pathlib import Path
+
 from django import forms
 from django.forms.widgets import ClearableFileInput
 
+from apps.products.catalog_static_photos import catalog_tovar_file
 from apps.products.product_media import image_file_exists, safe_image_url
 
 
@@ -14,26 +17,35 @@ def safe_file_url(file_field, request=None) -> str | None:
     return safe_image_url(file_field, request)
 
 
+def _image_has_display_source(file_field) -> bool:
+    if not file_field or not getattr(file_field, "name", None):
+        return False
+    if image_file_exists(file_field):
+        return True
+    return catalog_tovar_file(Path(file_field.name).name) is not None
+
+
 class SafeClearableFileInput(ClearableFileInput):
     """File widget that does not 500 when the stored path has no file on disk."""
 
     def is_initial(self, value):
-        if not value or not getattr(value, "name", None):
-            return False
-        if not image_file_exists(value):
-            return False
-        try:
-            return bool(value.url)
-        except (ValueError, OSError):
-            return False
+        return _image_has_display_source(value)
 
     def get_context(self, name, value, attrs):
         if value and getattr(value, "name", None) and not image_file_exists(value):
-            value = None
+            if not catalog_tovar_file(Path(value.name).name):
+                value = None
         try:
-            return super().get_context(name, value, attrs)
+            context = super().get_context(name, value, attrs)
         except ValueError:
-            return super().get_context(name, None, attrs)
+            context = super().get_context(name, None, attrs)
+        if value and getattr(value, "name", None):
+            preview_url = safe_file_url(value)
+            if preview_url:
+                context["widget"]["is_initial"] = True
+                context["widget"]["value"] = value
+                context["widget"]["url"] = preview_url
+        return context
 
 
 class ProductImageAdminForm(forms.ModelForm):
@@ -46,13 +58,15 @@ class ProductImageAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.pk and self.instance.image:
-            from apps.products.product_media import image_file_exists
+        self.fields["image"].required = False
 
-            if not image_file_exists(self.instance.image):
-                from apps.products.catalog_static_photos import catalog_tovar_file
-                from pathlib import Path
-
-                if catalog_tovar_file(Path(self.instance.image.name).name):
-                    return
-                self.initial["image"] = None
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get("DELETE"):
+            return cleaned
+        image = cleaned.get("image")
+        if not self.instance.pk and not image:
+            return cleaned
+        if not image and not (self.instance.pk and self.instance.image):
+            raise forms.ValidationError("Выберите файл изображения или удалите пустую строку.")
+        return cleaned
