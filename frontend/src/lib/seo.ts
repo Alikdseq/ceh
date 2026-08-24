@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import type { Category, ContentPage } from "@/lib/types";
+import type { Category, ContentPage, ProductImage } from "@/lib/types";
 import { productImageSrc } from "@/lib/utils";
 
 const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
@@ -126,7 +126,7 @@ export function buildProductMetadata(
     nominal_current_a?: number | null;
     poles?: number | null;
     price_from?: string | null;
-    primary_image?: { url: string | null } | null;
+    primary_image?: Pick<ProductImage, "url" | "is_placeholder"> | null;
     category_path?: string[];
     category_slug?: string;
     series_code?: string;

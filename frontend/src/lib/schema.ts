@@ -1,4 +1,4 @@
-import type { FAQItem } from "@/lib/types";
+import type { FAQItem, ProductImage } from "@/lib/types";
 import { productImageSrc } from "@/lib/utils";
 
 const DEFAULT_SITE_URL = "https://ekontaktor.ru";
@@ -122,7 +122,7 @@ export function buildProductSchema(
     short_description: string;
     category_slug: string;
     category_path?: string[];
-    primary_image?: { url: string } | null;
+    primary_image?: Pick<ProductImage, "url" | "is_placeholder"> | null;
     price_from: string | null;
     series_code: string;
     product_type?: string;
