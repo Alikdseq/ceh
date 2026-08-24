@@ -7,12 +7,12 @@ export async function getProducts(
 ): Promise<PaginatedResponse<ProductGroup>> {
   return fetchApi<PaginatedResponse<ProductGroup>>("/products/", {
     params: toSearchParams(params),
-    revalidate: 60,
+    cache: "no-store",
   });
 }
 
 export async function getProduct(slug: string): Promise<ProductGroupDetail> {
-  return fetchApi<ProductGroupDetail>(`/products/${slug}/`, { revalidate: 600 });
+  return fetchApi<ProductGroupDetail>(`/products/${slug}/`, { cache: "no-store" });
 }
 
 export async function tryGetProduct(slug: string): Promise<ProductGroupDetail | null> {

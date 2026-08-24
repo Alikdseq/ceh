@@ -72,7 +72,11 @@ export function ProductCard({
     [variants],
   );
 
-  const imageSrc = productImageSrc(product.primary_image?.url, product);
+  const imageSrc = productImageSrc(
+    product.primary_image?.url,
+    product,
+    product.primary_image?.is_placeholder,
+  );
   const hasHonestSign = showHonestSignMarking(product);
   const imageContext = {
     name: product.name,

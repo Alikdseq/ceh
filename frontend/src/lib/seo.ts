@@ -148,12 +148,16 @@ export function buildProductMetadata(
     product.short_description ||
     fallbackProductDescription(product);
   const ogImage =
-    productImageSrc(product.primary_image?.url, {
-      name: product.name,
-      slug: product.slug,
-      series_code: product.series_code,
-      product_type: product.product_type,
-    }) || undefined;
+    productImageSrc(
+      product.primary_image?.url,
+      {
+        name: product.name,
+        slug: product.slug,
+        series_code: product.series_code,
+        product_type: product.product_type,
+      },
+      product.primary_image?.is_placeholder,
+    ) || undefined;
 
   return buildPageMetadata({ title, description, path, ogImage });
 }

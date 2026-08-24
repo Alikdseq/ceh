@@ -475,6 +475,11 @@ class ProductGroupAdmin(ModelAdmin):
         group = form.instance
         if formset.model == ProductSpec and group.pk and group.nominal_current_a:
             group.specs.filter(spec_key__in=("nominal_current", "current")).delete()
+        if formset.model == ProductImage and group.pk:
+            images = list(group.images.order_by("sort_order", "pk"))
+            if images and not any(img.is_primary for img in images):
+                images[0].is_primary = True
+                images[0].save(update_fields=["is_primary"])
         if formset.model in (ProductSpec, ProductVariant, ProductImage):
             invalidate_catalog_cache()
 
@@ -483,17 +488,18 @@ class ProductGroupAdmin(ModelAdmin):
         invalidate_catalog_cache()
 
     def change_view(self, request, object_id, form_url="", extra_context=None):
-        try:
-            group = ProductGroup.objects.get(pk=object_id)
-            removed = prune_broken_images_for_group(group)
-            if removed:
-                invalidate_catalog_cache()
-            if group.nominal_current_a:
-                deleted, _ = group.specs.filter(spec_key__in=("nominal_current", "current")).delete()
-                if deleted:
+        if request.method == "GET":
+            try:
+                group = ProductGroup.objects.get(pk=object_id)
+                removed = prune_broken_images_for_group(group)
+                if removed:
                     invalidate_catalog_cache()
-        except ProductGroup.DoesNotExist:
-            pass
+                if group.nominal_current_a:
+                    deleted, _ = group.specs.filter(spec_key__in=("nominal_current", "current")).delete()
+                    if deleted:
+                        invalidate_catalog_cache()
+            except ProductGroup.DoesNotExist:
+                pass
         return super().change_view(request, object_id, form_url, extra_context=extra_context)
 
     def get_queryset(self, request):

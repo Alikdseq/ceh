@@ -21,6 +21,12 @@ function galleryItemSrc(item: ProductImageDetail | { url?: string; image?: strin
 
 export function ProductGallery({ images, name, product }: ProductGalleryProps) {
   const list = useMemo(() => {
+    const sorted = [...images].sort((a, b) => Number(b.is_primary) - Number(a.is_primary));
+    const cmsImages = sorted.filter(
+      (img) => img.url && !img.url.includes("placeholder-product"),
+    );
+    if (cmsImages.length > 0) return cmsImages;
+
     const staticUrls = product ? resolveStaticProductGallery(product) : [];
     if (staticUrls.length > 0) {
       return staticUrls.map((url, index) => ({
@@ -32,7 +38,6 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
       }));
     }
 
-    const sorted = [...images].sort((a, b) => Number(b.is_primary) - Number(a.is_primary));
     if (sorted.length > 0) return sorted;
 
     return [{ id: 0, alt: name, sort_order: 0, is_primary: true, url: "/placeholder-product.svg" }];
@@ -40,7 +45,7 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
 
   const [active, setActive] = useState(0);
   const current = list[active] ?? list[0];
-  const mainSrc = productImageSrc(galleryItemSrc(current), product);
+  const mainSrc = productImageSrc(galleryItemSrc(current), product, current.url?.includes("placeholder"));
   const hasHonestSign = product ? showHonestSignMarking(product) : false;
   const rotateClass = productImageRotateClass(product, product?.image_rotation);
 
@@ -63,7 +68,11 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
       {list.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-1">
           {list.map((img, idx) => {
-            const thumbSrc = productImageSrc(galleryItemSrc(img), product);
+            const thumbSrc = productImageSrc(
+              galleryItemSrc(img),
+              product,
+              img.url?.includes("placeholder"),
+            );
             return (
               <button
                 key={img.id}

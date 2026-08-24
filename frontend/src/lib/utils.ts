@@ -57,16 +57,28 @@ export function normalizeMediaUrl(url: string): string {
   return url;
 }
 
+/** True when the API did not provide an uploaded/catalog-linked product photo. */
+export function isProductImagePlaceholder(
+  url: string | undefined | null,
+  isPlaceholder?: boolean,
+): boolean {
+  if (isPlaceholder) return true;
+  return !url || url.includes("placeholder-product");
+}
+
 export function productImageSrc(
   url: string | undefined | null,
   context?: ProductImageContext,
+  isPlaceholder?: boolean,
 ): string {
+  if (!isProductImagePlaceholder(url, isPlaceholder)) {
+    return normalizeMediaUrl(url!);
+  }
   if (context) {
     const staticUrl = resolveStaticProductImage(context);
     if (staticUrl) return staticUrl;
   }
-  if (!url || url.includes("placeholder-product")) return PLACEHOLDER_PRODUCT_SRC;
-  return normalizeMediaUrl(url);
+  return PLACEHOLDER_PRODUCT_SRC;
 }
 
 /** next/image: skip optimizer for local static assets (SVG, /tovar/, photos) */

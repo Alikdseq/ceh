@@ -172,12 +172,16 @@ export function buildProductSchema(
       alternateName: alternateName.length ? alternateName : undefined,
       description: product.short_description,
       sku: variant?.sku_code ?? product.series_code,
-      image: productImageSrc(product.primary_image?.url, {
-        name: product.name,
-        slug: product.slug,
-        series_code: product.series_code,
-        product_type: product.product_type,
-      }),
+      image: productImageSrc(
+        product.primary_image?.url,
+        {
+          name: product.name,
+          slug: product.slug,
+          series_code: product.series_code,
+          product_type: product.product_type,
+        },
+        product.primary_image?.is_placeholder,
+      ),
       brand: {
         "@type": "Brand",
         name: "Электроконтактор",
