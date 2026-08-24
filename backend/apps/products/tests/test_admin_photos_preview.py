@@ -20,7 +20,7 @@ def test_photos_preview_with_existing_file_does_not_raise():
 
     admin = ProductGroupAdmin(ProductGroup, None)
     html = str(admin.photos_preview(group))
-    assert "Всего:" in html
+    assert "В CMS:" in html
     assert "figure" in html
 
 
@@ -28,10 +28,10 @@ def test_photos_preview_with_existing_file_does_not_raise():
 def test_photos_preview_broken_files_only_shows_message():
     cat = Category.objects.create(name="КТ", slug="kt-photos-broken")
     group = ProductGroup.objects.create(
-        name="КТ6634",
-        slug="kt6634-broken",
+        name="Тест без фото XYZ",
+        slug="test-no-photo-xyz",
         category=cat,
-        product_type="KT",
+        product_type="OTHER",
     )
     ProductImage.objects.create(group=group, image="products/does_not_exist.png")
 

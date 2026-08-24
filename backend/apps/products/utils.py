@@ -62,5 +62,8 @@ def invalidate_catalog_cache() -> None:
     try:
         cache.delete(CATEGORIES_CACHE_KEY)
         cache.delete(PUBLIC_CATEGORY_IDS_CACHE_KEY)
+        if hasattr(cache, "delete_pattern"):
+            cache.delete_pattern("catalog:filter:*")
+            cache.delete_pattern("search:suggest:*")
     except Exception:
         logger.warning("Catalog cache invalidation skipped", exc_info=True)

@@ -171,14 +171,9 @@ class ProductGroupListSerializer(serializers.ModelSerializer):
         return category_path_slugs(obj.category)
 
     def get_primary_image(self, obj):
-        from apps.products.product_media import safe_image_url
+        from apps.products.group_site_image import primary_image_payload
 
-        img = obj.images.filter(is_primary=True).first() or obj.images.first()
-        if img and img.image:
-            url = safe_image_url(img.image, self.context.get("request"))
-            if url:
-                return {"url": url, "alt": img.alt or obj.name}
-        return {"url": "/placeholder-product.svg", "alt": obj.name, "is_placeholder": True}
+        return primary_image_payload(obj, self.context.get("request"))
 
     def get_default_variant(self, obj):
         variant = obj.variants.filter(is_active=True, is_default=True, price__gt=0).first()

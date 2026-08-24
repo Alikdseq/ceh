@@ -13,6 +13,7 @@ from unfold.decorators import display
 from .admin_forms import ProductGroupAdminForm, ProductSpecAdminForm, ProductVariantAdminForm
 from .admin_helpers import ProductImageAdminForm, SafeClearableFileInput, safe_file_url
 from .models import Category, ProductFAQ, ProductGroup, ProductImage, ProductSpec, ProductVariant, QuickCatalogCategory
+from .group_site_image import resolve_group_site_image
 from .product_media import prune_broken_images_for_group
 from .utils import invalidate_catalog_cache
 
@@ -349,14 +350,20 @@ class ProductGroupAdmin(ModelAdmin):
 
     @display(description="Фото")
     def thumbnail(self, obj):
-        image = obj.images.filter(is_primary=True).first() or obj.images.first()
-        url = safe_file_url(image.image) if image else None
-        if url:
-            return format_html(
-                '<img src="{}" alt="" style="height:48px;width:auto;border-radius:6px;object-fit:contain;" />',
-                url,
+        site = resolve_group_site_image(obj)
+        url = site.get("url")
+        if not url or site.get("is_placeholder") and site.get("source") == "none":
+            return "—"
+        badge = ""
+        if site.get("source") == "static":
+            badge = (
+                '<span style="display:block;font-size:10px;color:#64748b;margin-top:2px;">каталог</span>'
             )
-        return "—"
+        return format_html(
+            '<img src="{}" alt="" style="height:48px;width:auto;border-radius:6px;object-fit:contain;" />{}',
+            url,
+            mark_safe(badge),
+        )
 
     @display(description="Вариантов")
     def variants_count(self, obj):
@@ -395,9 +402,8 @@ class ProductGroupAdmin(ModelAdmin):
     def photos_preview(self, obj):
         if not obj.pk:
             return "—"
+        site = resolve_group_site_image(obj)
         images = list(obj.images.all()[:12])
-        if not images:
-            return format_html('<p class="text-sm opacity-70">Нет загруженных фото</p>')
         parts = []
         for img in images:
             url = safe_file_url(img.image)
@@ -413,14 +419,37 @@ class ProductGroupAdmin(ModelAdmin):
                 )
             )
         if not parts:
+            if images:
+                return format_html(
+                    "<p class=\"text-sm opacity-70\">{}</p>",
+                    "Нет доступных файлов фото (запись в БД есть, файлы на диске отсутствуют)",
+                )
+            if site.get("source") == "static" and site.get("url"):
+                return format_html(
+                    '<div>'
+                    '<p class="text-sm mb-2">На сайте сейчас показывается фото из каталога (не загружено в CMS):</p>'
+                    '<figure style="display:inline-block;margin:4px;text-align:center;">'
+                    '<img src="{}" alt="" style="height:96px;width:auto;object-fit:contain;border:1px solid #dce4ec;border-radius:8px;background:#fff;" />'
+                    '<figcaption style="font-size:11px;">каталог</figcaption></figure>'
+                    '<p class="text-sm opacity-70 mt-2">Чтобы заменить или удалить — загрузите новое фото в блоке «Фотографии товара» ниже '
+                    'или выполните команду <code>seed_product_images_from_catalog</code>.</p>'
+                    '</div>',
+                    site["url"],
+                )
             return format_html(
-                "<p class=\"text-sm opacity-70\">{}</p>",
-                "Нет доступных файлов фото (запись в БД есть, файлы на диске отсутствуют)",
+                '<p class="text-sm opacity-70">{}</p>',
+                "Нет фото — на сайте показывается заглушка",
             )
         gallery = mark_safe("".join(str(fragment) for fragment in parts))
+        site_note = ""
+        if site.get("source") == "cms":
+            site_note = "На сайте используется загруженное фото (★ — главное)."
+        elif site.get("source") == "static":
+            site_note = "В CMS нет активного файла — на сайте пока фото из каталога."
         return format_html(
-            '<div><p class="text-sm mb-2">Всего: {} шт.</p><div>{}</div></div>',
+            '<div><p class="text-sm mb-2">В CMS: {} шт. {}</p><div>{}</div></div>',
             obj.images.count(),
+            site_note,
             gallery,
         )
 
