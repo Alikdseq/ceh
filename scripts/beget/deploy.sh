@@ -18,8 +18,8 @@ if [ -f data/redirects.csv ]; then
   docker compose exec -T backend python manage.py import_redirects /data/redirects.csv || true
 fi
 
-echo "==> Синхронизация каталога (цены, габариты, хиты)"
-docker compose exec -T backend python manage.py sync_catalog_updates || true
+echo "==> Синхронизация каталога (габариты, хиты; цены из админки не перезаписываем)"
+docker compose exec -T backend python manage.py sync_catalog_updates --skip-prices || true
 
 echo "==> Пересборка поискового индекса"
 docker compose exec -T backend python manage.py rebuild_search_index || true

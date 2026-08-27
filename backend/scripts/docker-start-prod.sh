@@ -20,6 +20,9 @@ python manage.py sync_catalog_photos_to_media || echo "WARNING: sync_catalog_pho
 echo "==> prune_broken_product_images"
 python manage.py prune_broken_product_images || echo "WARNING: prune_broken_product_images failed"
 
+echo "==> reset_product_image_rotation"
+python manage.py reset_product_image_rotation || echo "WARNING: reset_product_image_rotation failed"
+
 echo "==> setup_groups"
 python manage.py setup_groups
 

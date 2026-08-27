@@ -16,6 +16,9 @@ SECRET_KEY = env("SECRET_KEY", default="dev-insecure-change-me")
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1", "backend"])
 
+# Large pricelist sections (100+ inline rows) exceed Django default of 1000 fields.
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+
 INSTALLED_APPS = [
     "unfold",
     "unfold.contrib.filters",

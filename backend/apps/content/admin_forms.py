@@ -51,10 +51,12 @@ class PriceListItemAdminForm(forms.ModelForm):
     def full_clean(self):
         if hasattr(self.data, "copy"):
             data = self.data.copy()
-            for field_name in ("price",):
+            for field_name in ("price", "nominal_current_a"):
                 key = self.add_prefix(field_name)
                 raw = data.get(key)
-                if isinstance(raw, str) and raw.strip():
+                if isinstance(raw, str) and not raw.strip():
+                    data[key] = ""
+                elif isinstance(raw, str) and field_name == "price" and raw.strip():
                     data[key] = raw.strip().replace("\u00a0", "").replace(" ", "").replace(",", ".")
             self.data = data
         super().full_clean()

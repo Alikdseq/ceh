@@ -92,9 +92,16 @@ class FAQItemAdmin(admin.ModelAdmin):
     list_filter = ("category", "is_published")
 
 
+class PriceListItemInlineForm(PriceListItemAdminForm):
+    """Inline row — section is set from the parent PriceListSection."""
+
+    class Meta(PriceListItemAdminForm.Meta):
+        fields = ("name", "price", "nominal_current_a", "notes", "sort_order", "is_active")
+
+
 class PriceListItemInline(TabularInline):
     model = PriceListItem
-    form = PriceListItemAdminForm
+    form = PriceListItemInlineForm
     extra = 0
     min_num = 0
     verbose_name = "Позиция"

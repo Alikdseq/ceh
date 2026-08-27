@@ -17,16 +17,20 @@ def _is_admin_request(request) -> bool:
 def _build_csp(*, allow_unsafe_eval: bool) -> str:
     script_src = ["'self'", "'unsafe-inline'"]
     if allow_unsafe_eval:
-        script_src.append("'unsafe-eval'")
+        script_src.extend(["'unsafe-eval'", "blob:"])
     script_src.extend(["https://mc.yandex.ru", "https://www.googletagmanager.com"])
+    connect_src = ["'self'", "https://mc.yandex.ru", "https://www.google-analytics.com"]
+    if allow_unsafe_eval:
+        connect_src.append("blob:")
     return (
         "default-src 'self'; "
         f"script-src {' '.join(script_src)}; "
-        "img-src 'self' data: https: http:; "
-        "connect-src 'self' https://mc.yandex.ru https://www.google-analytics.com; "
+        "img-src 'self' data: https: http: blob:; "
+        f"connect-src {' '.join(connect_src)}; "
         "frame-src https://yandex.ru https://*.yandex.ru; "
         "style-src 'self' 'unsafe-inline'; "
-        "font-src 'self' data:"
+        "font-src 'self' data:; "
+        "worker-src 'self' blob:"
     )
 
 

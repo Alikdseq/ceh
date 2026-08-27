@@ -38,6 +38,7 @@ def test_csp_allows_unsafe_eval_on_admin():
     response = SecurityHeadersMiddleware(get_response)(request)
     assert "Content-Security-Policy" in response
     assert "unsafe-eval" in response["Content-Security-Policy"]
+    assert "blob:" in response["Content-Security-Policy"]
 
 
 @override_settings(DEBUG=True)

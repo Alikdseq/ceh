@@ -14,7 +14,6 @@ import { showHonestSignMarking } from "@/lib/honest-sign";
 import { highlightMatch } from "@/lib/search-highlight";
 import type { ProductGroup } from "@/lib/types";
 import { listAuxContacts, pickProductVariant } from "@/lib/variant-picker";
-import { productImageRotateClass } from "@/lib/product-images";
 import { sortCoilVoltages } from "@/lib/coil-voltages";
 import {
   cn,
@@ -78,19 +77,6 @@ export function ProductCard({
     product.primary_image?.is_placeholder,
   );
   const hasHonestSign = showHonestSignMarking(product);
-  const imageContext = {
-    name: product.name,
-    slug: product.slug,
-    series_code: product.series_code,
-    product_type: product.product_type,
-    sku_code: selected?.sku_code ?? product.default_variant?.sku_code,
-    execution: selected?.execution ?? product.default_variant?.execution,
-    coil_voltage_v: selected?.coil_voltage_v ?? product.default_variant?.coil_voltage_v,
-  };
-  const cmsPhoto = product.primary_image?.is_placeholder === false;
-  const rotateClass = cmsPhoto
-    ? ""
-    : productImageRotateClass(imageContext, product.image_rotation);
 
   function syncSelection(nextCoil: number | null, nextAux: string | null) {
     const matched = pickProductVariant(variants, null, nextCoil, nextAux);
@@ -136,7 +122,7 @@ export function ProductCard({
         priority={priority}
         loading={priority ? "eager" : "lazy"}
         unoptimized={productImageUnoptimized(imageSrc)}
-        className={cn("object-contain p-3", rotateClass)}
+        className="object-contain p-3"
         sizes={view === "grid" ? "(max-width:640px) 100vw, 33vw" : "112px"}
       />
       <Badge variant="brand" className="absolute left-2 top-2 text-[10px]">

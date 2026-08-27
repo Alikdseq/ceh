@@ -18,7 +18,6 @@ import { dispatchCartUpdated } from "@/lib/cart";
 import { catalogProductHref } from "@/lib/catalog-url";
 import { useCart } from "@/hooks/use-cart";
 import { cn, formatPrice, productImageSrc, productImageUnoptimized } from "@/lib/utils";
-import { productImageRotateClass } from "@/lib/product-images";
 
 export function CartPageClient() {
   const { cart, loading } = useCart();
@@ -163,7 +162,6 @@ export function CartPageClient() {
                       sku_code: item.sku_code,
                     };
                     const imageSrc = productImageSrc(item.image_url, imageContext);
-                    const rotateClass = productImageRotateClass(imageContext);
                     return (
                       <tr key={item.id} className="border-b">
                         <td className="px-4 py-3">
@@ -174,7 +172,7 @@ export function CartPageClient() {
                                 alt={item.product_name}
                                 fill
                                 unoptimized={productImageUnoptimized(imageSrc)}
-                                className={cn("object-contain p-1", rotateClass)}
+                                className="object-contain p-1"
                                 sizes="64px"
                               />
                             </div>
