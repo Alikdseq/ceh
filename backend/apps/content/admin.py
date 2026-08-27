@@ -3,6 +3,7 @@ from django.utils import timezone
 from unfold.admin import ModelAdmin, TabularInline
 from unfold.decorators import display
 
+from .admin_forms import PriceListItemAdminForm
 from .models import CaseStudy, DeliveryCity, FAQItem, NewsPost, Page, PriceListItem, PriceListSection, SiteSettings
 
 
@@ -93,11 +94,16 @@ class FAQItemAdmin(admin.ModelAdmin):
 
 class PriceListItemInline(TabularInline):
     model = PriceListItem
-    extra = 1
+    form = PriceListItemAdminForm
+    extra = 0
+    min_num = 0
     verbose_name = "Позиция"
     verbose_name_plural = "Позиции в разделе"
     fields = ("name", "price", "nominal_current_a", "notes", "sort_order", "is_active")
     ordering = ("sort_order", "name")
+
+    def get_extra(self, request, obj=None, **kwargs):
+        return 1 if obj else 0
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, request, **kwargs)
@@ -125,10 +131,14 @@ class PriceListSectionAdmin(ModelAdmin):
             "Раздел прайс-листа",
             {
                 "fields": ("name", "sort_order", "is_active"),
-                "description": "Например: «Контакторы», «Комплектующие». Ниже — строки таблицы на странице «Прайс-лист».",
+                "description": (
+                    "Например: «Контакторы», «Комплектующие». Ниже — строки таблицы на странице «Прайс-лист». "
+                    "Изменения сразу видны на сайте после сохранения."
+                ),
             },
         ),
     )
+
 
     @display(description="Позиций")
     def item_count(self, obj):
@@ -137,6 +147,7 @@ class PriceListSectionAdmin(ModelAdmin):
 
 @admin.register(PriceListItem)
 class PriceListItemAdmin(ModelAdmin):
+    form = PriceListItemAdminForm
     list_display = ("name", "section", "price", "nominal_current_a", "sort_order", "is_active")
     list_filter = ("section", "is_active")
     search_fields = ("name", "notes")

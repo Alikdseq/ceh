@@ -411,14 +411,12 @@ export function shouldRotateProductImage(context?: ProductImageContext): boolean
   return ROTATED_PRODUCTS.some((rule) => identitiesMatch(rule, identity));
 }
 
-/** Degrees from admin (0/90/180/270) or legacy hardcoded list when admin value is 0. */
+/** Degrees from CMS admin only (0/90/180/270). Uploaded photos are shown as-is. */
 export function productImageRotationDegrees(
-  context?: ProductImageContext,
+  _context?: ProductImageContext,
   adminRotation?: number | null,
 ): number {
-  const normalized = ((adminRotation ?? 0) % 360 + 360) % 360;
-  if (normalized !== 0) return normalized;
-  return shouldRotateProductImage(context) ? LISTED_PRODUCT_IMAGE_ROTATION : 0;
+  return ((adminRotation ?? 0) % 360 + 360) % 360;
 }
 
 /** Tailwind class for product photo rotation (admin override + legacy defaults). */

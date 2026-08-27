@@ -47,7 +47,12 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
   const current = list[active] ?? list[0];
   const mainSrc = productImageSrc(galleryItemSrc(current), product, current.url?.includes("placeholder"));
   const hasHonestSign = product ? showHonestSignMarking(product) : false;
-  const rotateClass = productImageRotateClass(product, product?.image_rotation);
+  const cmsPhoto = images.some(
+    (img) => img.url && !img.url.includes("placeholder-product"),
+  );
+  const rotateClass = cmsPhoto
+    ? ""
+    : productImageRotateClass(product, product?.image_rotation);
 
   return (
     <div className="space-y-3">

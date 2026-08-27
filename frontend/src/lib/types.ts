@@ -18,6 +18,7 @@ export interface ProductImage {
   url: string;
   alt: string;
   is_placeholder?: boolean;
+  source?: "cms" | "static" | "none";
 }
 
 export interface ProductVariant {

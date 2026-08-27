@@ -14,6 +14,7 @@ from .admin_forms import ProductGroupAdminForm, ProductSpecAdminForm, ProductVar
 from .admin_helpers import ProductImageAdminForm, SafeClearableFileInput, safe_file_url
 from .models import Category, ProductFAQ, ProductGroup, ProductImage, ProductSpec, ProductVariant, QuickCatalogCategory
 from .group_site_image import resolve_group_site_image
+from .image_orientation import normalize_uploaded_image
 from .product_media import prune_broken_images_for_group
 from .utils import invalidate_catalog_cache
 
@@ -509,6 +510,18 @@ class ProductGroupAdmin(ModelAdmin):
             if images and not any(img.is_primary for img in images):
                 images[0].is_primary = True
                 images[0].save(update_fields=["is_primary"])
+            image_changed = False
+            for inline_form in formset.forms:
+                if not inline_form.instance.pk:
+                    continue
+                if inline_form.cleaned_data.get("DELETE"):
+                    continue
+                if "image" in inline_form.changed_data:
+                    normalize_uploaded_image(inline_form.instance.image)
+                    image_changed = True
+            if image_changed and group.image_rotation:
+                group.image_rotation = 0
+                group.save(update_fields=["image_rotation", "updated_at"])
         if formset.model in (ProductSpec, ProductVariant, ProductImage):
             invalidate_catalog_cache()
 
@@ -593,7 +606,9 @@ class ProductGroupAdmin(ModelAdmin):
             "{}"
             '<div style="display:flex;flex-direction:column;gap:8px;">'
             '<p style="margin:0;font-weight:600;">Текущий угол: {}°</p>'
-            '<p style="margin:0;font-size:12px;opacity:0.75;">Действует для фото в каталоге и в карточке на сайте (в т.ч. статические снимки).</p>'
+            '<p style="margin:0;font-size:12px;opacity:0.75;">'
+            "Дополнительный поворот только если нужно вручную. Загруженные фото показываются как есть."
+            "</p>"
             '<div style="display:flex;flex-wrap:wrap;gap:8px;">'
             '<a class="button" href="{}?dir=ccw">↺ 90° против часовой</a>'
             '<a class="button" href="{}?dir=cw">↻ 90° по часовой</a>'

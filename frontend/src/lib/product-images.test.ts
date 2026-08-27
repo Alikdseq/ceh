@@ -168,9 +168,7 @@ describe("product-images", () => {
         execution: "BS",
       }),
     ).toBe(false);
-    expect(productImageRotateClass({ name: "КТ6043Б-У3", product_type: "KT", execution: "B" }, 0)).toBe(
-      "-rotate-90",
-    );
+    expect(productImageRotateClass({ name: "КТ6043Б-У3", product_type: "KT", execution: "B" }, 0)).toBe("");
     expect(productImageRotateClass({ name: "КТ6043Б-У3", product_type: "KT", execution: "B" }, 90)).toBe(
       "rotate-90",
     );
