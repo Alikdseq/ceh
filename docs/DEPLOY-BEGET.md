@@ -390,7 +390,7 @@ ORDER_EMAILS=info@ekontaktor.ru
 |---|---|
 | Сайт не открывается | `docker compose ps`, проверьте DNS и firewall (80/443) |
 | 502 Bad Gateway | После `--build` frontend/backend перезапустите nginx: `docker compose ... restart nginx`. Логи: `logs backend frontend nginx`. В конфиге — Docker DNS (см. `nginx.prod.conf`) |
-| Нет места на диске | `docker system prune -a`, удалите старые бэкапы |
+| Нет места на диске / `no space left on device` при build | `bash scripts/beget/docker-cleanup.sh` — нужно **≥2 ГБ** свободно. Frontend собирается в standalone-режиме (меньше места). Не используйте `docker volume prune` без проверки |
 | OOM / сервер зависает | Увеличьте swap или тариф RAM до 2 ГБ |
 | SSL не работает / «сертификат истёк» | `bash scripts/beget/renew-ssl.sh` — затем проверьте, что контейнер certbot запущен (`docker compose ps certbot`) |
 | SSL обновился, сайт всё ещё с ошибкой | `docker compose … exec nginx nginx -s reload` или `bash scripts/beget/renew-ssl.sh` |

@@ -13,6 +13,7 @@ const backendPublic = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000
 );
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   skipTrailingSlashRedirect: true,
   async redirects() {
     return [
