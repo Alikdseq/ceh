@@ -1,36 +1,15 @@
 #!/bin/sh
-# Production container entrypoint — avoids heavy collectstatic on every restart.
+# Production container entrypoint — fast startup; heavy sync runs via deploy.sh / Celery.
 set -e
 
 echo "==> migrate"
 python manage.py migrate --noinput
 
-echo "==> rebuild_search_index"
-python manage.py rebuild_search_index || echo "WARNING: rebuild_search_index failed"
-
-echo "==> align_contactor_catalog_urls"
-python manage.py align_contactor_catalog_urls || echo "WARNING: align_contactor_catalog_urls failed"
-
-echo "==> sync_product_catalog_redirects"
-python manage.py sync_product_catalog_redirects || echo "WARNING: sync_product_catalog_redirects failed"
-
-echo "==> sync_catalog_photos_to_media"
-python manage.py sync_catalog_photos_to_media || echo "WARNING: sync_catalog_photos_to_media failed"
-
-echo "==> prune_broken_product_images"
-python manage.py prune_broken_product_images || echo "WARNING: prune_broken_product_images failed"
-
-echo "==> reset_product_image_rotation"
-python manage.py reset_product_image_rotation || echo "WARNING: reset_product_image_rotation failed"
-
 echo "==> setup_groups"
 python manage.py setup_groups
 
-echo "==> ensure_site_content"
-python manage.py ensure_site_content || echo "WARNING: ensure_site_content failed (continuing startup)"
-
 echo "==> ensure_admin_user (unlock)"
-python manage.py ensure_admin_user --unlock
+python manage.py ensure_admin_user --unlock || echo "WARNING: ensure_admin_user failed"
 
 STATIC_MARKER=/app/staticfiles/.collectstatic-done
 if [ ! -f "$STATIC_MARKER" ]; then
