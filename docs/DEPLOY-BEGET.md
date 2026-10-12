@@ -397,6 +397,7 @@ ORDER_EMAILS=info@ekontaktor.ru
 | Админка 403 CSRF | Проверьте `CSRF_TRUSTED_ORIGINS` в `.env` |
 | `search_vector does not exist` при migrate | Обновите код (`git pull`), пересоберите backend. На чистой БД достаточно `up -d --build`. Если данных нет: `docker compose down -v` и поднять заново |
 | Backend `restarting`, exec не работает | Смотрите логи: `docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml logs backend --tail 80`. Часто OOM на 1 ГБ RAM — добавьте swap и используйте overlay `beget`. После `git pull` пересоберите: `up -d --build backend` |
+| `docker build backend` — timeout `deb.debian.org` | С VPS Beget зеркало Debian недоступно. `git pull` (в Dockerfile — mirror.yandex.ru) и повторите build. Без rebuild: `docker cp backend/scripts/docker-start-prod.sh ekontaktor-backend-1:/app/scripts/docker-start-prod.sh && docker restart ekontaktor-backend-1` |
 
 ---
 
