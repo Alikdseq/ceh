@@ -72,7 +72,7 @@ export async function ProductDetailPage({ product }: ProductDetailPageProps) {
         <div className="container-page min-w-0">
           <Breadcrumbs items={breadcrumbs} className="mb-6" />
           <div className="grid min-w-0 gap-10 lg:grid-cols-2">
-            <div className="min-w-0">
+            <div className="relative z-0 min-w-0 max-w-full overflow-hidden">
               <ProductGallery
                 images={product.images}
                 name={product.name}
@@ -88,7 +88,7 @@ export async function ProductDetailPage({ product }: ProductDetailPageProps) {
                 }}
               />
             </div>
-            <div className="min-w-0">
+            <div className="relative z-10 min-w-0">
               <Suspense fallback={<Skeleton className="h-96 w-full" />}>
                 <ProductConfigurator product={product} basePath={basePath} />
               </Suspense>

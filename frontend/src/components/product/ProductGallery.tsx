@@ -6,7 +6,7 @@ import { useMemo, useState } from "react";
 import { resolveStaticProductGallery, type ProductImageContext } from "@/lib/product-images";
 import type { ProductImageDetail } from "@/lib/types";
 import { showHonestSignMarking } from "@/lib/honest-sign";
-import { cn, productImageSrc, productImageUnoptimized, PRODUCT_IMAGE_ASPECT_CLASS } from "@/lib/utils";
+import { cn, productImageSrc, productImageUnoptimized } from "@/lib/utils";
 import { HonestSignMark } from "@/components/content/HonestSignMark";
 
 interface ProductGalleryProps {
@@ -52,8 +52,8 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
     <div className="space-y-3">
       <div
         className={cn(
-          "relative min-h-[280px] overflow-hidden rounded-lg border bg-muted sm:min-h-[360px] lg:min-h-[420px]",
-          PRODUCT_IMAGE_ASPECT_CLASS,
+          "relative w-full max-w-full overflow-hidden rounded-lg border bg-muted",
+          "aspect-[4/3] sm:aspect-[3/2]",
         )}
       >
         <Image
