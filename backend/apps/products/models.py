@@ -131,7 +131,7 @@ class ProductVariant(models.Model):
     class Execution(models.TextChoices):
         B = "B", "Б"
         BS = "BS", "БС"
-        S = "S", "С"
+        S = "S", "Силовые контакты с напайкой на основе серебра"
         NONE = "NONE", "—"
 
     class CoilType(models.TextChoices):
@@ -204,6 +204,12 @@ class ProductSpec(models.Model):
         verbose_name="Карточка товара",
     )
     spec_key = models.SlugField("Параметр", max_length=100)
+    spec_label = models.CharField(
+        "Название на сайте",
+        max_length=255,
+        blank=True,
+        help_text="Если пусто — используется стандартное название параметра.",
+    )
     spec_value = models.CharField("Значение", max_length=255)
     spec_unit = models.CharField("Единица", max_length=20, blank=True)
     filterable = models.BooleanField("В фильтре", default=False)

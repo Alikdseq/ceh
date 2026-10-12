@@ -1,42 +1,76 @@
+import { executionLabel } from "@/lib/utils";
+
 interface ExecutionContactsHintProps {
   productType?: string;
   executions?: string[];
+  selectedExecution?: string | null;
   className?: string;
 }
 
-/** Brief note: B = copper, BS = silver alloy main contacts (KT/KTP). */
+type ExecutionHint = {
+  code: string;
+  text: string;
+};
+
+function buildExecutionHints(codes: string[]): ExecutionHint[] {
+  const hints: ExecutionHint[] = [];
+  const execSet = new Set(codes.filter(Boolean));
+
+  if (execSet.has("B")) {
+    hints.push({
+      code: "B",
+      text: "Исполнение Б — силовые контакты из меди",
+    });
+  }
+  if (execSet.has("BS")) {
+    hints.push({
+      code: "BS",
+      text: "Исполнение БС — силовые контакты из серебряного сплава (повышенная стойкость к дуговой эрозии)",
+    });
+  }
+  if (execSet.has("S")) {
+    hints.push({
+      code: "S",
+      text: `Исполнение ${executionLabel("S")} — силовые контакты из серебра`,
+    });
+  }
+  if (execSet.has("NONE")) {
+    hints.push({
+      code: "NONE",
+      text: `Исполнение ${executionLabel("NONE")} — силовые контакты из меди`,
+    });
+  }
+
+  return hints;
+}
+
+/** Material notes for contact executions (KT/KTP, VPK, ЭУ and other product types). */
 export function ExecutionContactsHint({
-  productType,
   executions = [],
+  selectedExecution = null,
   className = "",
 }: ExecutionContactsHintProps) {
-  if (productType !== "KT" && productType !== "KTP") {
+  const allHints = buildExecutionHints(executions);
+  if (!allHints.length) {
     return null;
   }
 
-  const execSet = new Set(executions.filter(Boolean));
-  const showsB = execSet.has("B");
-  const showsBs = execSet.has("BS");
-  if (!showsB && !showsBs) {
+  const visibleHints = selectedExecution
+    ? allHints.filter((hint) => hint.code === selectedExecution)
+    : allHints;
+
+  if (!visibleHints.length) {
     return null;
   }
 
   return (
     <p className={`text-xs leading-relaxed text-muted-foreground ${className}`.trim()}>
-      {showsB && (
-        <>
-          Исполнение <span className="font-medium text-foreground">Б</span> — силовые контакты из{" "}
-          <span className="font-medium text-foreground">меди</span>
-        </>
-      )}
-      {showsB && showsBs && "; "}
-      {showsBs && (
-        <>
-          исполнение <span className="font-medium text-foreground">БС</span> — силовые контакты из{" "}
-          <span className="font-medium text-foreground">серебряного сплава</span> (повышенная
-          стойкость к дуговой эрозии)
-        </>
-      )}
+      {visibleHints.map((hint, index) => (
+        <span key={hint.code}>
+          {index > 0 && "; "}
+          <span className="font-medium text-foreground">{hint.text}</span>
+        </span>
+      ))}
       .
     </p>
   );

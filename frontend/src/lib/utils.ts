@@ -92,8 +92,21 @@ export function formatAuxContactsLabel(value: string): string {
   return value.replace(/З/g, "з").replace(/Р/g, "р").replace(/\+/g, " + ");
 }
 
+const EXECUTION_LABELS: Record<string, string> = {
+  B: "Б",
+  BS: "БС",
+  S: "Силовые контакты с напайкой на основе серебра",
+  NONE: "—",
+};
+
 export function executionLabel(code: string): string {
-  return ({ B: "Б", BS: "БС", S: "С", NONE: "—" } as Record<string, string>)[code] ?? code;
+  return EXECUTION_LABELS[code] ?? code;
+}
+
+export function displaySpecLabel(spec: { spec_key: string; spec_label?: string }): string {
+  const custom = spec.spec_label?.trim();
+  if (custom) return custom;
+  return specKeyLabel(spec.spec_key);
 }
 
 export function productTypeLabel(code: string): string {

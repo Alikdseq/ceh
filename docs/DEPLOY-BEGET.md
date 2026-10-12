@@ -210,10 +210,36 @@ docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml run -
 ```bash
 git checkout nginx/nginx.prod.conf
 # или скопируйте файл nginx/nginx.prod.conf из архива заново
-docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml restart nginx certbot
+docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml up -d --build --force-recreate nginx certbot
 ```
 
-### 7.3. Создание администратора
+### 7.3. Автообновление SSL (без ручного restart nginx)
+
+Контейнер **certbot** каждые 12 часов вызывает `certbot renew`. После успешного
+продления срабатывает **deploy-hook** — `docker exec ekontaktor-nginx nginx -s reload`,
+чтобы nginx подхватил новый сертификат без простоя сайта.
+
+После `git pull` пересоберите certbot (один раз):
+
+```bash
+docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml build certbot
+docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml up -d certbot
+```
+
+**Резервный cron** (если контейнер certbot остановится):
+
+```bash
+bash scripts/beget/install-ssl-cron.sh
+```
+
+Проверка вручную:
+
+```bash
+bash scripts/beget/renew-ssl.sh
+docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml exec certbot certbot certificates
+```
+
+### 7.4. Создание администратора
 
 ```bash
 docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml exec backend \
@@ -366,7 +392,8 @@ ORDER_EMAILS=info@ekontaktor.ru
 | 502 Bad Gateway | После `--build` frontend/backend перезапустите nginx: `docker compose ... restart nginx`. Логи: `logs backend frontend nginx`. В конфиге — Docker DNS (см. `nginx.prod.conf`) |
 | Нет места на диске | `docker system prune -a`, удалите старые бэкапы |
 | OOM / сервер зависает | Увеличьте swap или тариф RAM до 2 ГБ |
-| SSL не работает | Повторите шаг 7.2, проверьте DNS |
+| SSL не работает / «сертификат истёк» | `bash scripts/beget/renew-ssl.sh` — затем проверьте, что контейнер certbot запущен (`docker compose ps certbot`) |
+| SSL обновился, сайт всё ещё с ошибкой | `docker compose … exec nginx nginx -s reload` или `bash scripts/beget/renew-ssl.sh` |
 | Админка 403 CSRF | Проверьте `CSRF_TRUSTED_ORIGINS` в `.env` |
 | `search_vector does not exist` при migrate | Обновите код (`git pull`), пересоберите backend. На чистой БД достаточно `up -d --build`. Если данных нет: `docker compose down -v` и поднять заново |
 | Backend `restarting`, exec не работает | Смотрите логи: `docker compose -f docker-compose.prod.yml -f docker-compose.prod.beget.yml logs backend --tail 80`. Часто OOM на 1 ГБ RAM — добавьте swap и используйте overlay `beget`. После `git pull` пересоберите: `up -d --build backend` |

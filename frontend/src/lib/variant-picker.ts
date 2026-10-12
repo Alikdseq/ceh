@@ -34,3 +34,14 @@ export function listAuxContacts(variants: ProductVariant[]): string[] {
     ),
   ];
 }
+
+const EXECUTION_ORDER = ["B", "BS", "S", "NONE"] as const;
+
+export function listExecutions(variants: ProductVariant[]): string[] {
+  const codes = [...new Set(variants.map((v) => v.execution).filter(Boolean))];
+  return codes.sort(
+    (a, b) =>
+      (EXECUTION_ORDER.indexOf(a as (typeof EXECUTION_ORDER)[number]) + 1 || 99) -
+      (EXECUTION_ORDER.indexOf(b as (typeof EXECUTION_ORDER)[number]) + 1 || 99),
+  );
+}

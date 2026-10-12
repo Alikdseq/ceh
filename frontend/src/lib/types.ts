@@ -114,6 +114,7 @@ export interface ProductImageDetail {
 
 export interface ProductSpec {
   spec_key: string;
+  spec_label?: string;
   spec_value: string;
   spec_unit: string;
   filterable: boolean;

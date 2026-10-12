@@ -84,7 +84,7 @@ class ProductSpecInline(TabularInline):
     extra = 0
     verbose_name = "Характеристика"
     verbose_name_plural = "Технические характеристики"
-    fields = ("spec_key", "spec_value", "spec_unit", "filterable", "sort_order")
+    fields = ("spec_key", "spec_label", "spec_value", "spec_unit", "filterable", "sort_order")
     ordering = ("sort_order", "spec_key")
 
     def get_queryset(self, request):

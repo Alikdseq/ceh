@@ -13,10 +13,11 @@ import { addToCart } from "@/lib/cart";
 import { showHonestSignMarking } from "@/lib/honest-sign";
 import { highlightMatch } from "@/lib/search-highlight";
 import type { ProductGroup } from "@/lib/types";
-import { listAuxContacts, pickProductVariant } from "@/lib/variant-picker";
+import { listAuxContacts, listExecutions, pickProductVariant } from "@/lib/variant-picker";
 import { sortCoilVoltages } from "@/lib/coil-voltages";
 import {
   cn,
+  executionLabel,
   formatAuxContactsLabel,
   formatPrice,
   productImageSrc,
@@ -53,6 +54,7 @@ export function ProductCard({
     if (product.aux_contacts_options?.length) return product.aux_contacts_options;
     return listAuxContacts(variants);
   }, [product.aux_contacts_options, variants]);
+  const executionOptions = useMemo(() => listExecutions(variants), [variants]);
 
   const [coil, setCoil] = useState<number | null>(
     product.default_variant?.coil_voltage_v ?? coils[0] ?? null,
@@ -60,9 +62,12 @@ export function ProductCard({
   const [auxContacts, setAuxContacts] = useState<string | null>(
     product.default_variant?.aux_contacts ?? auxOptions[0] ?? null,
   );
+  const [execution, setExecution] = useState<string | null>(
+    product.default_variant?.execution ?? executionOptions[0] ?? null,
+  );
 
   const selected =
-    pickProductVariant(variants, null, coil, auxContacts) ??
+    pickProductVariant(variants, execution, coil, auxContacts) ??
     product.default_variant ??
     variants[0];
 
@@ -78,24 +83,34 @@ export function ProductCard({
   );
   const hasHonestSign = showHonestSignMarking(product);
 
-  function syncSelection(nextCoil: number | null, nextAux: string | null) {
-    const matched = pickProductVariant(variants, null, nextCoil, nextAux);
+  function syncSelection(
+    nextExecution: string | null,
+    nextCoil: number | null,
+    nextAux: string | null,
+  ) {
+    const matched = pickProductVariant(variants, nextExecution, nextCoil, nextAux);
+    if (matched?.execution) setExecution(matched.execution);
     if (matched?.coil_voltage_v != null) setCoil(matched.coil_voltage_v);
     if (matched?.aux_contacts) setAuxContacts(matched.aux_contacts);
   }
 
+  function selectExecution(value: string) {
+    setExecution(value);
+    syncSelection(value, coil, auxContacts);
+  }
+
   function selectCoil(voltage: number) {
     setCoil(voltage);
-    syncSelection(voltage, auxContacts);
+    syncSelection(execution, voltage, auxContacts);
   }
 
   function selectAuxContacts(value: string) {
     setAuxContacts(value);
-    syncSelection(coil, value);
+    syncSelection(execution, coil, value);
   }
 
   function handleAddToCart() {
-    const variant = pickProductVariant(variants, null, coil, auxContacts) ?? selected;
+    const variant = pickProductVariant(variants, execution, coil, auxContacts) ?? selected;
     if (!variant) return;
     void addToCart({
       variantId: variant.id,
@@ -135,8 +150,24 @@ export function ProductCard({
   );
 
   const variantSwitcher =
-    coils.length > 0 || auxOptions.length > 0 ? (
+    executionOptions.length > 0 || coils.length > 0 || auxOptions.length > 0 ? (
       <div className="mt-2 space-y-2" onClick={(e) => e.stopPropagation()}>
+        {executionOptions.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {executionOptions.map((value) => (
+              <Button
+                key={value}
+                type="button"
+                size="sm"
+                variant={execution === value ? "default" : "outline"}
+                className="h-auto min-h-7 whitespace-normal px-2 py-1 text-left text-xs"
+                onClick={() => selectExecution(value)}
+              >
+                {executionLabel(value)}
+              </Button>
+            ))}
+          </div>
+        )}
         {coils.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {coils.map((v) => (
@@ -195,6 +226,7 @@ export function ProductCard({
         <ExecutionContactsHint
           productType={product.product_type}
           executions={executions}
+          selectedExecution={execution}
           className="mt-2"
         />
         <p className="mt-2 text-lg font-semibold text-foreground">

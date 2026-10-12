@@ -11,7 +11,7 @@ import { DimensionsPdfDialog } from "@/components/product/DimensionsPdfDialog";
 import type { ProductGroupDetail } from "@/lib/types";
 import { formatCoilSpecValue } from "@/lib/coil-voltages";
 import { isDimensionsSpecKey } from "@/lib/product-dimensions";
-import { specKeyLabel, isVisibleSpecKey } from "@/lib/utils";
+import { displaySpecLabel, isVisibleSpecKey } from "@/lib/utils";
 
 /** Nominal current is shown once from product.nominal_current_a, not from specs. */
 const NOMINAL_CURRENT_SPEC_KEYS = new Set(["nominal_current", "current"]);
@@ -35,8 +35,8 @@ export function ProductTabs({ product }: ProductTabsProps) {
     <Tabs defaultValue="specs" className="mt-12">
       <TabsList className="w-full max-w-full justify-start overflow-x-auto">
         <TabsTrigger value="specs">Характеристики</TabsTrigger>
-        <TabsTrigger value="docs">Документация</TabsTrigger>
         <TabsTrigger value="description">Описание</TabsTrigger>
+        <TabsTrigger value="docs">Документация</TabsTrigger>
         {product.designation_structure && (
           <TabsTrigger value="designation">Обозначение</TabsTrigger>
         )}
@@ -54,7 +54,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
             <TableBody>
               {visibleSpecs.map((spec) => (
                 <TableRow key={spec.spec_key}>
-                  <TableCell className="font-medium">{specKeyLabel(spec.spec_key)}</TableCell>
+                  <TableCell className="font-medium">{displaySpecLabel(spec)}</TableCell>
                   <TableCell>
                     <span className="inline-flex flex-wrap items-center gap-1">
                       {spec.spec_key.includes("coil_voltage")
@@ -77,6 +77,19 @@ export function ProductTabs({ product }: ProductTabsProps) {
           </Table>
         ) : (
           <p className="text-muted-foreground">Характеристики уточняйте у менеджера</p>
+        )}
+      </TabsContent>
+
+      <TabsContent value="description" className="mt-6">
+        {product.full_description ? (
+          <div
+            className="prose prose-slate max-w-none"
+            dangerouslySetInnerHTML={{ __html: product.full_description }}
+          />
+        ) : product.short_description ? (
+          <p className="text-muted-foreground">{product.short_description}</p>
+        ) : (
+          <p className="text-muted-foreground">Описание готовится</p>
         )}
       </TabsContent>
 
@@ -103,19 +116,6 @@ export function ProductTabs({ product }: ProductTabsProps) {
           <p className="text-muted-foreground">
             Документы будут добавлены. Свяжитесь с отделом сбыта для получения паспорта.
           </p>
-        )}
-      </TabsContent>
-
-      <TabsContent value="description" className="mt-6">
-        {product.full_description ? (
-          <div
-            className="prose prose-slate max-w-none"
-            dangerouslySetInnerHTML={{ __html: product.full_description }}
-          />
-        ) : product.short_description ? (
-          <p className="text-muted-foreground">{product.short_description}</p>
-        ) : (
-          <p className="text-muted-foreground">Описание готовится</p>
         )}
       </TabsContent>
 

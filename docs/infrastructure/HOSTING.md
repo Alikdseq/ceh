@@ -37,7 +37,8 @@ staging.ekontaktor.ru.  A      <STAGING_IP>
 ## SSL
 
 - **Let's Encrypt** через certbot + nginx
-- Автообновление сертификатов (cron)
+- Контейнер `certbot` продлевает сертификат каждые 12 ч и **автоматически перезагружает nginx** (`deploy-hook`)
+- Резерв: cron через `scripts/beget/install-ssl-cron.sh` (ежедневно в 03:00)
 - HSTS включить после проверки staging
 
 ## Архитектура деплоя

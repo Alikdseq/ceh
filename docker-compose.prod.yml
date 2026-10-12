@@ -126,6 +126,7 @@ services:
 
   nginx:
     image: nginx:alpine
+    container_name: ekontaktor-nginx
     restart: unless-stopped
     ports:
       - "80:80"
@@ -140,22 +141,19 @@ services:
       - frontend
 
   certbot:
-    image: certbot/certbot:latest
+    build:
+      context: ./docker/certbot
     restart: unless-stopped
+    environment:
+      NGINX_CONTAINER: ekontaktor-nginx
+      RENEW_INTERVAL: 12h
     volumes:
       - certbot_conf:/etc/letsencrypt
       - certbot_www:/var/www/certbot
-    # Только renew в фоне. Для первого выпуска: scripts/beget/init-ssl.sh
-    # (или: docker compose run --rm --entrypoint certbot certbot certonly ...)
-    entrypoint: /bin/sh
-    command:
-      - -c
-      - |
-        trap exit TERM
-        while :; do
-          certbot renew
-          sleep 12h & wait $$!
-        done
+      # Needed so deploy-hook can run: docker exec ekontaktor-nginx nginx -s reload
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    # Первый выпуск сертификата: scripts/beget/init-ssl.sh
+    # Резервное обновление по cron: scripts/beget/install-ssl-cron.sh
 
 volumes:
   postgres_data:

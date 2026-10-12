@@ -13,9 +13,9 @@ import { Label } from "@/components/ui/label";
 import { addToCart } from "@/lib/cart";
 import { showHonestSignMarking } from "@/lib/honest-sign";
 import type { ProductGroupDetail, ProductVariant } from "@/lib/types";
-import { listAuxContacts, pickProductVariant } from "@/lib/variant-picker";
+import { listAuxContacts, listExecutions, pickProductVariant } from "@/lib/variant-picker";
 import { sortCoilVoltages } from "@/lib/coil-voltages";
-import { formatAuxContactsLabel, formatPrice } from "@/lib/utils";
+import { executionLabel, formatAuxContactsLabel, formatPrice } from "@/lib/utils";
 
 interface ProductConfiguratorProps {
   product: ProductGroupDetail;
@@ -40,6 +40,7 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
     if (product.aux_contacts_options?.length) return product.aux_contacts_options;
     return listAuxContacts(variants);
   }, [product.aux_contacts_options, variants]);
+  const executionOptions = useMemo(() => listExecutions(variants), [variants]);
 
   const [coil, setCoil] = useState<number | null>(
     variantFromUrl?.coil_voltage_v ?? coils[0] ?? null,
@@ -47,11 +48,14 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
   const [auxContacts, setAuxContacts] = useState<string | null>(
     variantFromUrl?.aux_contacts ?? auxOptions[0] ?? null,
   );
+  const [execution, setExecution] = useState<string | null>(
+    variantFromUrl?.execution ?? executionOptions[0] ?? null,
+  );
   const [quantity, setQuantity] = useState(1);
 
   const selected =
     variantFromUrl ??
-    pickProductVariant(variants, null, coil, auxContacts) ??
+    pickProductVariant(variants, execution, coil, auxContacts) ??
     variants.find((v) => v.is_default) ??
     variants[0];
 
@@ -64,20 +68,29 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
     [basePath, router, searchParams],
   );
 
-  function applySelection(nextCoil: number | null, nextAux: string | null) {
-    const variant = pickProductVariant(variants, null, nextCoil, nextAux);
+  function applySelection(
+    nextExecution: string | null,
+    nextCoil: number | null,
+    nextAux: string | null,
+  ) {
+    const variant = pickProductVariant(variants, nextExecution, nextCoil, nextAux);
     if (variant) updateUrl(variant);
+  }
+
+  function selectExecution(value: string) {
+    setExecution(value);
+    applySelection(value, coil, auxContacts);
   }
 
   function selectCoil(voltage: string) {
     const vNum = Number(voltage);
     setCoil(vNum);
-    applySelection(vNum, auxContacts);
+    applySelection(execution, vNum, auxContacts);
   }
 
   function selectAuxContacts(value: string) {
     setAuxContacts(value);
-    applySelection(coil, value);
+    applySelection(execution, coil, value);
   }
 
   function handleAddToCart() {
@@ -114,9 +127,30 @@ export function ProductConfigurator({ product, basePath }: ProductConfiguratorPr
         <ExecutionContactsHint
           productType={product.product_type}
           executions={variants.map((v) => v.execution)}
+          selectedExecution={execution}
           className="mt-2"
         />
       </div>
+
+      {executionOptions.length > 0 && (
+        <div className="space-y-2">
+          <Label>Исполнение</Label>
+          <div className="flex flex-wrap gap-2">
+            {executionOptions.map((value) => (
+              <Button
+                key={value}
+                type="button"
+                size="sm"
+                variant={execution === value ? "default" : "outline"}
+                onClick={() => selectExecution(value)}
+                className="h-auto min-h-9 whitespace-normal px-3 py-1.5 text-left"
+              >
+                {executionLabel(value)}
+              </Button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {coils.length > 0 && (
         <div className="space-y-2">

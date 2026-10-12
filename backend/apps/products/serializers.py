@@ -74,7 +74,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 class ProductSpecSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductSpec
-        fields = ("spec_key", "spec_value", "spec_unit", "filterable", "sort_order")
+        fields = ("spec_key", "spec_label", "spec_value", "spec_unit", "filterable", "sort_order")
 
 
 class DocumentBriefSerializer(serializers.ModelSerializer):

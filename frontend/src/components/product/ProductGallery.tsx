@@ -50,14 +50,19 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
 
   return (
     <div className="space-y-3">
-      <div className={cn("relative overflow-hidden rounded-lg border bg-muted", PRODUCT_IMAGE_ASPECT_CLASS)}>
+      <div
+        className={cn(
+          "relative min-h-[280px] overflow-hidden rounded-lg border bg-muted sm:min-h-[360px] lg:min-h-[420px]",
+          PRODUCT_IMAGE_ASPECT_CLASS,
+        )}
+      >
         <Image
           src={mainSrc}
           alt={current.alt || name}
           fill
           priority
           unoptimized={productImageUnoptimized(mainSrc)}
-          className="object-contain p-6"
+          className="object-contain p-3 sm:p-4"
           sizes="(max-width:768px) 100vw, 50vw"
         />
         {hasHonestSign && (
@@ -78,7 +83,7 @@ export function ProductGallery({ images, name, product }: ProductGalleryProps) {
                 type="button"
                 onClick={() => setActive(idx)}
                 className={cn(
-                  "relative h-16 w-16 shrink-0 overflow-hidden rounded-md border bg-muted",
+                  "relative h-20 w-20 shrink-0 overflow-hidden rounded-md border bg-muted sm:h-24 sm:w-24",
                   idx === active && "ring-2 ring-primary",
                 )}
               >

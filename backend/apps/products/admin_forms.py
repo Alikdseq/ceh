@@ -74,14 +74,18 @@ class ProductSpecAdminForm(forms.ModelForm):
 
     class Meta:
         model = ProductSpec
-        fields = ("spec_key", "spec_value", "spec_unit", "filterable", "sort_order")
+        fields = ("spec_key", "spec_label", "spec_value", "spec_unit", "filterable", "sort_order")
         labels = {
+            "spec_label": "Название на сайте",
             "spec_value": "Значение",
             "spec_unit": "Единица",
             "filterable": "Показывать в фильтре каталога",
             "sort_order": "Порядок",
         }
         widgets = {
+            "spec_label": UnfoldAdminTextInputWidget(
+                attrs={"placeholder": "Своё название параметра (необязательно)"},
+            ),
             "spec_value": UnfoldAdminTextInputWidget(attrs={"placeholder": "100"}),
             "spec_unit": UnfoldAdminTextInputWidget(attrs={"placeholder": "А, В, Гц…"}),
         }

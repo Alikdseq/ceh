@@ -54,15 +54,12 @@ categories:
   - name: "Выключатели"
     slug: vyklyuchateli
     sort_order: 4
-    meta_title: "Выключатели путевые и силовые | Электроконтактор"
+    meta_title: "Выключатели путевые | Электроконтактор"
     meta_description: "Выключатели ВПК 3110, ВУ22Т и комплектующие. Производство АО «Электроконтактор»."
     children:
       - name: "Выключатели путевые"
         slug: vyklyuchateli-putevye
         sort_order: 1
-      - name: "Выключатели силовые"
-        slug: vyklyuchateli-silovye
-        sort_order: 2
 
   - name: "Кулачковые элементы"
     slug: kulachkovye-elementy

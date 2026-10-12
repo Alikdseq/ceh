@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { Category } from "@/lib/types";
 import { getCategoryMeta } from "@/lib/catalog-meta";
 import { getCategoryPathSlugs } from "@/lib/categories";
-import { cn, normalizeMediaUrl, publicAssetSrc } from "@/lib/utils";
+import { normalizeMediaUrl, publicAssetSrc } from "@/lib/utils";
 
 interface CategoryCardProps {
   category: Category;
@@ -19,8 +19,6 @@ interface CategoryCardProps {
 export function CategoryCard({ category, categories }: CategoryCardProps) {
   const meta = getCategoryMeta(category.slug);
   const Icon = meta.icon as LucideIcon;
-  const rotateCategoryImage =
-    category.slug === "kontaktory-kt" || category.slug === "kontaktory-ktp";
   const cardImage = category.image_url
     ? normalizeMediaUrl(category.image_url)
     : meta.image
@@ -46,7 +44,7 @@ export function CategoryCard({ category, categories }: CategoryCardProps) {
                 alt=""
                 width={112}
                 height={112}
-                className={cn("h-full w-full object-contain", rotateCategoryImage && "-rotate-90")}
+                className="h-full w-full object-contain"
                 unoptimized
               />
             ) : (
